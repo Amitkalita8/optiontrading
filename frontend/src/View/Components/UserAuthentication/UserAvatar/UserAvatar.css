@@ -1,0 +1,22 @@
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--green-900);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.user-avatar--guest {
+  color: var(--text-muted);
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.user-avatar--photo {
+  object-fit: cover;
+  padding: 0;
+}

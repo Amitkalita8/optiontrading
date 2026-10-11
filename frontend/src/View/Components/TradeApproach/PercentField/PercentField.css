@@ -1,0 +1,66 @@
+.percent-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.percent-field__label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green-900);
+}
+
+.percent-field__control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.percent-field__control:focus-within {
+  border-bottom-color: var(--green-700);
+}
+
+.percent-field--error .percent-field__control {
+  border-bottom-color: #c0262d;
+}
+
+.percent-field__control input {
+  /* Grow with the typed value so the unit sits right after it ("8.5 %"). */
+  field-sizing: content;
+  width: 7ch;
+  min-width: 2ch;
+  max-width: 10ch;
+  padding: 0;
+  font-size: 18px;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.percent-field__control input::-webkit-outer-spin-button,
+.percent-field__control input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.percent-field__suffix {
+  font-size: 18px;
+  color: var(--text);
+}
+
+.percent-field__hint {
+  margin-left: auto;
+  font-size: 15px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .percent-field__hint {
+    font-size: 13px;
+  }
+}

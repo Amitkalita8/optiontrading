@@ -1,0 +1,62 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.btn__icon {
+  display: inline-flex;
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.btn--primary {
+  padding: 14px 22px;
+  color: #fff;
+  background: var(--green-700);
+}
+
+.btn--primary:hover {
+  background: #196640;
+}
+
+.btn--outline {
+  padding: 8px 12px;
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.btn--outline:hover {
+  background: var(--surface-muted);
+}
+
+/* Green-outlined secondary action (e.g. "+ Add Company"); also used on links. */
+.btn--outline-accent {
+  padding: 14px 22px;
+  color: var(--green-900);
+  background: var(--surface);
+  border: 1.5px solid var(--green-700);
+}
+
+.btn--outline-accent:hover {
+  background: var(--green-50);
+}
+
+.btn--link {
+  padding: 0;
+  gap: 6px;
+  color: var(--green-700);
+  background: none;
+}
+
+.btn--link:hover {
+  text-decoration: underline;
+}

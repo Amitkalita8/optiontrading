@@ -1,0 +1,12 @@
+.dashboard-page__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.42fr);
+  gap: 28px;
+}
+
+@media (max-width: 1199px) {
+  .dashboard-page__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}

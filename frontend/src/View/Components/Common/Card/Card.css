@@ -1,0 +1,25 @@
+.card {
+  padding: 22px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  min-width: 0;
+  /* Lets content respond to the card's own width via @container card (...) */
+  container: card / inline-size;
+}
+
+.card__title {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 16px;
+  }
+
+  .card__title {
+    font-size: 22px;
+  }
+}

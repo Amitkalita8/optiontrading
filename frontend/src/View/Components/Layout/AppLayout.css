@@ -1,0 +1,54 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-layout--mobile {
+  flex-direction: column;
+}
+
+.app-layout__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* Exposed so full-bleed pages (FlowPage) can cancel the padding. */
+  --main-pad-top: 24px;
+  --main-pad-x: 24px;
+  --main-pad-bottom: 32px;
+  padding: var(--main-pad-top) var(--main-pad-x) var(--main-pad-bottom);
+}
+
+.app-layout__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(23, 61, 44, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.app-layout__overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 1199px) {
+  .app-layout__main {
+    --main-pad-top: 20px;
+    --main-pad-x: 20px;
+    --main-pad-bottom: 28px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-layout__main {
+    --main-pad-top: 16px;
+    --main-pad-x: 16px;
+    --main-pad-bottom: 24px;
+    gap: 16px;
+  }
+}

@@ -1,0 +1,10 @@
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.error-state p {
+  color: var(--text-muted);
+}

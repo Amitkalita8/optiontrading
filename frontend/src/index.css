@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-muted: #f1f4f1;
+  --border: #e7e5df;
+  --border-strong: #d9dcd6;
+
+  --green-900: #173d2c;
+  --green-700: #1f7a4d;
+  --green-600: #278556;
+  --green-200: #c6eed8;
+  --green-100: #dcebe2;
+  --green-50: #eef5f0;
+  --beige: #f3eeea;
+
+  --text: #1b2621;
+  --text-muted: #5f6b66;
+  --text-soft: #87918c;
+
+  --orange-bg: #fcebe0;
+  --orange-text: #c0621d;
+  --blue: #2146c7;
+  --blue-bg: #f3f6fd;
+  --blue-border: #c9d6f2;
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(20, 40, 30, 0.05);
+
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: var(--green-900);
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Inline form-field error message (used across forms). */
+.field-error {
+  font-size: 13px;
+  color: #c0262d;
+}
+
+/* Text for screen readers only. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

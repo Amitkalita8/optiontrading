@@ -1,0 +1,86 @@
+.company-search {
+  position: relative;
+}
+
+.company-search__field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.company-search__field:focus-within {
+  border-bottom-color: var(--green-700);
+}
+
+.company-search__field input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font-size: 17px;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.company-search__field input::placeholder {
+  color: var(--text-muted);
+}
+
+.company-search__results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 320px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(20, 40, 30, 0.12);
+}
+
+.company-search__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  font-size: 15px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.company-search__option b {
+  min-width: 56px;
+  font-weight: 600;
+}
+
+.company-search__option span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.company-search__option--active {
+  background: var(--green-50);
+}
+
+.company-search__empty {
+  padding: 14px 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .company-search__field input {
+    font-size: 16px;
+  }
+}

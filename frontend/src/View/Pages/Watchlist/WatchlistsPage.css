@@ -1,0 +1,49 @@
+.watchlists-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.watchlists-page__title {
+  font-size: 34px;
+}
+
+.watchlists-page__subtitle {
+  margin-top: 8px;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.watchlists-page__create {
+  padding: 18px 22px;
+  font-size: 16px;
+}
+
+.watchlists-page__empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 767px) {
+  .watchlists-page__header {
+    flex-direction: column;
+  }
+
+  .watchlists-page__title {
+    font-size: 26px;
+  }
+
+  .watchlists-page__subtitle {
+    font-size: 14px;
+  }
+
+  .watchlists-page__create {
+    width: 100%;
+    padding: 14px;
+  }
+}

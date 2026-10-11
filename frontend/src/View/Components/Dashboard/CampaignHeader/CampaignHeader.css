@@ -1,0 +1,179 @@
+.campaign-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.campaign-header__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--green-900);
+}
+
+.campaign-header__title h1 {
+  font-size: 28px;
+}
+
+.campaign-header__edit {
+  display: flex;
+  padding: 6px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.campaign-header__body {
+  display: flex;
+  align-items: center;
+  gap: 20px clamp(14px, 1.25vw, 24px);
+  padding-top: 14px;
+}
+
+/* Desktop: stats and timeline always share one row, as in the design. */
+.campaign-header__stats {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.campaign-header__stats .stats-strip__item:last-child {
+  padding-right: clamp(12px, 1.15vw, 22px);
+  border-right: 1px solid var(--border-strong);
+}
+
+.campaign-header__timeline {
+  flex: 0 1 460px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.campaign-header__dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(12.5px, 0.73vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--green-900);
+}
+
+.campaign-header__track {
+  position: relative;
+  height: 8px;
+  background: var(--surface-muted);
+  border-radius: 999px;
+}
+
+.campaign-header__fill {
+  height: 100%;
+  background: var(--green-700);
+  border-radius: 999px;
+}
+
+.campaign-header__thumb {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  background: var(--green-700);
+  border: 3px solid var(--green-200);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.campaign-header__note {
+  font-size: clamp(12px, 0.73vw, 14px);
+  color: var(--text-muted);
+}
+
+.campaign-header__note b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Small laptop with the full sidebar expanded: same row, slightly smaller numbers. */
+@media (min-width: 1200px) {
+  @container card (max-width: 1260px) {
+    .campaign-header__stats .stats-strip__value {
+      font-size: 16px;
+    }
+
+    .campaign-header__stats .stats-strip__item {
+      padding: 0 10px;
+    }
+
+    .campaign-header__stats .stats-strip__item:first-child {
+      padding-left: 0;
+    }
+
+    .campaign-header__timeline {
+      min-width: 190px;
+    }
+  }
+
+  @container card (max-width: 1000px) {
+    .campaign-header__stats .stats-strip__value {
+      font-size: 14px;
+    }
+
+    .campaign-header__stats .stats-strip__label {
+      font-size: 11.5px;
+    }
+
+    .campaign-header__stats .stats-strip__item {
+      padding: 0 7px;
+    }
+
+    .campaign-header__timeline {
+      min-width: 165px;
+    }
+  }
+
+  @container card (max-width: 880px) {
+    .campaign-header__timeline {
+      min-width: 130px;
+    }
+  }
+}
+
+/* Tablet & phone only: the timeline moves under the stats at full width. */
+@media (max-width: 1199px) {
+  .campaign-header__body {
+    flex-wrap: wrap;
+  }
+
+  .campaign-header__stats,
+  .campaign-header__timeline {
+    flex-basis: 100%;
+  }
+
+  .campaign-header__stats .stats-strip__item:last-child {
+    padding-right: 0;
+    border-right: none;
+  }
+
+  .campaign-header__timeline {
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 767px) {
+  .campaign-header__title {
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .campaign-header__title h1 {
+    font-size: 22px;
+  }
+
+  .campaign-header__dates,
+  .campaign-header__note {
+    font-size: 12.5px;
+  }
+}

@@ -1,0 +1,98 @@
+/* Breaks out of the main area's padding (see --main-pad in AppLayout.css). */
+.flow-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: calc(-1 * var(--main-pad-top)) calc(-1 * var(--main-pad-x)) calc(-1 * var(--main-pad-bottom));
+  background: #f8f7f4;
+}
+
+.flow-page__band {
+  padding: 28px 34px;
+  background: #f4efec;
+}
+
+.flow-page__band h1 {
+  font-size: 34px;
+}
+
+.flow-page__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1110px;
+  margin: 0 auto;
+  padding: 34px 24px 32px;
+}
+
+.flow-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.flow-page__back {
+  font-size: 17px;
+  color: var(--text-muted);
+}
+
+.flow-page__back:hover {
+  color: var(--green-900);
+  text-decoration: underline;
+}
+
+.flow-page__actions .btn {
+  padding: 18px 22px;
+  font-size: 16px;
+}
+
+.flow-page__actions .btn:disabled {
+  background: var(--border-strong);
+  color: var(--text-soft);
+  cursor: not-allowed;
+}
+
+.flow-page__status {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 18px 44px;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: #fbfaf8;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 767px) {
+  .flow-page__band {
+    padding: 18px 16px;
+  }
+
+  .flow-page__band h1 {
+    font-size: 24px;
+  }
+
+  .flow-page__body {
+    padding: 20px 16px 24px;
+    gap: 16px;
+  }
+
+  .flow-page__back {
+    font-size: 15px;
+  }
+
+  .flow-page__actions .btn {
+    padding: 14px 18px;
+  }
+
+  .flow-page__status {
+    padding: 14px 16px;
+    font-size: 12px;
+  }
+}

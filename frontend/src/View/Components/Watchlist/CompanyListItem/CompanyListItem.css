@@ -1,0 +1,71 @@
+.company-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px;
+  background: #f5f0ed;
+  border: 1px solid #ece6e2;
+  border-radius: var(--radius-md);
+}
+
+.company-item__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.company-item__ticker {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.company-item__name {
+  font-size: 16px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.company-item__remove {
+  display: flex;
+  padding: 8px;
+  color: var(--green-900);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.company-item__remove:hover {
+  background: rgba(23, 61, 44, 0.08);
+}
+
+@media (max-width: 767px) {
+  .company-item {
+    padding: 14px;
+  }
+
+  .company-item__name {
+    font-size: 14px;
+  }
+}
+
+/* Live price + day change */
+.company-item__quote {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--green-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.company-item__quote .market-change {
+  font-size: 13px;
+}

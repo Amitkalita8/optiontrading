@@ -1,0 +1,93 @@
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+.user-menu--full {
+  width: 100%;
+}
+
+.user-menu:hover .user-avatar {
+  border-color: var(--green-700);
+}
+
+.user-menu:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+.user-menu__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-menu__name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu__email {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu__provider {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* Fixed-position popover (coordinates set inline by UserMenu.js). */
+.user-menu__popover {
+  position: fixed;
+  z-index: 60;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(20, 40, 30, 0.16);
+}
+
+.user-menu__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-menu__item {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  color: #a1242a;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.user-menu__item:hover,
+.user-menu__item:focus-visible {
+  background: #fdeff0;
+  outline: none;
+}

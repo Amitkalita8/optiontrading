@@ -1,0 +1,249 @@
+.top-opps {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-opps .section-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-header__icon--boxed .top-opps__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.top-opps__tabs {
+  display: flex;
+  gap: 22px;
+  margin: 26px 0 16px;
+}
+
+.top-opps__tab {
+  padding: 0 0 4px;
+  font-size: 15px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.top-opps__tab--active {
+  font-weight: 500;
+  color: var(--green-900);
+  border-bottom-color: var(--green-900);
+}
+
+.top-opps__empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.top-opps__dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.top-opps__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  background: var(--green-100);
+  border: none;
+  border-radius: 50%;
+}
+
+.top-opps__dot--active {
+  background: var(--green-700);
+}
+
+/* ---------- Opportunity card ---------- */
+.opp-card {
+  padding: 18px;
+  background: #f7faf8;
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.opp-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.opp-card__title {
+  font-size: 20px;
+  color: var(--green-900);
+}
+
+.opp-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.opp-card__tag {
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.opp-card__tag--orange {
+  color: var(--orange-text);
+  background: var(--orange-bg);
+}
+
+.opp-card__tag--green {
+  color: var(--text-muted);
+  background: var(--green-50);
+}
+
+.opp-card__risk {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--green-900);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* Desktop: one row with dividers, as in the design; sizes scale with the viewport. */
+.opp-card__metrics {
+  display: flex;
+  margin: 22px 0;
+  padding: clamp(14px, 1.05vw, 20px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.opp-card__metric {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 clamp(10px, 1.05vw, 20px);
+  border-left: 1px solid var(--border);
+}
+
+.opp-card__metric:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.opp-card__metric:last-child {
+  flex-grow: 0;
+  padding-right: 0;
+  text-align: right;
+}
+
+.opp-card__metric dt {
+  font-size: clamp(12px, 0.73vw, 14px);
+  color: var(--text-muted);
+}
+
+.opp-card__metric dd {
+  margin: 8px 0 0;
+  font-size: clamp(16px, 1.05vw, 20px);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.opp-card__metric .opp-card__note {
+  font-size: clamp(12px, 0.73vw, 14px);
+  font-weight: 400;
+  color: var(--text-muted);
+  white-space: normal;
+}
+
+.opp-card__cta {
+  width: 100%;
+  padding: 18px;
+}
+
+.top-opps__tab {
+  white-space: nowrap;
+}
+
+/* Tablet & phone only: metrics become a grid (dividers don't survive wrapping). */
+@media (max-width: 1199px) {
+  .opp-card__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px 20px;
+    padding: 20px;
+  }
+
+  .opp-card__metric,
+  .opp-card__metric:first-child,
+  .opp-card__metric:last-child {
+    padding: 0;
+    border-left: none;
+    text-align: left;
+  }
+
+  .opp-card__metric dt,
+  .opp-card__metric .opp-card__note {
+    font-size: 14px;
+  }
+
+  .opp-card__metric dd {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .top-opps__tabs {
+    gap: 18px;
+    margin: 20px -16px 14px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .top-opps__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .opp-card {
+    padding: 14px;
+  }
+
+  .opp-card__head {
+    flex-direction: column;
+  }
+
+  .opp-card__title {
+    font-size: 17px;
+  }
+
+  .opp-card__tag,
+  .opp-card__risk {
+    font-size: 12.5px;
+  }
+
+  .opp-card__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 16px 0;
+    padding: 14px;
+  }
+
+  .opp-card__metric dd {
+    font-size: 17px;
+  }
+
+  .opp-card__metric dt,
+  .opp-card__metric .opp-card__note {
+    font-size: 12.5px;
+  }
+
+  .opp-card__cta {
+    padding: 14px;
+  }
+}

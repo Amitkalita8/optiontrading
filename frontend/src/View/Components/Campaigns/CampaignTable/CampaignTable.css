@@ -1,0 +1,213 @@
+.campaign-table__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.campaign-table__subtitle {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.campaign-table__scroll {
+  overflow-x: auto;
+}
+
+.campaign-table table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.campaign-table th {
+  padding: 16px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--green-900);
+  background: var(--surface-muted);
+  white-space: nowrap;
+}
+
+.campaign-table td {
+  padding: 22px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+
+.campaign-table__primary {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.campaign-table__secondary {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.campaign-table__status {
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.campaign-table th:nth-last-child(-n + 2) {
+  text-align: center;
+}
+
+.campaign-table__actions {
+  text-align: center;
+}
+
+.campaign-table__menu {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.campaign-table__menu:hover {
+  background: var(--surface-muted);
+}
+
+.campaign-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 24px 20px 0;
+  font-size: 14px;
+}
+
+/* Narrow card (tablet, or laptop with full sidebar): fit all seven columns by wrapping text. */
+@container card (max-width: 1100px) {
+  .campaign-table table {
+    min-width: 0;
+  }
+
+  .campaign-table th {
+    padding: 14px 10px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .campaign-table td {
+    padding: 18px 10px;
+  }
+
+  .campaign-table__primary,
+  .campaign-table__status {
+    font-size: 15px;
+  }
+
+  .campaign-table__primary,
+  .campaign-table__secondary {
+    white-space: normal;
+  }
+
+  .campaign-table__secondary {
+    font-size: 13px;
+  }
+}
+
+/* Phone-sized card: each row becomes a card of label/value pairs. */
+@container card (max-width: 640px) {
+  .campaign-table__header .btn {
+    width: 100%;
+  }
+
+  .campaign-table__subtitle {
+    font-size: 14px;
+  }
+
+  .campaign-table__scroll {
+    overflow: visible;
+  }
+
+  .campaign-table table,
+  .campaign-table tbody {
+    display: block;
+    min-width: 0;
+  }
+
+  .campaign-table thead {
+    display: none;
+  }
+
+  .campaign-table tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .campaign-table td {
+    padding: 0;
+    border: none;
+    text-align: left;
+  }
+
+  .campaign-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  /* Campaign name spans the card header, with the menu button beside it. */
+  .campaign-table td.campaign-table__name {
+    grid-column: 1 / -1;
+    padding-right: 48px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .campaign-table td.campaign-table__name::before {
+    display: none;
+  }
+
+  .campaign-table__actions {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  }
+
+  .campaign-table__primary,
+  .campaign-table__secondary,
+  .campaign-table__status {
+    white-space: normal;
+    font-size: 15px;
+  }
+
+  .campaign-table__secondary {
+    margin-top: 4px;
+    font-size: 12.5px;
+  }
+
+  .campaign-table__footer {
+    flex-direction: column;
+    padding: 12px 0 0;
+  }
+}

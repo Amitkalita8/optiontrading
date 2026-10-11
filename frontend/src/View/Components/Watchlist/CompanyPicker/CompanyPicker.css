@@ -1,0 +1,34 @@
+.company-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px;
+}
+
+.company-picker__label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green-900);
+}
+
+.company-picker__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.company-picker__empty {
+  padding: 28px 12px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .company-picker {
+    padding: 18px;
+  }
+}

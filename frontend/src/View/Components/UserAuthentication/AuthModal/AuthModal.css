@@ -1,0 +1,119 @@
+.auth-modal {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow-y: auto;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(23, 61, 44, 0.2);
+}
+
+.auth-modal::backdrop {
+  background: rgba(23, 61, 44, 0.4);
+}
+
+.auth-modal[open] {
+  animation: auth-modal-in 0.18s ease-out;
+}
+
+@keyframes auth-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-modal[open] {
+    animation: none;
+  }
+}
+
+.auth-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+}
+
+.auth-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  padding: 6px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.auth-modal__close:hover {
+  color: var(--green-900);
+  background: var(--surface-muted);
+}
+
+.auth-modal__title {
+  font-size: 28px;
+  padding-right: 32px;
+}
+
+.auth-modal__subtitle {
+  margin-top: -10px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.auth-modal__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--green-50);
+  border-radius: var(--radius-md);
+}
+
+.auth-modal__tab {
+  flex: 1;
+  padding: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.auth-modal__tab--active {
+  color: var(--green-700);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(20, 40, 30, 0.08);
+}
+
+.auth-modal__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.auth-modal__divider::before,
+.auth-modal__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+@media (max-width: 767px) {
+  .auth-modal__panel {
+    padding: 24px 18px;
+  }
+
+  .auth-modal__title {
+    font-size: 24px;
+  }
+}

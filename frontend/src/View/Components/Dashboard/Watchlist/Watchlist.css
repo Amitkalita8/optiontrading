@@ -1,0 +1,40 @@
+.watchlist {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Vector.png is a tightly cropped 67x47 glyph, not a padded nav icon. */
+.watchlist .section-header__icon .watchlist__icon {
+  width: 24px;
+  height: auto;
+  margin: 0;
+}
+
+.watchlist__logos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (max-width: 767px) {
+  .watchlist {
+    gap: 24px;
+  }
+}
+
+.watchlist__more {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.watchlist__logo-link {
+  display: flex;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+.watchlist__logo-link:hover {
+  transform: translateY(-2px);
+}

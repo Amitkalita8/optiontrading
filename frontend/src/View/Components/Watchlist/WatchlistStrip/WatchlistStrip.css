@@ -1,0 +1,42 @@
+.watchlist-strip {
+  display: flex;
+  gap: 34px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  /* Scrollbar hidden; the row still scrolls (drag, trackpad, touch, keyboard). */
+  scrollbar-width: none;
+  /* Room for card shadows/outlines so they aren't clipped by the scroller. */
+  margin: -4px;
+  padding: 4px;
+  scroll-padding-inline: 4px;
+}
+
+.watchlist-strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* While dragging: no snapping mid-drag and no accidental text selection. */
+.watchlist-strip--dragging {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.watchlist-strip__item {
+  flex: 0 0 min(525px, 85%);
+  scroll-snap-align: start;
+}
+
+.watchlist-strip__item > .watchlist-card {
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .watchlist-strip {
+    gap: 14px;
+  }
+
+  .watchlist-strip__item {
+    flex-basis: 88%;
+  }
+}

@@ -1,0 +1,115 @@
+.wl-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.wl-option:hover {
+  border-color: var(--green-100);
+}
+
+.wl-option:has(.wl-option__radio:focus-visible) {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+/* Custom radio: pale disc, becomes a green ring when checked. */
+.wl-option__radio {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  background: #dfe7f5;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.wl-option__radio:checked {
+  background: var(--surface);
+  border: 6px solid var(--green-700);
+}
+
+.wl-option__radio:focus-visible {
+  outline: none;
+}
+
+.wl-option__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wl-option__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.wl-option__name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--text);
+}
+
+.wl-option__count {
+  padding: 2px 8px;
+  font-size: 15px;
+  color: var(--green-700);
+  background: var(--green-50);
+  border-radius: var(--radius-sm);
+}
+
+.wl-option__tickers {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.wl-option__status {
+  flex-shrink: 0;
+  padding: 10px 26px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green-700);
+  background: var(--green-50);
+  border: 1.5px solid var(--green-700);
+  border-radius: var(--radius-md);
+}
+
+.wl-option--checked .wl-option__status {
+  padding-inline: 12px;
+  color: #fff;
+  background: var(--green-700);
+}
+
+@media (max-width: 767px) {
+  .wl-option {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .wl-option__name {
+    font-size: 17px;
+  }
+
+  .wl-option__tickers,
+  .wl-option__count {
+    font-size: 13px;
+  }
+
+  .wl-option__status {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+  }
+}

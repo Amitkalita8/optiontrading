@@ -1,0 +1,188 @@
+.stock-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stock-card__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stock-card__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.stock-card__name h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: clamp(18px, 1.2vw, 22px);
+}
+
+/* Name stays on one line; long names end in "…" (full name in the tooltip). */
+.stock-card__link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-card__verified {
+  flex-shrink: 0;
+}
+
+.stock-card__name > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-card__name > span {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.stock-card__verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  color: #fff;
+  background: #4d9df5;
+  border-radius: 50%;
+}
+
+.stock-card__nav {
+  display: flex;
+  gap: 10px;
+}
+
+.stock-card__nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.stock-card__nav button:hover {
+  background: var(--surface-muted);
+}
+
+.stock-card__metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stock-card__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 8px;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: var(--radius-md);
+}
+
+.stock-card__metric span {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.stock-card__metric strong {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--green-900);
+}
+
+.stock-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Chart panel (StockChart inside the blue panel) */
+.stock-card__chart {
+  flex: 1;
+  padding: 18px 14px 14px;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: var(--radius-md);
+}
+
+.stock-card__chart .stock-chart__header {
+  padding-top: 8px;
+}
+
+/* Live / Market closed badge, top-right of the panel */
+.stock-card__status {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stock-card__status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-soft);
+}
+
+.stock-card__status--live i {
+  background: #1fa55b;
+}
+
+.stock-card__status--closed i,
+.stock-card__status--error i {
+  background: #c24b3a;
+}
+
+@media (max-width: 767px) {
+  .stock-card__name h2 {
+    font-size: 19px;
+  }
+
+  .stock-card__nav {
+    gap: 6px;
+  }
+
+  .stock-card__nav button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stock-card__metric {
+    padding: 14px 6px;
+  }
+
+  .stock-card__metric span {
+    font-size: 12.5px;
+    text-align: center;
+  }
+
+  .stock-card__metric strong {
+    font-size: 21px;
+  }
+
+  .stock-card__chart {
+    padding: 22px 10px 12px;
+  }
+}

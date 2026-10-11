@@ -1,0 +1,131 @@
+.goal-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.goal-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.goal-chart__legend {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+}
+
+.goal-chart__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goal-chart__swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.goal-chart__swatch--goal,
+.goal-chart__bar--goal {
+  background: var(--green-100);
+}
+
+.goal-chart__swatch--earned,
+.goal-chart__bar--earned {
+  background: var(--green-700);
+}
+
+.goal-chart__body {
+  --axis-width: 58px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.goal-chart__plot {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+  margin-left: var(--axis-width);
+}
+
+.goal-chart__gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--border);
+}
+
+.goal-chart__tick {
+  position: absolute;
+  left: calc(-1 * var(--axis-width));
+  top: -9px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.goal-chart__groups {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.goal-chart__group {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 28%;
+  height: 100%;
+}
+
+.goal-chart__bar {
+  flex: 1;
+  min-height: 4px;
+  border-radius: 4px 4px 0 0;
+}
+
+.goal-chart__labels {
+  display: flex;
+  justify-content: space-around;
+  margin: 14px 0 0 var(--axis-width);
+  font-size: 14px;
+  text-align: center;
+}
+
+.goal-chart__labels span {
+  width: 28%;
+}
+
+@media (max-width: 767px) {
+  .goal-chart {
+    gap: 16px;
+  }
+
+  .goal-chart__body {
+    --axis-width: 44px;
+  }
+
+  .goal-chart__tick {
+    font-size: 11.5px;
+  }
+
+  .goal-chart__group {
+    gap: 5px;
+    width: 30%;
+  }
+
+  .goal-chart__labels {
+    font-size: 12px;
+  }
+
+  .goal-chart__labels span {
+    width: 30%;
+  }
+}

@@ -1,0 +1,211 @@
+/* Layout helpers shared by the page-level skeletons. */
+.page-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-skeleton__row--between {
+  justify-content: space-between;
+}
+
+.page-skeleton__row--around {
+  justify-content: space-around;
+}
+
+.page-skeleton__row--wrap {
+  flex-wrap: wrap;
+  gap: 20px 24px;
+}
+
+.page-skeleton__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.page-skeleton__divider {
+  height: 1px;
+  margin: 14px 0;
+  background: var(--border-strong);
+}
+
+.page-skeleton__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  background: #f7faf8;
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.page-skeleton__panel--white {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.page-skeleton__grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.page-skeleton__bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 220px;
+  margin: 24px 0 14px 58px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-skeleton__bar-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 28%;
+  height: 100%;
+}
+
+.page-skeleton__bar-group .skeleton {
+  flex: 1;
+}
+
+.page-skeleton__table-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.9fr 1.2fr 0.8fr 60px;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.opps-skeleton__row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr repeat(5, 1fr) 1.3fr;
+  align-items: center;
+  gap: 16px;
+  padding: 26px 12px 26px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wl-skeleton__row {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr) 1.2fr 0.6fr;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 12px 22px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Selectable option card (SkeletonOptionRow) */
+.skeleton-option-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Company row in the Add Companies list */
+.skeleton-company-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px;
+  background: #f5f0ed;
+  border-radius: var(--radius-md);
+}
+
+/* Two-column field grid inside a FormSection skeleton */
+.skeleton-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 22px;
+}
+
+.skeleton-form-grid > .span-2 {
+  grid-column: 1 / -1;
+}
+
+.approach-skeleton__row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.6fr 1.2fr 1.2fr 0.8fr 0.5fr;
+  align-items: center;
+  gap: 16px;
+  padding: 26px 12px 26px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 767px) {
+  .skeleton-option-row {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .skeleton-option-row > .skeleton:last-child {
+    width: 100% !important;
+  }
+
+  .skeleton-company-row {
+    padding: 14px;
+  }
+
+  .skeleton-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .approach-skeleton__row {
+    grid-template-columns: 1fr 1fr 40px;
+    padding: 16px 4px;
+  }
+
+  .approach-skeleton__row > :nth-child(n + 3):not(:last-child) {
+    display: none;
+  }
+
+  .wl-skeleton__row {
+    grid-template-columns: 1fr 1fr 40px;
+    padding: 16px 4px;
+  }
+
+  .wl-skeleton__row > :nth-child(n + 3):not(:last-child) {
+    display: none;
+  }
+
+  .opps-skeleton__row {
+    grid-template-columns: 1fr 1fr;
+    padding: 18px 4px;
+  }
+
+  .opps-skeleton__row > :nth-child(n + 3):not(:last-child) {
+    display: none;
+  }
+
+  .page-skeleton {
+    gap: 16px;
+  }
+
+  .page-skeleton__bars {
+    height: 180px;
+    margin-left: 44px;
+  }
+
+  .page-skeleton__table-row {
+    grid-template-columns: 1fr 1fr 40px;
+  }
+
+  .page-skeleton__table-row > :nth-child(n + 3):not(:last-child) {
+    display: none;
+  }
+}

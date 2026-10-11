@@ -1,0 +1,56 @@
+.control-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  padding: 16px 18px;
+  font-size: 15px;
+  color: var(--text-muted);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.control-banner p {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .control-banner {
+    align-items: flex-start;
+    font-size: 13.5px;
+  }
+
+  .control-banner__link {
+    white-space: normal;
+  }
+}
+
+.control-banner b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.control-banner__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  color: #fff;
+  background: var(--green-700);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.control-banner__link {
+  font-weight: 500;
+  color: var(--green-900);
+  white-space: nowrap;
+}
+
+.control-banner__link:hover {
+  text-decoration: underline;
+}

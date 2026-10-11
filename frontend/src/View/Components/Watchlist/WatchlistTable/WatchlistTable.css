@@ -1,0 +1,228 @@
+.wl-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.wl-table__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.wl-table__count {
+  margin-top: 8px;
+  font-size: 17px;
+  color: var(--text-muted);
+}
+
+.wl-table__header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.wl-table__header-actions .btn {
+  height: 52px;
+  font-size: 15px;
+}
+
+.wl-table__empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.wl-table__scroll {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.wl-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wl-table th {
+  padding: 16px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--green-900);
+  background: var(--surface-muted);
+  white-space: nowrap;
+}
+
+.wl-table td {
+  padding: 16px 12px;
+  font-size: 16px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.wl-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.wl-table th:first-child,
+.wl-table td:first-child {
+  padding-left: 22px;
+  text-align: left;
+}
+
+.wl-table__symbol {
+  font-weight: 500;
+}
+
+.wl-table__symbol-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wl-table__signal a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--green-700);
+}
+
+.wl-table__signal a:hover {
+  text-decoration: underline;
+}
+
+.wl-table__monitoring {
+  color: var(--text-muted);
+}
+
+.wl-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 24px 22px 0;
+  font-size: 14px;
+  border-top: 1px solid var(--border-strong);
+}
+
+/* Narrow card: tighter cells. */
+@container card (max-width: 1000px) {
+  .wl-table th {
+    padding: 14px 8px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .wl-table td {
+    padding: 14px 8px;
+    font-size: 15px;
+  }
+
+  .wl-table th:first-child,
+  .wl-table td:first-child {
+    padding-left: 14px;
+  }
+}
+
+/* Phone-sized card: each row becomes a card of label/value pairs. */
+@container card (max-width: 640px) {
+  .wl-table__header {
+    flex-direction: column;
+  }
+
+  .wl-table__header-actions {
+    width: 100%;
+  }
+
+  .wl-table__header-actions .btn {
+    flex: 1;
+    height: 44px;
+    padding: 0 14px;
+  }
+
+  .wl-table__count {
+    font-size: 15px;
+  }
+
+  .wl-table__scroll {
+    overflow: visible;
+  }
+
+  .wl-table table,
+  .wl-table tbody {
+    display: block;
+  }
+
+  .wl-table thead {
+    display: none;
+  }
+
+  .wl-table tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .wl-table td,
+  .wl-table td:first-child {
+    padding: 0;
+    font-size: 15px;
+    text-align: left;
+    white-space: normal;
+    border: none;
+  }
+
+  .wl-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .wl-table td.wl-table__symbol {
+    grid-column: 1 / -1;
+    padding-right: 48px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wl-table td.wl-table__actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .wl-table__footer {
+    flex-direction: column;
+    padding: 12px 0 0;
+    border-top: none;
+  }
+}
+
+/* Symbol links to the stock page */
+a.wl-table__symbol-inner {
+  color: inherit;
+}
+
+a.wl-table__symbol-inner:hover span {
+  color: var(--green-700);
+  text-decoration: underline;
+}

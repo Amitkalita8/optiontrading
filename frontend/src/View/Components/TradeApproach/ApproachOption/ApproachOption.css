@@ -1,0 +1,123 @@
+.approach-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.approach-option:hover {
+  border-color: var(--green-100);
+}
+
+.approach-option:has(.approach-option__radio:focus-visible) {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+.approach-option__radio {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  background: #dfe7f5;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.approach-option__radio:checked {
+  background: var(--surface);
+  border: 6px solid var(--green-700);
+}
+
+.approach-option__radio:focus-visible {
+  outline: none;
+}
+
+.approach-option__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.approach-option__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.approach-option__name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--text);
+}
+
+.approach-option__badge {
+  padding: 2px 8px;
+  font-size: 15px;
+  color: var(--green-700);
+  background: var(--green-50);
+  border-radius: var(--radius-sm);
+}
+
+.approach-option__summary {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.approach-option__summary b {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.approach-option__sep {
+  margin: 0 8px;
+  color: var(--border-strong);
+}
+
+.approach-option__status {
+  flex-shrink: 0;
+  padding: 10px 26px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--green-700);
+  background: var(--green-50);
+  border-radius: var(--radius-md);
+}
+
+.approach-option--checked .approach-option__status {
+  padding-inline: 12px;
+  color: #fff;
+  background: var(--green-700);
+}
+
+@media (max-width: 767px) {
+  .approach-option {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .approach-option__name {
+    font-size: 17px;
+  }
+
+  .approach-option__summary,
+  .approach-option__badge {
+    font-size: 13px;
+  }
+
+  .approach-option__status {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+  }
+}

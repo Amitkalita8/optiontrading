@@ -1,0 +1,115 @@
+.market-alerts {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+}
+
+.market-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green-700);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(20, 40, 30, 0.18);
+  animation: market-alert-in 0.25s ease-out;
+}
+
+@keyframes market-alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-alert {
+    animation: none;
+  }
+}
+
+.market-alert__icon {
+  display: flex;
+  flex-shrink: 0;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.market-alert--info {
+  border-left-color: #2f54c9;
+}
+
+.market-alert--info .market-alert__icon {
+  color: #2f54c9;
+  background: #eff3fd;
+}
+
+.market-alert--warning {
+  border-left-color: #d98a1c;
+}
+
+.market-alert--warning .market-alert__icon {
+  color: #b35d0d;
+  background: #fff6e5;
+}
+
+.market-alert--success .market-alert__icon {
+  color: var(--green-700);
+  background: var(--green-50);
+}
+
+.market-alert--neutral {
+  border-left-color: var(--text-soft);
+}
+
+.market-alert--neutral .market-alert__icon {
+  color: var(--text-muted);
+  background: var(--surface-muted);
+}
+
+.market-alert__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.market-alert__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.market-alert__message {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.market-alert__close {
+  display: flex;
+  padding: 4px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.market-alert__close:hover {
+  color: var(--green-900);
+  background: var(--surface-muted);
+}
+
+@media (max-width: 767px) {
+  .market-alerts {
+    top: 70px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}

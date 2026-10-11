@@ -1,0 +1,17 @@
+.ticker-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ticker-color);
+  background: color-mix(in srgb, var(--ticker-color) 10%, white);
+  border-radius: 50%;
+}
+
+.ticker-logo--image {
+  object-fit: contain;
+  background: none;
+  border-radius: 0;
+}

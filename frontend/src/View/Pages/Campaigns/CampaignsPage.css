@@ -1,0 +1,11 @@
+.campaigns-page__charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1199px) {
+  .campaigns-page__charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

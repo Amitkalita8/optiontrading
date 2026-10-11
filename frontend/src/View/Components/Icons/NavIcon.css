@@ -1,0 +1,29 @@
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Light PNGs are 144px with the glyph padded in the middle, so they are drawn
+   larger than the box and allowed to overflow evenly around it. */
+.nav-icon__img--light {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+/* Dark PNGs (and "tight" light ones) are tightly cropped glyphs. */
+.nav-icon__img--dark {
+  width: 21px;
+  height: 21px;
+}
+
+.nav-icon__img--tight {
+  width: 21px;
+  height: auto;
+  max-height: 21px;
+  object-fit: contain;
+}

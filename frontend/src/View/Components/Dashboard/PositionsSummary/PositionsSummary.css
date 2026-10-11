@@ -1,0 +1,24 @@
+.positions-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.positions-summary__stats .stats-strip__item {
+  flex: 1 1 0;
+}
+
+.positions-summary__stats .stats-strip__item:last-child {
+  align-items: flex-end;
+}
+
+/* Tablet & phone: in grid mode the last stat no longer hugs the right edge. */
+@media (max-width: 1199px) {
+  .positions-summary {
+    gap: 24px;
+  }
+
+  .positions-summary__stats .stats-strip__item:last-child {
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,94 @@
+.watchlist-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 22px 22px 26px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.watchlist-card:hover {
+  border-color: var(--green-100);
+}
+
+.watchlist-card--selected,
+.watchlist-card--selected:hover {
+  background: #f7faf8;
+  border-color: var(--green-700);
+}
+
+.watchlist-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.watchlist-card__name {
+  font-size: 22px;
+}
+
+/* Stretched over the whole card so clicking anywhere selects it. */
+.watchlist-card__select {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+}
+
+.watchlist-card__select::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.watchlist-card__select:focus-visible {
+  outline: none;
+}
+
+.watchlist-card:has(.watchlist-card__select:focus-visible) {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+.watchlist-card__count {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+/* Sits above the stretched select button. */
+.watchlist-card__menu {
+  position: relative;
+  z-index: 1;
+}
+
+.watchlist-card__logos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.watchlist-card__more {
+  font-size: 17px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .watchlist-card {
+    gap: 22px;
+    padding: 18px;
+  }
+
+  .watchlist-card__name {
+    font-size: 19px;
+  }
+}

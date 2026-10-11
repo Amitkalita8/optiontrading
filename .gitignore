@@ -1,0 +1,23 @@
+# Dependencies & build output
+node_modules/
+frontend/build/
+backend/bin/
+*.exe
+
+# Local data (SQLite database is created on first run)
+backend/data/
+
+# Local env overrides (frontend/.env holds only the public Google client ID)
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

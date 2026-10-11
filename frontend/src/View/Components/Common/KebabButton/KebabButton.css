@@ -1,0 +1,41 @@
+.kebab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--green-900);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.kebab-btn:hover {
+  background: var(--surface-muted);
+}
+
+.kebab-btn--md {
+  width: 40px;
+  height: 40px;
+}
+
+.kebab-btn--lg {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+}
+
+.kebab-btn--accent {
+  border: 1.5px solid var(--green-700);
+  border-radius: var(--radius-md);
+}
+
+.kebab-btn--accent:hover {
+  background: var(--green-50);
+}
+
+@media (max-width: 767px) {
+  .kebab-btn--lg {
+    width: 42px;
+    height: 42px;
+  }
+}

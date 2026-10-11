@@ -1,0 +1,88 @@
+/*
+ * Desktop (>= 1200px) keeps the design exactly: one row, dividers between items.
+ * Sizes scale with the viewport (clamp) so the row still fits on smaller
+ * laptops, reaching the design's full size at ~1920px.
+ */
+.stats-strip {
+  display: flex;
+  margin: 0;
+}
+
+.stats-strip__item {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 clamp(12px, 1.15vw, 22px);
+  border-left: 1px solid var(--border-strong);
+}
+
+.stats-strip__item:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.stats-strip__label {
+  font-size: clamp(12.5px, 0.73vw, 14px);
+  color: var(--text-muted);
+}
+
+.stats-strip__value {
+  margin: 0;
+  font-size: clamp(19px, 1.36vw, 26px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--green-900);
+  white-space: nowrap;
+}
+
+.stats-strip__value--highlight {
+  color: var(--green-700);
+}
+
+.stats-strip--md .stats-strip__value {
+  font-size: clamp(18px, 1.25vw, 24px);
+}
+
+/* Tablet & phone only: dividers don't survive wrapping, so use an even grid. */
+@media (max-width: 1199px) {
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 18px 20px;
+  }
+
+  .stats-strip__item,
+  .stats-strip__item:first-child {
+    padding: 0;
+    border-left: none;
+  }
+
+  .stats-strip__label {
+    font-size: 14px;
+  }
+
+  .stats-strip__value,
+  .stats-strip--md .stats-strip__value {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 767px) {
+  .stats-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 14px;
+  }
+
+  .stats-strip__label {
+    font-size: 13px;
+  }
+
+  .stats-strip__value,
+  .stats-strip--md .stats-strip__value {
+    font-size: 19px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
