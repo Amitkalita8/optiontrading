@@ -1,0 +1,63 @@
+.rating-badge {
+  --rating: var(--green-700);
+  --rating-bg: var(--green-50);
+  --rating-border: var(--green-200);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 190px;
+  padding: 16px 18px;
+  background: var(--rating-bg);
+  border: 1px solid var(--rating-border);
+  border-radius: var(--radius-md);
+}
+
+.rating-badge--medium {
+  --rating: #b46a10;
+  --rating-bg: #fff6e5;
+  --rating-border: #f4dcb0;
+}
+
+.rating-badge--poor {
+  --rating: #c0262d;
+  --rating-bg: #fdeff0;
+  --rating-border: #f7d3d5;
+}
+
+.rating-badge__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.rating-badge__label {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  line-height: 1;
+  color: var(--rating);
+}
+
+.rating-badge__meter {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.rating-badge__step {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+}
+
+.rating-badge__step--on {
+  background: var(--rating);
+}
+
+.rating-badge__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}

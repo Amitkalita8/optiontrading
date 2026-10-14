@@ -11,6 +11,7 @@ import (
 
 	"optiontrading/backend/internal/approaches"
 	"optiontrading/backend/internal/config"
+	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/quotes"
 )
@@ -19,11 +20,12 @@ type API struct {
 	cfg        config.Config
 	quotes     *quotes.Service
 	approaches *approaches.Repository
+	insights   *insights.Service
 	now        func() time.Time
 }
 
-func New(cfg config.Config, q *quotes.Service, ap *approaches.Repository) *API {
-	return &API{cfg: cfg, quotes: q, approaches: ap, now: time.Now}
+func New(cfg config.Config, q *quotes.Service, ap *approaches.Repository, in *insights.Service) *API {
+	return &API{cfg: cfg, quotes: q, approaches: ap, insights: in, now: time.Now}
 }
 
 // Routes returns the router with middleware applied.
@@ -44,6 +46,7 @@ func (a *API) Routes() http.Handler {
 	mux.HandleFunc("GET /api/market/history/{symbol}", a.history)
 	mux.HandleFunc("GET /api/market/stream", a.stream)
 	a.approachRoutes(mux)
+	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
 	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins))
 }
 

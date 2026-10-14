@@ -11,7 +11,10 @@ import TradeApproachesSkeleton from './View/Pages/TradeApproach/TradeApproachesS
 import ApproachEditorSkeleton from './View/Pages/TradeApproach/ApproachEditorSkeleton';
 import { AddCompanySkeleton, CreateWatchlistSkeleton } from './View/Pages/Watchlist/WatchlistFlowSkeletons';
 import StockPageSkeleton from './View/Pages/Stock/StockPageSkeleton';
+import AskAISkeleton from './View/Pages/AskAI/AskAISkeleton';
 import PlaceholderPage from './View/Pages/Placeholder/PlaceholderPage';
+// The landing page is the entry point, so it isn't code-split.
+import LandingPage from './View/Pages/Landing/LandingPage';
 
 // Pages are code-split; their skeleton shows while the page bundle downloads.
 const DashboardPage = lazy(() => import('./View/Pages/Dashboard/DashboardPage'));
@@ -23,6 +26,7 @@ const AddCompanyPage = lazy(() => import('./View/Pages/Watchlist/AddCompanyPage'
 const StockPage = lazy(() => import('./View/Pages/Stock/StockPage'));
 const TradeApproachesPage = lazy(() => import('./View/Pages/TradeApproach/TradeApproachesPage'));
 const ApproachEditorPage = lazy(() => import('./View/Pages/TradeApproach/ApproachEditorPage'));
+const AskAIPage = lazy(() => import('./View/Pages/AskAI/AskAIPage'));
 
 const placeholderRoutes = [
   { path: 'opportunities/:id', title: 'Opportunity details' },
@@ -38,9 +42,10 @@ function App() {
       <MarketStatusProvider>
         <BrowserRouter>
           <Routes>
+            <Route index element={<LandingPage />} />
             <Route element={<AppLayout />}>
               <Route
-                index
+                path="dashboard"
                 element={
                   <Suspense fallback={<DashboardSkeleton />}>
                     <DashboardPage />
@@ -108,6 +113,14 @@ function App() {
                 element={
                   <Suspense fallback={<ApproachEditorSkeleton existing />}>
                     <ApproachEditorPage key="edit" />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="ask-ai"
+                element={
+                  <Suspense fallback={<AskAISkeleton />}>
+                    <AskAIPage />
                   </Suspense>
                 }
               />

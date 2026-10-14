@@ -20,7 +20,7 @@ import { BookIcon, HomeIcon, TradeLogIcon } from '../Icons/FallbackIcons';
 export const mainNav = [
   {
     label: 'Dashboard',
-    path: '/',
+    path: '/dashboard',
     // No light home PNG yet: outline SVG when idle, dark PNG when active.
     icon: { Svg: HomeIcon, dark: homeDark },
   },
@@ -40,6 +40,12 @@ export const mainNav = [
         path: '/watchlist',
         // No filled book PNG yet: filled SVG when active.
         icon: { light: watchlistLight, Svg: BookIcon, tight: true },
+      },
+      {
+        // Rate a stock good / medium / poor for option selling (Groq via the backend).
+        label: 'Ask AI',
+        path: '/ask-ai',
+        icon: { light: screenersLight, dark: screenersDark, tight: true },
       },
     ],
   },

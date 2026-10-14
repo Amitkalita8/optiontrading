@@ -8,6 +8,8 @@ backend/bin/
 backend/data/
 
 # Local env overrides (frontend/.env holds only the public Google client ID)
+# backend/.env holds secrets (GROQ_API_KEY)
+backend/.env
 .env.local
 .env.*.local
 

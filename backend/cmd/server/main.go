@@ -18,13 +18,25 @@ import (
 	"optiontrading/backend/internal/api"
 	"optiontrading/backend/internal/approaches"
 	"optiontrading/backend/internal/config"
+	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/store"
 )
 
 func main() {
+	if err := config.LoadDotEnv(".env"); err != nil {
+		log.Fatalf("read .env: %v", err)
+	}
 	cfg := config.Load()
 	quoteService := quotes.NewService(quotes.NewClient(), cfg.QuoteCacheTTL)
+
+	var llm insights.Completer // nil disables the AI screener
+	if cfg.GroqAPIKey != "" {
+		llm = insights.NewGroqClient(cfg.GroqAPIKey, cfg.GroqModel)
+	} else {
+		log.Print("GROQ_API_KEY not set: AI screener disabled")
+	}
+	insightService := insights.NewService(quoteService, llm, cfg.GroqModel)
 
 	db, err := store.Open(cfg.DBPath)
 	if err != nil {
@@ -44,7 +56,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              cfg.Addr,
-		Handler:           api.New(cfg, quoteService, approachRepo).Routes(),
+		Handler:           api.New(cfg, quoteService, approachRepo, insightService).Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      30 * time.Second, // the stream handler lifts this for itself
 		IdleTimeout:       90 * time.Second,

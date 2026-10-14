@@ -22,6 +22,10 @@ type Config struct {
 	DBPath string
 	// SeedDemoData inserts example approaches into an empty database (env SEED_DEMO_DATA=false to disable).
 	SeedDemoData bool
+	// GroqAPIKey enables the AI stock screener (env GROQ_API_KEY; keep it in backend/.env).
+	GroqAPIKey string
+	// GroqModel is the chat model the screener asks (env GROQ_MODEL).
+	GroqModel string
 }
 
 func Load() Config {
@@ -33,6 +37,8 @@ func Load() Config {
 		StreamIntervalClosed: duration("STREAM_INTERVAL_CLOSED", 60*time.Second),
 		DBPath:               env("DB_PATH", "data/optiontrading.db"),
 		SeedDemoData:         env("SEED_DEMO_DATA", "true") != "false",
+		GroqAPIKey:           env("GROQ_API_KEY", ""),
+		GroqModel:            env("GROQ_MODEL", "openai/gpt-oss-120b"),
 	}
 }
 

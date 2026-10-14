@@ -1,0 +1,16 @@
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo svg {
+  flex-shrink: 0;
+}
+
+.brand-logo__name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--green-900);
+  white-space: nowrap;
+}

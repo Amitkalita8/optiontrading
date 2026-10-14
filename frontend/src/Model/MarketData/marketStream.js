@@ -14,7 +14,13 @@ export function openMarketStream(symbols, { series = false, onQuotes, onStatus, 
   const source = new EventSource(`${API_BASE}/api/market/stream?${params}`);
 
   source.addEventListener('quotes', (e) => onQuotes?.(JSON.parse(e.data)));
-  source.addEventListener('status', (e) => onStatus?.(parseMarketStatus(JSON.parse(e.data))));
+  source.addEventListener('status', (e) => {
+    try {
+      onStatus?.(parseMarketStatus(JSON.parse(e.data)));
+    } catch (err) {
+      onError?.(err);
+    }
+  });
   source.onerror = () => onError?.(new Error('Live connection interrupted'));
 
   return () => source.close();

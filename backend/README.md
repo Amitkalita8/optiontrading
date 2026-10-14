@@ -31,6 +31,7 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | PUT | `/api/approaches/{id}` | Update (same validation) |
 | DELETE | `/api/approaches/{id}` | Delete → 204; 409 if campaigns still use it |
 | GET | `/api/market/stream?symbols=AAPL,MSFT&series=1` | Server-Sent Events: `status` (on connect and on change) and `quotes` (every 5 s while open, 60 s while closed) |
+| POST | `/api/screener/ask` | AI screener. Body `{ "symbol": "AAPL", "question": "optional" }` → rating `good`/`medium`/`poor`, outlook, reasons, risks, option idea and the live metrics used. 503 without `GROQ_API_KEY`; answers cached 10 min |
 
 `phase` is one of `pre-market` (4:00–9:30 ET), `open`, `after-hours` (close–20:00 ET) or `closed`.
 
@@ -45,6 +46,10 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | `STREAM_INTERVAL_CLOSED` | `60s` | Stream push interval while closed |
 | `DB_PATH` | `data/optiontrading.db` | SQLite database file (created on first run) |
 | `SEED_DEMO_DATA` | `true` | Insert the four example approaches into an empty database |
+| `GROQ_API_KEY` | — | Groq key for the AI screener. Put it in `backend/.env` (git-ignored; see `.env.example`) |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq chat model the screener uses |
+
+Variables can also be set in `backend/.env` (read at startup; real environment variables win).
 
 ## Layout
 
@@ -55,6 +60,7 @@ internal/store/      SQLite connection + numbered schema migrations (PRAGMA user
 internal/approaches/ trade approach model, validation, options catalogue, repository, demo seed
 internal/market/     NYSE trading calendar (hours, holidays, early closes)
 internal/quotes/     Yahoo Finance client (quotes + history ranges) + TTL cache with request de-duplication
+internal/insights/   AI screener: live metrics (trend, returns, volatility) + Groq client
 internal/api/        HTTP handlers, SSE stream, middleware (logging, recovery, CORS)
 ```
 

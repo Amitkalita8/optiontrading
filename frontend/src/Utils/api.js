@@ -21,8 +21,10 @@ async function request(method, path, { body, signal } = {}) {
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (res.status === 204) return null;
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error || `Request failed (${res.status})`, res.status, data.fields);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(data?.error || `Request failed (${res.status})`, res.status, data?.fields);
+  // e.g. an HTML page from a static server that has no backend behind it
+  if (data === null) throw new ApiError('The server did not return JSON. Is the backend running?', res.status);
   return data;
 }
 

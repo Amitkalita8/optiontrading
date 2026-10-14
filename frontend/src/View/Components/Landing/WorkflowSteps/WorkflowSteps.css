@@ -1,0 +1,146 @@
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 48px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow__phase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+/* Arrow between phases on wide screens */
+.workflow__phase:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  top: 34px;
+  right: -17px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  color: var(--green-700);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: 50%;
+}
+
+.workflow__phase-head {
+  display: flex;
+  gap: 14px;
+}
+
+.workflow__phase-index {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--green-200);
+  -webkit-text-stroke: 1px var(--green-700);
+}
+
+.workflow__phase-head h3 {
+  font-size: 24px;
+}
+
+.workflow__phase-head p {
+  margin-top: 4px;
+  font-size: 14.5px;
+  color: var(--text-muted);
+}
+
+.workflow__formula {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.workflow__formula span {
+  padding: 4px 10px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.workflow__formula b {
+  padding: 4px 10px;
+  color: #fff;
+  background: var(--green-700);
+  border-radius: 999px;
+}
+
+.workflow__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow__steps li {
+  display: flex;
+  gap: 12px;
+}
+
+.workflow__num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-700);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: 50%;
+}
+
+.workflow__steps b {
+  font-size: 15.5px;
+  color: var(--text);
+}
+
+.workflow__steps p {
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+@media (max-width: 960px) {
+  .workflow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .workflow__phase:not(:last-child)::after {
+    content: '↓';
+    top: auto;
+    right: auto;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

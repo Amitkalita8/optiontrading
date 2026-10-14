@@ -13,6 +13,7 @@ import (
 
 	"optiontrading/backend/internal/approaches"
 	"optiontrading/backend/internal/config"
+	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/store"
@@ -46,7 +47,8 @@ func newTestServer(t *testing.T) *httptest.Server {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { db.Close() })
-	a := New(cfg, quotes.NewService(fakeFetcher{}, time.Second), approaches.NewRepository(db))
+	qs := quotes.NewService(fakeFetcher{}, time.Second)
+	a := New(cfg, qs, approaches.NewRepository(db), insights.NewService(qs, fakeLLM{}, "test-model"))
 	srv := httptest.NewServer(a.Routes())
 	t.Cleanup(srv.Close)
 	return srv

@@ -1,0 +1,203 @@
+.explainer {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 56px;
+}
+
+.explainer__challenges {
+  margin-top: 28px;
+  padding: 20px 22px;
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.explainer__challenges p {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--green-900);
+}
+
+.explainer__challenges ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.explainer__challenges li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.explainer__challenges li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-700);
+}
+
+.explainer__example {
+  margin: 0;
+  padding: 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.explainer__example figcaption {
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.explainer__badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--green-700);
+  background: var(--green-50);
+  border-radius: 999px;
+}
+
+.explainer__assumption {
+  font-size: 12.5px;
+  color: var(--text-soft);
+}
+
+.explainer__outcomes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.explainer__outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-left: 4px solid;
+  border-radius: var(--radius-sm);
+}
+
+.explainer__outcome b {
+  color: var(--text);
+}
+
+.explainer__outcome--good {
+  border-color: #1fa55b;
+}
+
+.explainer__outcome--risk {
+  border-color: #d14343;
+}
+
+/* ---------- Payoff diagram ---------- */
+.payoff {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 16px 0 8px;
+  overflow: visible;
+}
+
+.payoff__profit {
+  fill: rgba(31, 165, 91, 0.16);
+}
+
+.payoff__loss {
+  fill: rgba(209, 67, 67, 0.14);
+}
+
+.payoff__axis {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
+.payoff__strike {
+  stroke: var(--text-soft);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+.payoff__line {
+  fill: none;
+  stroke: var(--green-900);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.payoff__be {
+  fill: var(--surface);
+  stroke: var(--green-900);
+  stroke-width: 2;
+}
+
+.payoff__today {
+  fill: var(--green-700);
+}
+
+.payoff text {
+  font-family: var(--font-sans);
+}
+
+.payoff__tick,
+.payoff__axis-label {
+  font-size: 12px;
+  fill: var(--text-muted);
+}
+
+.payoff__marker {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text);
+}
+
+.payoff__note {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text);
+}
+
+.payoff__note--good {
+  fill: #13804a;
+}
+
+.payoff__note--risk {
+  fill: #b83232;
+}
+
+@media (max-width: 960px) {
+  .explainer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+}
+
+@media (max-width: 520px) {
+  .explainer__example {
+    padding: 16px;
+  }
+
+  .explainer__outcomes,
+  .explainer__challenges ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

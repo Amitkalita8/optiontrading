@@ -1,0 +1,80 @@
+/* Shared layout for landing sections. */
+.landing {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* Smooth jumps to #sections, only while the landing page is shown. */
+html:has(.landing) {
+  scroll-behavior: smooth;
+}
+
+.landing-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.landing-section {
+  padding: 96px 0;
+  scroll-margin-top: 72px; /* clear the sticky nav when jumping to #anchors */
+}
+
+.landing-section--white {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-heading {
+  max-width: 720px;
+}
+
+.landing-eyebrow {
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-700);
+}
+
+.landing-h2 {
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.12;
+  color: var(--green-900);
+}
+
+.landing-lead {
+  margin-top: 16px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.landing) {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 960px) {
+  .landing-section {
+    padding: 64px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-container {
+    padding: 0 16px;
+  }
+
+  .landing-section {
+    padding: 52px 0;
+  }
+
+  .landing-lead {
+    font-size: 16px;
+  }
+}
