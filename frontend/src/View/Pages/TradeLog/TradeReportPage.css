@@ -1,0 +1,882 @@
+/* ==========================================================================
+   Trade Report Page Styles
+   Matching exact Figma design specification (media_1792085462257.jpg)
+   ========================================================================== */
+
+.trade-report-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 4px 32px 4px;
+  color: #1a202c;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Header Row
+   -------------------------------------------------------------------------- */
+.trade-report-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.trade-report-view__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trade-report-view__title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trade-report-view__back-crumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #1b533a;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.trade-report-view__back-crumb:hover {
+  background: #edf5ef;
+  transform: translateX(-2px);
+}
+
+.trade-report-view__main-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #174233;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+.trade-report-view__sub-title {
+  font-size: 13.5px;
+  color: #718096;
+  margin: 0;
+  font-weight: 400;
+}
+
+.trade-report-view__dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  color: #174233;
+  border: 1.5px solid #278556;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.trade-report-view__dl-btn:hover {
+  background: #f1f8f3;
+  border-color: #1e6b45;
+}
+
+.trade-report-view__dl-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.trade-report-view__dl-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #278556;
+}
+
+/* --------------------------------------------------------------------------
+   Top Summary Strip (8 Columns)
+   -------------------------------------------------------------------------- */
+.tr-summary-strip {
+  display: grid;
+  grid-template-columns: 2fr repeat(6, 1fr) 1.1fr;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e7e5dc;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.tr-summary-strip__col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 18px 20px;
+  border-right: 1px solid #f0eee6;
+  min-height: 78px;
+  box-sizing: border-box;
+}
+
+.tr-summary-strip__col--ticker {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.tr-summary-strip__col--last {
+  border-right: none;
+}
+
+.tr-summary-strip__name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tr-summary-strip__sym {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.2;
+}
+
+.tr-summary-strip__corp {
+  font-size: 10px;
+  font-weight: 600;
+  color: #87918c;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.tr-summary-strip__lbl {
+  font-size: 11px;
+  font-weight: 500;
+  color: #718096;
+  text-transform: capitalize;
+}
+
+.tr-summary-strip__val {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.tr-summary-strip__val.is-green {
+  color: #1f7a4d;
+}
+
+.tr-summary-strip__val.is-red {
+  color: #dc2626;
+}
+
+/* --------------------------------------------------------------------------
+   General Row & Card Rules
+   -------------------------------------------------------------------------- */
+.tr-grid-row {
+  width: 100%;
+}
+
+.tr-grid-row--2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.tr-card {
+  background: #ffffff;
+  border: 1px solid #e7e5dc;
+  border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.tr-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tr-card__title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #174233;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.tr-card__subtitle {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 3px;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Timeframe Pills
+   -------------------------------------------------------------------------- */
+.tr-tf-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #f4f3ed;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.tr-tf-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #55625b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tr-tf-btn:hover:not(.is-active) {
+  background: #eae8df;
+  color: #1a202c;
+}
+
+.tr-tf-btn.is-active {
+  background: #19523c;
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Candlestick Chart Replay
+   -------------------------------------------------------------------------- */
+.tr-replay-chart {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  margin-top: 4px;
+}
+
+.tr-replay-chart__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tr-replay-markers {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 12.5px;
+  color: #334155;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.tr-replay-marker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.tr-marker-box {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+}
+
+.tr-marker-box--green {
+  background: #278556;
+}
+
+.tr-marker-box--red {
+  background: #e05252;
+}
+
+.tr-marker-box--dark {
+  background: #19523c;
+}
+
+/* --------------------------------------------------------------------------
+   Trade Thesis Card
+   -------------------------------------------------------------------------- */
+.tr-thesis-meta-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #faf5f0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  gap: 12px;
+  border: 1px solid #f3ece4;
+}
+
+.tr-thesis-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tr-thesis-meta-lbl {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tr-thesis-meta-val {
+  font-size: 13.5px;
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.tr-criteria-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tr-criteria-heading {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 2px 0 6px 0;
+}
+
+.tr-criteria-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.tr-criteria-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #334155;
+  padding-bottom: 2px;
+}
+
+.tr-criteria-check {
+  color: #1f7a4d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tr-thesis-adherence-banner {
+  background: #edf7f0;
+  color: #1b633f;
+  border: 1px solid #d4ebdc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Risk Assessment & Performance Benchmark
+   -------------------------------------------------------------------------- */
+.tr-risk-content {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.tr-risk-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tr-risk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #334155;
+}
+
+.tr-risk-lbl {
+  color: #64748b;
+}
+
+.tr-risk-val {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.tr-risk-val.is-green {
+  color: #1f7a4d;
+}
+
+.tr-risk-meter-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.tr-meter-circle {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tr-meter-circle__svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.tr-meter-circle__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 1;
+}
+
+.tr-meter-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.2;
+}
+
+.tr-meter-lbl {
+  font-size: 9.5px;
+  color: #718096;
+  font-weight: 600;
+}
+
+.tr-meter-callout {
+  background: #edf7f0;
+  border: 1px solid #d4ebdc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+  font-size: 11.5px;
+  color: #1b633f;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tr-benchmark-content {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.tr-bm-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tr-bm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #334155;
+}
+
+.tr-bm-lbl {
+  color: #64748b;
+}
+
+.tr-bm-val {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.tr-bm-val.is-green {
+  color: #1f7a4d;
+  font-weight: 700;
+}
+
+.tr-bm-graphic-card {
+  background: #ffffff;
+  border: 1px solid #e7e5dc;
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.tr-bm-mini-chart {
+  width: 90px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tr-bm-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tr-bm-note {
+  font-size: 11px;
+  color: #2d3748;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Row 3: Trade Diagnosis (4 Cards)
+   -------------------------------------------------------------------------- */
+.tr-diag-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.tr-diag-item {
+  background: #fbfbf9;
+  border: 1px solid #eae8df;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.tr-diag-tag {
+  align-self: flex-start;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.tr-diag-tag--green {
+  background: #edf7f0;
+  color: #1f7a4d;
+  border: 1px solid #d4ebdc;
+}
+
+.tr-diag-tag--amber {
+  background: #fef9ee;
+  color: #b45309;
+  border: 1px solid #fed7aa;
+}
+
+.tr-diag-tag--red {
+  background: #fdf2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.tr-diag-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-top: 4px;
+}
+
+.tr-diag-desc {
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tr-diag-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #278556;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Row 4: Action Plan (4 Columns)
+   -------------------------------------------------------------------------- */
+.tr-action-plan-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1.25fr 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.tr-ap-progress-card {
+  background: #fbfbf9;
+  border: 1px solid #eae8df;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.tr-ap-heading {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.tr-ap-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.tr-ap-meta-lbl {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #87918c;
+  letter-spacing: 0.3px;
+}
+
+.tr-ap-meta-val {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-top: 2px;
+}
+
+.tr-ap-meta--right {
+  text-align: right;
+}
+
+.tr-dual-track {
+  position: relative;
+  padding-bottom: 22px;
+}
+
+.tr-dual-track__bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: #e2e8e4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tr-dual-track__fill-base {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #9ad9b6;
+  border-radius: 3px;
+}
+
+.tr-dual-track__fill-current {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #1f7a4d;
+  border-radius: 3px;
+}
+
+.tr-dual-track__pills {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  margin-top: 6px;
+}
+
+.tr-track-pill {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.tr-track-pill--base {
+  background: #ffffff;
+  border: 1.5px solid #9ad9b6;
+  color: #278556;
+}
+
+.tr-track-pill--current {
+  background: #ffffff;
+  border: 1.5px solid #1f7a4d;
+  color: #1f7a4d;
+}
+
+.tr-ap-callout {
+  background: #fbfbf9;
+  border: 1px solid #eae8df;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.tr-ap-callout__icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tr-ap-callout--green .tr-ap-callout__icon-wrap {
+  background: #edf7f0;
+}
+
+.tr-ap-callout--amber .tr-ap-callout__icon-wrap {
+  background: #fef9ee;
+}
+
+.tr-ap-callout__title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 4px 0;
+}
+
+.tr-ap-callout__desc {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1a202c;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Row 5: Bottom Navigation
+   -------------------------------------------------------------------------- */
+.tr-bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 24px 0;
+  margin-top: 4px;
+}
+
+.tr-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tr-nav-btn--prev {
+  background: transparent;
+  border: 1.5px solid #19523c;
+  color: #19523c;
+}
+
+.tr-nav-btn--prev:hover {
+  background: #edf7f0;
+}
+
+.tr-nav-btn--next {
+  background: #19523c;
+  border: 1.5px solid #19523c;
+  color: #ffffff;
+}
+
+.tr-nav-btn--next:hover {
+  background: #134230;
+}
+
+.tr-nav-page-indicator {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .tr-summary-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .tr-summary-strip__col {
+    border-bottom: 1px solid #f0eee6;
+  }
+  .tr-summary-strip__col:nth-child(4n) {
+    border-right: none;
+  }
+  .tr-action-plan-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .tr-grid-row--2col {
+    grid-template-columns: 1fr;
+  }
+  .tr-diag-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .tr-summary-strip {
+    grid-template-columns: 1fr;
+  }
+  .tr-summary-strip__col {
+    border-right: none;
+  }
+  .tr-diag-row {
+    grid-template-columns: 1fr;
+  }
+  .tr-action-plan-row {
+    grid-template-columns: 1fr;
+  }
+  .tr-risk-content,
+  .tr-benchmark-content {
+    grid-template-columns: 1fr;
+  }
+}

@@ -35,6 +35,94 @@ var migrations = []string{
 		created_at          TEXT    NOT NULL,
 		updated_at          TEXT    NOT NULL
 	)`,
+
+	// 2: watchlists — user-defined collections of tickers
+	`CREATE TABLE watchlists (
+		id         INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id    TEXT    NOT NULL DEFAULT 'default',
+		name       TEXT    NOT NULL COLLATE NOCASE,
+		created_at TEXT    NOT NULL,
+		updated_at TEXT    NOT NULL,
+		UNIQUE(user_id, name)
+	);
+	CREATE TABLE watchlist_items (
+		watchlist_id INTEGER NOT NULL REFERENCES watchlists(id) ON DELETE CASCADE,
+		ticker       TEXT    NOT NULL,
+		position     INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY (watchlist_id, ticker)
+	)`,
+
+	// 3: campaigns — structured trading programs with a capital goal
+	`CREATE TABLE campaigns (
+		id          INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id     TEXT    NOT NULL DEFAULT 'default',
+		name        TEXT    NOT NULL COLLATE NOCASE,
+		capital     REAL    NOT NULL DEFAULT 0,
+		goal        REAL    NOT NULL DEFAULT 0,
+		earned      REAL    NOT NULL DEFAULT 0,
+		status      TEXT    NOT NULL DEFAULT 'active',    -- active | paused | completed
+		start_date  TEXT    NOT NULL,
+		end_date    TEXT    NOT NULL,
+		approach_id INTEGER REFERENCES approaches(id) ON DELETE SET NULL,
+		created_at  TEXT    NOT NULL,
+		updated_at  TEXT    NOT NULL
+	)`,
+
+	// 4: positions — open option positions
+	`CREATE TABLE positions (
+		id              INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id         TEXT    NOT NULL DEFAULT 'default',
+		campaign_id     INTEGER REFERENCES campaigns(id) ON DELETE SET NULL,
+		symbol          TEXT    NOT NULL,
+		strategy        TEXT    NOT NULL,
+		quantity        INTEGER NOT NULL DEFAULT 1,
+		strike          REAL    NOT NULL,
+		expiry          TEXT    NOT NULL,           -- YYYY-MM-DD
+		premium_credit  REAL    NOT NULL DEFAULT 0, -- credit received per contract × 100
+		current_value   REAL    NOT NULL DEFAULT 0, -- current mark × 100
+		status          TEXT    NOT NULL DEFAULT 'open', -- open | closed
+		opened_at       TEXT    NOT NULL,
+		closed_at       TEXT,
+		created_at      TEXT    NOT NULL,
+		updated_at      TEXT    NOT NULL
+	)`,
+
+	// 5: trade_log — immutable record of every fill / close
+	`CREATE TABLE trade_log (
+		id          INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id     TEXT    NOT NULL DEFAULT 'default',
+		position_id INTEGER REFERENCES positions(id) ON DELETE SET NULL,
+		symbol      TEXT    NOT NULL,
+		action      TEXT    NOT NULL,              -- open | close | roll | expired | assigned
+		quantity    INTEGER NOT NULL DEFAULT 1,
+		price       REAL    NOT NULL,
+		notes       TEXT    NOT NULL DEFAULT '',
+		occurred_at TEXT    NOT NULL,
+		created_at  TEXT    NOT NULL
+	)`,
+
+	// 6: notifications — in-app alerts
+	`CREATE TABLE notifications (
+		id         INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id    TEXT    NOT NULL DEFAULT 'default',
+		kind       TEXT    NOT NULL DEFAULT 'info', -- info | warning | alert
+		title      TEXT    NOT NULL,
+		body       TEXT    NOT NULL DEFAULT '',
+		read       INTEGER NOT NULL DEFAULT 0,
+		created_at TEXT    NOT NULL
+	)`,
+
+	// 7: users — registered user accounts
+	`CREATE TABLE users (
+		id            INTEGER PRIMARY KEY AUTOINCREMENT,
+		name          TEXT    NOT NULL,
+		email         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+		password_hash TEXT    NOT NULL DEFAULT '',
+		provider      TEXT    NOT NULL DEFAULT 'email', -- email | google
+		avatar_url    TEXT    NOT NULL DEFAULT '',
+		created_at    TEXT    NOT NULL,
+		updated_at    TEXT    NOT NULL
+	)`,
 }
 
 // Open opens (creating if needed) the database at path and migrates it.
@@ -50,8 +138,9 @@ func Open(path string) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("store: open %s: %w", path, err)
 	}
-	// SQLite allows one writer at a time; a single connection avoids lock contention.
-	db.SetMaxOpenConns(1)
+	// WAL mode allows concurrent readers; 5 connections give read parallelism
+	// while writes still serialize naturally via SQLite's single-writer model.
+	db.SetMaxOpenConns(5)
 	if err := migrate(db); err != nil {
 		db.Close()
 		return nil, err

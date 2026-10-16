@@ -33,8 +33,7 @@ function CampaignHeader({ campaign }) {
             <div className="campaign-header__thumb" style={{ left: `${campaign.timelineProgress}%` }} />
           </div>
           <p className="campaign-header__note">
-            It&apos;s <b>{campaign.currentDay}th</b> day and you are <b>{campaign.aheadBy}</b> ahead of your daily
-            target.
+            Day {campaign.currentDay} of 180, and you are <b>{campaign.aheadBy}</b> ahead of your daily target
           </p>
         </div>
       </div>

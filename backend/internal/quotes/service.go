@@ -55,16 +55,21 @@ func NewService(upstream Fetcher, ttl time.Duration) *Service {
 
 // Get returns a quote no older than the TTL (or a recent one if Yahoo fails).
 func (s *Service) Get(ctx context.Context, symbol string) (Quote, error) {
-	return s.quotes.get(symbol, s.ttl, s.now(), func() (Quote, error) {
+	q, isStale, err := s.quotes.get(symbol, s.ttl, s.now(), func() (Quote, error) {
 		return s.upstream.Fetch(ctx, symbol)
 	})
+	if err == nil && isStale {
+		q.Stale = true
+	}
+	return q, err
 }
 
 // History returns price points for the range, cached per range (see Range.TTL).
 func (s *Service) History(ctx context.Context, symbol string, r Range) (History, error) {
-	return s.history.get(symbol+"|"+r.Key, r.TTL, s.now(), func() (History, error) {
+	h, _, err := s.history.get(symbol+"|"+r.Key, r.TTL, s.now(), func() (History, error) {
 		return s.upstream.History(ctx, symbol, r)
 	})
+	return h, err
 }
 
 // Result is one symbol's outcome in GetMany.

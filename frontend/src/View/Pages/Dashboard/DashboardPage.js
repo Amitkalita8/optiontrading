@@ -1,10 +1,9 @@
 import useAsyncData from '../../../Controller/useAsyncData';
 import { fetchDashboard } from '../../../Model/Dashboard/dashboardModel';
 import CampaignHeader from '../../Components/Dashboard/CampaignHeader/CampaignHeader';
-import TopOpportunities from '../../Components/Dashboard/TopOpportunities/TopOpportunities';
-import StockInsightCard from '../../Components/Dashboard/StockInsightCard/StockInsightCard';
-import PositionsSummary from '../../Components/Dashboard/PositionsSummary/PositionsSummary';
-import Watchlist from '../../Components/Dashboard/Watchlist/Watchlist';
+import CampaignWatchlistCard from '../../Components/Dashboard/CampaignWatchlistCard/CampaignWatchlistCard';
+import CampaignApproachCard from '../../Components/Dashboard/CampaignApproachCard/CampaignApproachCard';
+import AiOpportunitiesCard from '../../Components/Dashboard/AiOpportunitiesCard/AiOpportunitiesCard';
 import ControlBanner from '../../Components/Dashboard/ControlBanner/ControlBanner';
 import ErrorState from '../../Components/Common/ErrorState/ErrorState';
 import DashboardSkeleton from './DashboardSkeleton';
@@ -16,22 +15,25 @@ function DashboardPage() {
   if (status === 'loading') return <DashboardSkeleton />;
   if (status === 'error') return <ErrorState onRetry={reload} />;
 
+  // Support customized active campaign if saved from onboarding
+  const activeName = localStorage.getItem('active_campaign_name');
+  const campaign = activeName
+    ? { ...data.activeCampaign, name: activeName }
+    : data.activeCampaign;
+
   return (
-    <>
-      <CampaignHeader campaign={data.activeCampaign} />
+    <div className="dashboard-page">
+      <CampaignHeader campaign={campaign} />
 
-      <div className="dashboard-page__row">
-        <TopOpportunities tabs={data.opportunityTabs} opportunities={data.opportunities} />
-        <StockInsightCard stocks={data.stockInsights} />
+      <div className="dashboard-page__middle-row">
+        <CampaignWatchlistCard tickers={data.userTickers} count={data.userTickers?.length} />
+        <CampaignApproachCard />
       </div>
 
-      <div className="dashboard-page__row">
-        <PositionsSummary stats={data.positionsSummary} />
-        <Watchlist items={data.watchlist} />
-      </div>
+      <AiOpportunitiesCard />
 
       <ControlBanner />
-    </>
+    </div>
   );
 }
 

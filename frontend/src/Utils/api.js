@@ -13,11 +13,28 @@ export class ApiError extends Error {
   }
 }
 
+function getActiveUserId() {
+  try {
+    const raw = localStorage.getItem('kushmanda.session');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u?.email) return u.email;
+      if (u?.id) return String(u.id);
+    }
+  } catch (e) {}
+  return 'default';
+}
+
 async function request(method, path, { body, signal } = {}) {
+  const userId = getActiveUserId();
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     signal,
-    headers: { Accept: 'application/json', ...(body !== undefined && { 'Content-Type': 'application/json' }) },
+    headers: {
+      Accept: 'application/json',
+      'X-User-Id': userId,
+      ...(body !== undefined && { 'Content-Type': 'application/json' }),
+    },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (res.status === 204) return null;

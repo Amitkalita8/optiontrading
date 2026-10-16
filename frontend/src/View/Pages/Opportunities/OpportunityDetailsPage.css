@@ -1,0 +1,629 @@
+.opp-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.opp-details__skeleton {
+  background: linear-gradient(90deg, #f0f0ed 25%, #e8e8e4 50%, #f0f0ed 75%);
+  background-size: 200% 100%;
+  animation: opp-shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes opp-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.opp-details__page-header {
+  margin-bottom: 4px;
+}
+
+.opp-details__back-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-700);
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.opp-details__back-link:hover {
+  text-decoration: underline;
+}
+
+.opp-details__title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--green-900);
+  margin: 0 0 4px;
+}
+
+.opp-details__subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Top Ticker Metric Card */
+.opp-details__ticker-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.opp-details__company-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 220px;
+}
+
+.opp-details__company-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.opp-details__symbol {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green-900);
+  letter-spacing: 0.02em;
+}
+
+.opp-details__company-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.opp-details__ticker-metrics {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.opp-details__metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+  border-left: 1px solid var(--border);
+}
+
+.opp-details__metric-item:first-child {
+  border-left: none;
+}
+
+.opp-details__metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.opp-details__metric-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* 2-Column Grid */
+.opp-details__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.opp-details__col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.opp-details__card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.opp-details__card-header {
+  margin-bottom: 20px;
+}
+
+.opp-details__card-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+/* Opportunity Summary */
+.opp-details__summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.opp-details__summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.opp-details__summary-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.opp-details__summary-val {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.opp-details__summary-val-sm {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.opp-details__summary-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+/* Risk Assessment */
+.opp-details__risk-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.opp-details__risk-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.opp-details__risk-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.opp-details__risk-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.opp-details__risk-val--danger {
+  color: #dc2626;
+}
+
+.opp-details__risk-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+  line-height: 1.35;
+}
+
+/* Strategy Breakdown */
+.opp-details__breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.opp-details__breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.opp-details__breakdown-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.opp-details__breakdown-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* What it does for your goal */
+.opp-details__goal-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.opp-details__goal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.opp-details__goal-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.opp-details__goal-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.opp-details__goal-val--highlight {
+  color: var(--green-900);
+  font-weight: 700;
+}
+
+.opp-details__goal-pct {
+  color: var(--text-soft);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* Progress Track */
+.opp-details__track-wrap {
+  margin: 6px 0 10px;
+  position: relative;
+}
+
+.opp-details__track {
+  height: 10px;
+  background: var(--surface-muted);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.opp-details__track-fill--base {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--green-700);
+}
+
+.opp-details__track-fill--increment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #34d399;
+}
+
+.opp-details__track-labels {
+  position: relative;
+  height: 16px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-700);
+}
+
+.opp-details__track-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.opp-details__goal-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+
+.opp-details__improvement-pill {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-700);
+  background: #ffffff;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--green-200);
+}
+
+.opp-details__improvement-text {
+  font-size: 12px;
+  color: var(--green-900);
+  font-weight: 500;
+}
+
+/* AI Decision Layer Card */
+.opp-details__ai-card {
+  padding: 24px;
+}
+
+.opp-details__ai-head {
+  margin-bottom: 20px;
+}
+
+.opp-details__ai-head-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opp-details__info-icon {
+  font-size: 14px;
+  color: var(--text-soft);
+  cursor: help;
+}
+
+.opp-details__ai-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 32px;
+}
+
+.opp-details__ai-score-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-right: 1px solid var(--border);
+  padding-right: 24px;
+}
+
+.opp-details__ai-score-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.opp-details__ai-score-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.opp-details__ai-score-val {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.opp-details__score-num {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--green-900);
+  line-height: 1;
+}
+
+.opp-details__score-total {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.opp-details__ai-confidence-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.opp-details__confidence-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--green-100);
+  color: var(--green-700);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.opp-details__ai-reasons-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opp-details__reasons-head {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.opp-details__reasons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.opp-details__reason-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--green-200);
+  border-radius: var(--radius-sm);
+}
+
+.opp-details__reason-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green-700);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.opp-details__reason-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.opp-details__reason-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.opp-details__reason-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Bottom Confirmation Card */
+.opp-details__action-card {
+  padding: 20px 24px;
+}
+
+.opp-details__action-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.opp-details__acknowledge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.opp-details__acknowledge-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.opp-details__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.opp-details__checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green-700);
+  cursor: pointer;
+}
+
+.opp-details__place-order-btn {
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+}
+
+/* Modal */
+.opp-details__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.opp-details__modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+  padding: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.opp-details__modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--green-100);
+  color: var(--green-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.opp-details__modal-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--green-900);
+  margin: 0 0 10px;
+}
+
+.opp-details__modal-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+.opp-details__modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .opp-details__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opp-details__ai-body {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .opp-details__ai-score-col {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0;
+    padding-bottom: 20px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .opp-details__reasons-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import useAsyncData from '../../../Controller/useAsyncData';
-import { fetchWatchlists } from '../../../Model/Watchlists/watchlistModel';
+import { fetchWatchlists, deleteWatchlist } from '../../../Model/Watchlists/watchlistModel';
 import ErrorState from '../../Components/Common/ErrorState/ErrorState';
 import WatchlistStrip from '../../Components/Watchlist/WatchlistStrip/WatchlistStrip';
 import WatchlistTable from '../../Components/Watchlist/WatchlistTable/WatchlistTable';
@@ -18,8 +18,21 @@ function WatchlistsPage() {
   if (status === 'error') return <ErrorState onRetry={reload} />;
 
   const { watchlists } = data;
-  const selected = watchlists.find((w) => w.id === params.get('id')) ?? watchlists[0];
+  const selected = watchlists.find((w) => String(w.id) === String(params.get('id'))) ?? watchlists[0];
   const select = (id) => setParams({ id }, { replace: true });
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this watchlist?')) {
+      await deleteWatchlist(id);
+      const remaining = watchlists.filter((w) => String(w.id) !== String(id));
+      if (remaining.length > 0) {
+        setParams({ id: String(remaining[0].id) }, { replace: true });
+      } else {
+        setParams({}, { replace: true });
+      }
+      reload();
+    }
+  };
 
   return (
     <>
@@ -37,7 +50,7 @@ function WatchlistsPage() {
       {selected ? (
         <>
           <WatchlistStrip watchlists={watchlists} selectedId={selected.id} onSelect={select} />
-          <WatchlistTable key={selected.id} watchlist={selected} />
+          <WatchlistTable key={selected.id} watchlist={selected} onDelete={handleDelete} />
         </>
       ) : (
         <div className="watchlists-page__empty">

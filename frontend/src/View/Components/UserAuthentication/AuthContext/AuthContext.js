@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GOOGLE_CLIENT_ID } from '../config';
 import * as authService from '../Service/authService';
@@ -10,6 +10,10 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(authService.loadSession);
   const [modalMode, setModalMode] = useState(null); // null | 'login' | 'signup'
+
+  useEffect(() => {
+    authService.syncLocalAccountsToBackend();
+  }, []);
 
   const openAuth = useCallback((mode = 'login') => setModalMode(mode), []);
   const closeAuth = useCallback(() => setModalMode(null), []);
@@ -26,7 +30,7 @@ export function AuthProvider({ children }) {
       closeAuth,
       logIn: async (credentials) => finish(await authService.logIn(credentials)),
       signUp: async (details) => finish(await authService.signUp(details)),
-      logInWithGoogle: (credential) => finish(authService.logInWithGoogle(credential)),
+      logInWithGoogle: async (credential) => finish(await authService.logInWithGoogle(credential)),
       logOut: () => {
         authService.logOut(user);
         setUser(null);

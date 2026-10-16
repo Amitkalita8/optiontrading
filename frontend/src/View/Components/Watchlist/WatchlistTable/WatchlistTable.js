@@ -12,7 +12,7 @@ const PAGE_SIZE = 10;
 const COLUMNS = ['Symbol', 'Current Price', 'Market Change', 'Goal Fit', 'Latest Signal', 'Actions'];
 
 // Companies in one watchlist. Remount with `key={watchlist.id}` to reset paging.
-function WatchlistTable({ watchlist }) {
+function WatchlistTable({ watchlist, onDelete }) {
   const [page, setPage] = useState(1);
   const { companies } = watchlist;
   const total = companies.length;
@@ -37,6 +37,16 @@ function WatchlistTable({ watchlist }) {
             <span className="btn__icon" aria-hidden="true">+</span>
             Add Company
           </Link>
+          {onDelete && (
+            <button
+              type="button"
+              className="btn btn--outline"
+              style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+              onClick={() => onDelete(watchlist.id)}
+            >
+              Delete
+            </button>
+          )}
           <KebabButton label={`${watchlist.name} options`} variant="accent" size="lg" />
         </div>
       </div>

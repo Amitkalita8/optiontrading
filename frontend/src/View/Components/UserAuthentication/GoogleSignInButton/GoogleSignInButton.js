@@ -34,9 +34,9 @@ function GoogleSignInButton() {
           text="continue_with"
           shape="rectangular"
           logo_alignment="center"
-          onSuccess={({ credential }) => {
+          onSuccess={async ({ credential }) => {
             setError('');
-            logInWithGoogle(credential);
+            await logInWithGoogle(credential);
           }}
           onError={() => setError('Google sign-in failed. Please try again.')}
         />

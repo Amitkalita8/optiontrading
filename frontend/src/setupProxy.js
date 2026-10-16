@@ -4,10 +4,25 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function setupProxy(app) {
+  const token = process.env.REACT_APP_API_TOKEN;
+  const target = process.env.BACKEND_URL || 'http://localhost:8085';
   app.use(
     '/api',
     createProxyMiddleware({
-      target: process.env.BACKEND_URL || 'http://localhost:8085',
+      target,
+      changeOrigin: true,
+      onProxyReq: (proxyReq, req) => {
+        if (token && !req.headers['authorization']) {
+          proxyReq.setHeader('Authorization', `Bearer ${token}`);
+        }
+      },
+    })
+  );
+
+  app.use(
+    ['/phpmyadmin', '/db'],
+    createProxyMiddleware({
+      target,
       changeOrigin: true,
     })
   );

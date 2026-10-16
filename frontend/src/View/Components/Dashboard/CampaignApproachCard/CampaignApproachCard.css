@@ -1,0 +1,76 @@
+.campaign-approach-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.campaign-approach-card__header {
+  margin-bottom: 24px;
+}
+
+.campaign-approach-card__fields {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.campaign-approach-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campaign-approach-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.campaign-approach-card__select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.campaign-approach-card__select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 24px 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s ease;
+}
+
+.campaign-approach-card__select:hover {
+  border-color: var(--border-strong);
+}
+
+.campaign-approach-card__select:focus {
+  outline: none;
+  border-color: var(--green-600);
+}
+
+.campaign-approach-card__arrow {
+  position: absolute;
+  right: 8px;
+  font-size: 11px;
+  color: var(--text-soft);
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .campaign-approach-card__fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

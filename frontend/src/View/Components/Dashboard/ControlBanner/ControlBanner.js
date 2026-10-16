@@ -6,12 +6,8 @@ function ControlBanner() {
     <div className="control-banner">
       <span className="control-banner__check" aria-hidden="true">✓</span>
       <p>
-        <b>You&apos;re in control.</b> Your goals, risk limits and rules are always applied, so you can trade with
-        clarity, not emotion.
+        <b>You&apos;re in control.</b> Your goals, risk limits and rules are always applied, so you never trade without clarity and intention.
       </p>
-      <Link to="/opportunities" className="control-banner__link">
-        ☆ Explore New Opportunities →
-      </Link>
     </div>
   );
 }

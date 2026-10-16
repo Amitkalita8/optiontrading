@@ -37,6 +37,8 @@ type Quote struct {
 	MarketTime    time.Time `json:"marketTime"`
 	// Series holds today's 5-minute closes, oldest first (omitted unless requested).
 	Series []float64 `json:"series,omitempty"`
+	// Stale indicates the quote was served from cache fallback due to upstream error.
+	Stale bool `json:"stale,omitempty"`
 }
 
 // Yahoo exchange codes -> display names.
@@ -97,37 +99,56 @@ type chartResponse struct {
 	} `json:"chart"`
 }
 
-// chart calls /v8/finance/chart/{symbol} with the given query.
+// chart calls /v8/finance/chart/{symbol} with the given query, retrying transient errors.
 func (c *Client) chart(ctx context.Context, symbol string, query url.Values) (chartResult, error) {
 	u := fmt.Sprintf("%s/v8/finance/chart/%s?%s", c.BaseURL, url.PathEscape(symbol), query.Encode())
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
-	if err != nil {
-		return chartResult{}, err
-	}
-	// Yahoo rejects requests without a browser-like User-Agent.
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; optiontrading-backend/1.0)")
-	req.Header.Set("Accept", "application/json")
 
-	res, err := c.HTTP.Do(req)
-	if err != nil {
-		return chartResult{}, fmt.Errorf("yahoo %s: %w", symbol, err)
-	}
-	defer res.Body.Close()
-
-	var body chartResponse
-	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
-		return chartResult{}, fmt.Errorf("yahoo %s: status %d: decode: %w", symbol, res.StatusCode, err)
-	}
-	if body.Chart.Error != nil {
-		if body.Chart.Error.Code == "Not Found" {
-			return chartResult{}, ErrNotFound
+	const maxRetries = 2
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return chartResult{}, ctx.Err()
+			case <-time.After(300 * time.Millisecond):
+			}
 		}
-		return chartResult{}, fmt.Errorf("yahoo %s: %s", symbol, body.Chart.Error.Description)
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+		if err != nil {
+			return chartResult{}, err
+		}
+		// Yahoo rejects requests without a browser-like User-Agent.
+		req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; optiontrading-backend/1.0)")
+		req.Header.Set("Accept", "application/json")
+
+		res, err := c.HTTP.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("yahoo %s: %w", symbol, err)
+			continue
+		}
+
+		var body chartResponse
+		decodeErr := json.NewDecoder(res.Body).Decode(&body)
+		res.Body.Close()
+		if decodeErr != nil {
+			lastErr = fmt.Errorf("yahoo %s: status %d: decode: %w", symbol, res.StatusCode, decodeErr)
+			continue
+		}
+		if body.Chart.Error != nil {
+			if body.Chart.Error.Code == "Not Found" {
+				return chartResult{}, ErrNotFound
+			}
+			lastErr = fmt.Errorf("yahoo %s: %s", symbol, body.Chart.Error.Description)
+			continue
+		}
+		if res.StatusCode != http.StatusOK || len(body.Chart.Result) == 0 {
+			lastErr = fmt.Errorf("yahoo %s: unexpected status %d", symbol, res.StatusCode)
+			continue
+		}
+		return body.Chart.Result[0], nil
 	}
-	if res.StatusCode != http.StatusOK || len(body.Chart.Result) == 0 {
-		return chartResult{}, fmt.Errorf("yahoo %s: unexpected status %d", symbol, res.StatusCode)
-	}
-	return body.Chart.Result[0], nil
+	return chartResult{}, lastErr
 }
 
 func (r chartResult) rawCloses() []*float64 {

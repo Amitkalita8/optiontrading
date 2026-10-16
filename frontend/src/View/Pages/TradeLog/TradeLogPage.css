@@ -1,0 +1,675 @@
+.tradelog-view {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+
+.tradelog-view__header {
+  margin-bottom: 2px;
+}
+
+.tradelog-view__title {
+  font-size: 26px;
+  color: var(--green-900);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.tradelog-view__subtitle {
+  font-size: 14.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Stats Card */
+.tradelog-view__stats-card {
+  padding: 16px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+/* Common Card */
+.tradelog-view__card {
+  padding: 22px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+/* Performance Overview (Bar Chart) */
+.tradelog-view__perf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tradelog-view__filters {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.tradelog-view__filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tradelog-view__filter-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+
+.tradelog-view__select {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-900);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tradelog-view__barchart-container {
+  display: flex;
+  gap: 16px;
+  height: 260px;
+  position: relative;
+  padding-top: 10px;
+}
+
+.tradelog-view__y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-soft);
+  width: 50px;
+  text-align: right;
+  padding-bottom: 8px;
+}
+
+.tradelog-view__barchart-plot {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px dashed var(--border);
+}
+
+.tradelog-view__zero-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border-strong);
+  z-index: 1;
+}
+
+.tradelog-view__bars-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.tradelog-view__bar-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tradelog-view__bar-slot {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.tradelog-view__bar-slot--negative {
+  align-items: flex-start;
+}
+
+.tradelog-view__bar {
+  width: 82%;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: default;
+}
+
+.tradelog-view__bar:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.tradelog-view__bar--green {
+  background: #c6eed8;
+  border: 1px solid #9ad9b6;
+}
+
+.tradelog-view__bar--pink {
+  background: #ffdcd9;
+  border: 1px solid #fca5a5;
+}
+
+.tradelog-view__bar-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.tradelog-view__bar--pink .tradelog-view__bar-val {
+  color: #dc2626;
+}
+
+.tradelog-view__bar-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Trade History Table */
+.tradelog-view__history-header {
+  margin-bottom: 20px;
+}
+
+.tradelog-view__history-sub {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.tradelog-view__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tradelog-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tradelog-table th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.tradelog-table td {
+  padding: 16px 16px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tradelog-table tbody tr.tradelog-table__row--clickable {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tradelog-table tbody tr.tradelog-table__row--clickable:hover {
+  background: rgba(39, 133, 86, 0.04);
+}
+
+.tradelog-table__symbol-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tradelog-table__symbol-link:hover .tradelog-table__symbol-name {
+  color: var(--green-700);
+  text-decoration: underline;
+}
+
+.tradelog-table__symbol-name {
+  font-weight: 600;
+  color: var(--green-900);
+  transition: color 0.15s ease;
+}
+
+.tradelog-table__detail-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tradelog-table__detail-link:hover .tradelog-table__trade-detail {
+  color: var(--green-700);
+  text-decoration: underline;
+}
+
+.tradelog-table__trade-detail {
+  font-weight: 600;
+  color: var(--green-900);
+  font-size: 13.5px;
+  transition: color 0.15s ease;
+}
+
+.tradelog-table__trade-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.tradelog-table__pl--pos {
+  font-weight: 700;
+  color: var(--green-700);
+}
+
+.tradelog-table__pl--neg {
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.tradelog-table__result-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.tradelog-table__result-pill.is-win {
+  background: #d4ebd9;
+  color: var(--green-700);
+}
+
+.tradelog-table__result-pill.is-loss {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.tradelog-table__review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--green-700);
+  background: var(--surface);
+  border: 1px solid var(--green-700);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tradelog-table__review-btn:hover {
+  background: var(--green-50);
+  text-decoration: none;
+}
+
+.tradelog-table__action-kebab {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.tradelog-table__action-kebab:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.tradelog-view__table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.tradelog-view__footer-count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Charts Grid (2 columns) */
+.tradelog-view__charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.tradelog-view__chart-card {
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.tradelog-view__chart-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.tradelog-view__chart-card-title {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.tradelog-view__chart-card-val {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green-900);
+  font-family: var(--font-sans);
+  margin-top: 2px;
+}
+
+.tradelog-view__select-sm {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tradelog-view__line-chart-wrap {
+  width: 100%;
+}
+
+.tradelog-view__area-svg {
+  width: 100%;
+  height: 120px;
+}
+
+.tradelog-view__chart-x-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 6px;
+  padding: 0 10px;
+}
+
+/* Daily P&L Heatmap */
+.tradelog-view__heatmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.tradelog-view__month-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tradelog-view__month-btn {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.tradelog-view__month-text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--green-900);
+}
+
+.tradelog-view__heatmap-wrap {
+  width: 100%;
+}
+
+.tradelog-view__heatmap-days-head {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+}
+
+.tradelog-view__heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.tradelog-view__heat-cell {
+  height: 60px;
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 11.5px;
+  transition: transform 0.15s ease;
+}
+
+.tradelog-view__heat-cell:hover {
+  transform: translateY(-2px);
+}
+
+.tradelog-view__heat-cell--profit {
+  background: #dff4e8;
+  color: #17653c;
+  border: 1px solid #c2ecd5;
+}
+
+.tradelog-view__heat-cell--loss {
+  background: #fde8e8;
+  color: #c53030;
+  border: 1px solid #fbcfe8;
+}
+
+.tradelog-view__heat-cell--none {
+  background: var(--surface-muted);
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+}
+
+.tradelog-view__heat-cell--empty {
+  visibility: hidden;
+}
+
+.tradelog-view__heat-day {
+  font-weight: 600;
+}
+
+.tradelog-view__heat-val {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.tradelog-view__heat-cell--none .tradelog-view__heat-val {
+  font-weight: 400;
+  font-size: 10.5px;
+}
+
+.tradelog-view__heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tradelog-view__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tradelog-view__legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.tradelog-view__legend-box--profit { background: #dff4e8; border: 1px solid #c2ecd5; }
+.tradelog-view__legend-box--loss { background: #fde8e8; border: 1px solid #fbcfe8; }
+.tradelog-view__legend-box--none { background: var(--surface-muted); border: 1px solid var(--border); }
+
+/* AI Insights Summary */
+.tradelog-view__insights-head {
+  margin-bottom: 20px;
+}
+
+.tradelog-view__insights-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.tradelog-view__insights-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.tradelog-view__insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tradelog-view__insight-item {
+  padding: 14px 16px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--green-700);
+}
+
+.tradelog-view__insight-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--green-900);
+  font-family: var(--font-sans);
+}
+
+.tradelog-view__insight-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.tradelog-view__improve-box {
+  padding: 16px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tradelog-view__improve-head {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.tradelog-view__improve-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tradelog-view__improve-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  margin-bottom: 5px;
+}
+
+.tradelog-view__improve-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.tradelog-view__improve-val {
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.tradelog-view__improve-track {
+  width: 100%;
+  height: 6px;
+  background: #e2e8e4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tradelog-view__improve-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .tradelog-view__charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .tradelog-view__insights-layout {
+    grid-template-columns: 1fr;
+  }
+}

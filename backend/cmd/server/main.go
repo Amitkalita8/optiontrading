@@ -17,10 +17,16 @@ import (
 
 	"optiontrading/backend/internal/api"
 	"optiontrading/backend/internal/approaches"
+	"optiontrading/backend/internal/campaigns"
 	"optiontrading/backend/internal/config"
 	"optiontrading/backend/internal/insights"
+	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/store"
+	"optiontrading/backend/internal/tradelog"
+	"optiontrading/backend/internal/users"
+	"optiontrading/backend/internal/watchlists"
 )
 
 func main() {
@@ -44,9 +50,35 @@ func main() {
 	}
 	defer db.Close()
 	approachRepo := approaches.NewRepository(db)
+	watchlistRepo := watchlists.NewRepository(db)
+	campaignRepo := campaigns.NewRepository(db)
+	positionRepo := positions.NewRepository(db)
+	tradeLogRepo := tradelog.NewRepository(db)
+	notificationRepo := notifications.NewRepository(db)
+	userRepo := users.NewRepository(db)
+
 	if cfg.SeedDemoData {
-		if err := approachRepo.SeedDemo(context.Background()); err != nil {
-			log.Fatalf("seed demo data: %v", err)
+		ctx := context.Background()
+		if err := approachRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo approaches: %v", err)
+		}
+		if err := watchlistRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo watchlists: %v", err)
+		}
+		if err := campaignRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo campaigns: %v", err)
+		}
+		if err := positionRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo positions: %v", err)
+		}
+		if err := tradeLogRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo trade log: %v", err)
+		}
+		if err := notificationRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo notifications: %v", err)
+		}
+		if err := userRepo.SeedDemo(ctx); err != nil {
+			log.Fatalf("seed demo users: %v", err)
 		}
 	}
 
@@ -55,8 +87,20 @@ func main() {
 	defer cancelBase()
 
 	srv := &http.Server{
-		Addr:              cfg.Addr,
-		Handler:           api.New(cfg, quoteService, approachRepo, insightService).Routes(),
+		Addr: cfg.Addr,
+		Handler: api.New(
+			cfg,
+			db,
+			quoteService,
+			approachRepo,
+			insightService,
+			watchlistRepo,
+			campaignRepo,
+			positionRepo,
+			tradeLogRepo,
+			notificationRepo,
+			userRepo,
+		).Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      30 * time.Second, // the stream handler lifts this for itself
 		IdleTimeout:       90 * time.Second,

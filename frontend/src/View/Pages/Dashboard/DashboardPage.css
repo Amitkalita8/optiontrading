@@ -1,12 +1,18 @@
-.dashboard-page__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.42fr);
-  gap: 28px;
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-@media (max-width: 1199px) {
-  .dashboard-page__row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+.dashboard-page__middle-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(460px, 1.45fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-page__middle-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 }

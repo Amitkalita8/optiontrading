@@ -27,12 +27,15 @@ const StockPage = lazy(() => import('./View/Pages/Stock/StockPage'));
 const TradeApproachesPage = lazy(() => import('./View/Pages/TradeApproach/TradeApproachesPage'));
 const ApproachEditorPage = lazy(() => import('./View/Pages/TradeApproach/ApproachEditorPage'));
 const AskAIPage = lazy(() => import('./View/Pages/AskAI/AskAIPage'));
+const PositionsPage = lazy(() => import('./View/Pages/Positions/PositionsPage'));
+const PositionOpportunityDetailsPage = lazy(() => import('./View/Pages/Positions/PositionOpportunityDetailsPage'));
+const TradeLogPage = lazy(() => import('./View/Pages/TradeLog/TradeLogPage'));
+const TradeReportPage = lazy(() => import('./View/Pages/TradeLog/TradeReportPage'));
+const NotificationsPage = lazy(() => import('./View/Pages/Notifications/NotificationsPage'));
+const OnboardingPage = lazy(() => import('./View/Pages/Onboarding/OnboardingPage'));
+const OpportunityDetailsPage = lazy(() => import('./View/Pages/Opportunities/OpportunityDetailsPage'));
 
 const placeholderRoutes = [
-  { path: 'opportunities/:id', title: 'Opportunity details' },
-  { path: 'positions', title: 'Existing Positions' },
-  { path: 'trade-log', title: 'Trade Log' },
-  { path: 'notifications', title: 'Notifications' },
   { path: 'settings', title: 'Settings' },
 ];
 
@@ -43,6 +46,14 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route index element={<LandingPage />} />
+            <Route
+              path="onboarding"
+              element={
+                <Suspense fallback={<div className="loading" />}>
+                  <OnboardingPage />
+                </Suspense>
+              }
+            />
             <Route element={<AppLayout />}>
               <Route
                 path="dashboard"
@@ -129,6 +140,70 @@ function App() {
                 element={
                   <Suspense fallback={<StockPageSkeleton />}>
                     <StockPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="positions"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <PositionsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="positions/:id"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <PositionOpportunityDetailsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="positions/opportunity/:id"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <PositionOpportunityDetailsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="trade-log"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <TradeLogPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="trade-log/:id"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <TradeReportPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="trade-log/report/:id"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <TradeReportPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="notifications"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <NotificationsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="opportunities/:id"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <OpportunityDetailsPage />
                   </Suspense>
                 }
               />

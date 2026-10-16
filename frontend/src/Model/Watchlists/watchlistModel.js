@@ -1,33 +1,42 @@
-import { watchlists as seed } from '../../Data/mockData';
+import { deleteJSON, getJSON, postJSON, putJSON } from '../../Utils/api';
 import { getCompany } from '../Companies/companyModel';
-import { withLatency } from '../mockLatency';
 
-// In-memory store standing in for the backend: changes last until the page reloads.
-// TODO: replace each function with the matching backend call.
-let store = seed.map((w) => ({ ...w, tickers: [...w.tickers] }));
+const resolve = (w) => {
+  const tickers = w.tickers || [];
+  return {
+    id: String(w.id),
+    name: w.name,
+    tickers,
+    companies: tickers.map((t) => getCompany(t) || { ticker: t, name: t, exchange: 'US' }),
+  };
+};
 
-const resolve = (w) => ({
-  id: w.id,
-  name: w.name,
-  companies: w.tickers.map(getCompany).filter(Boolean),
-});
-
-export function fetchWatchlists() {
-  return withLatency({ watchlists: store.map(resolve) });
+export async function fetchWatchlists() {
+  const data = await getJSON('/api/watchlists');
+  return { watchlists: (data.watchlists || []).map(resolve) };
 }
 
-export function fetchWatchlist(id) {
-  const found = store.find((w) => w.id === id);
-  return found ? withLatency(resolve(found)) : Promise.reject(new Error('Watchlist not found'));
+export async function fetchWatchlist(id) {
+  const w = await getJSON(`/api/watchlists/${id}`);
+  return resolve(w);
 }
 
-export function createWatchlist({ name, tickers }) {
-  const id = `wl-${Date.now().toString(36)}`;
-  store = [...store, { id, name: name.trim(), tickers: [...tickers] }];
-  return withLatency({ id });
+export async function createWatchlist({ name, tickers }) {
+  const created = await postJSON('/api/watchlists', { name: name.trim(), tickers });
+  return { id: String(created.id) };
 }
 
-export function updateWatchlistCompanies(id, tickers) {
-  store = store.map((w) => (w.id === id ? { ...w, tickers: [...tickers] } : w));
-  return withLatency({ id });
+export async function updateWatchlistCompanies(id, tickers) {
+  const updated = await putJSON(`/api/watchlists/${id}/tickers`, { tickers });
+  return { id: String(updated.id) };
+}
+
+export async function renameWatchlist(id, name) {
+  const updated = await putJSON(`/api/watchlists/${id}`, { name: name.trim() });
+  return { id: String(updated.id) };
+}
+
+export async function deleteWatchlist(id) {
+  await deleteJSON(`/api/watchlists/${id}`);
+  return { id: String(id) };
 }

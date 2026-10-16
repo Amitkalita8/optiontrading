@@ -37,25 +37,25 @@ func (c *cache[T]) entry(key string) *cacheEntry[T] {
 	return e
 }
 
-// get returns the cached value if younger than ttl, otherwise calls fetch.
+// get returns the cached value, whether it is stale, and any error.
 // If fetch fails (other than ErrNotFound) a value up to maxStale old is
-// returned instead of the error.
-func (c *cache[T]) get(key string, ttl time.Duration, now time.Time, fetch func() (T, error)) (T, error) {
+// returned instead of the error, with stale=true.
+func (c *cache[T]) get(key string, ttl time.Duration, now time.Time, fetch func() (T, error)) (T, bool, error) {
 	e := c.entry(key)
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
 	if !e.fetched.IsZero() && now.Sub(e.fetched) < ttl {
-		return e.val, nil
+		return e.val, false, nil
 	}
 	v, err := fetch()
 	if err != nil {
 		if !e.fetched.IsZero() && now.Sub(e.fetched) < maxStale && !errors.Is(err, ErrNotFound) {
-			return e.val, nil
+			return e.val, true, nil
 		}
 		var zero T
-		return zero, err
+		return zero, false, err
 	}
 	e.val, e.fetched = v, now
-	return v, nil
+	return v, false, nil
 }

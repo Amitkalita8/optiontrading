@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -63,7 +64,7 @@ func cors(allowed []string) middleware {
 				h := w.Header()
 				h.Set("Access-Control-Allow-Origin", origin)
 				h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-				h.Set("Access-Control-Allow-Headers", "Content-Type")
+				h.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 				h.Add("Vary", "Origin")
 			}
 			if r.Method == http.MethodOptions {
@@ -74,3 +75,32 @@ func cors(allowed []string) middleware {
 		})
 	}
 }
+
+// tokenAuth requires requests to bear an Authorization header when expectedToken is configured.
+func tokenAuth(expectedToken string) middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if expectedToken == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			// Allow health check, OPTIONS preflight, database admin routes, and auth routes without token
+			if r.URL.Path == "/api/health" || r.Method == http.MethodOptions ||
+				strings.HasPrefix(r.URL.Path, "/phpmyadmin") ||
+				strings.HasPrefix(r.URL.Path, "/db") ||
+				strings.HasPrefix(r.URL.Path, "/api/auth") ||
+				strings.HasPrefix(r.URL.Path, "/api/users") {
+				next.ServeHTTP(w, r)
+				return
+			}
+			authHeader := r.Header.Get("Authorization")
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+			if authHeader == "" || token != expectedToken {
+				writeError(w, http.StatusUnauthorized, "unauthorized")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+

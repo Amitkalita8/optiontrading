@@ -12,11 +12,17 @@ import (
 	"time"
 
 	"optiontrading/backend/internal/approaches"
+	"optiontrading/backend/internal/campaigns"
 	"optiontrading/backend/internal/config"
 	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/market"
+	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/store"
+	"optiontrading/backend/internal/tradelog"
+	"optiontrading/backend/internal/users"
+	"optiontrading/backend/internal/watchlists"
 )
 
 type fakeFetcher struct{}
@@ -48,7 +54,19 @@ func newTestServer(t *testing.T) *httptest.Server {
 	}
 	t.Cleanup(func() { db.Close() })
 	qs := quotes.NewService(fakeFetcher{}, time.Second)
-	a := New(cfg, qs, approaches.NewRepository(db), insights.NewService(qs, fakeLLM{}, "test-model"))
+	a := New(
+		cfg,
+		db,
+		qs,
+		approaches.NewRepository(db),
+		insights.NewService(qs, fakeLLM{}, "test-model"),
+		watchlists.NewRepository(db),
+		campaigns.NewRepository(db),
+		positions.NewRepository(db),
+		tradelog.NewRepository(db),
+		notifications.NewRepository(db),
+		users.NewRepository(db),
+	)
 	srv := httptest.NewServer(a.Routes())
 	t.Cleanup(srv.Close)
 	return srv
@@ -169,4 +187,50 @@ func TestHistory(t *testing.T) {
 	}
 	getJSON(t, srv.URL+"/api/market/history/aapl?range=2D", http.StatusBadRequest, nil)
 	getJSON(t, srv.URL+"/api/market/history/NOPE", http.StatusNotFound, nil)
+}
+
+func TestAuthRegisterAndLogin(t *testing.T) {
+	srv := newTestServer(t)
+
+	// Test register
+	regBody := `{"name":"Tester","email":"test@example.com","password":"mypassword"}`
+	res, err := http.Post(srv.URL+"/api/auth/register", "application/json", strings.NewReader(regBody))
+	if err != nil {
+		t.Fatalf("register failed: %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusCreated {
+		t.Fatalf("expected 201 Created, got %d", res.StatusCode)
+	}
+
+	// Test duplicate register
+	resDup, err := http.Post(srv.URL+"/api/auth/register", "application/json", strings.NewReader(regBody))
+	if err != nil {
+		t.Fatalf("dup register failed: %v", err)
+	}
+	defer resDup.Body.Close()
+	if resDup.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 OK (idempotent), got %d", resDup.StatusCode)
+	}
+
+	// Test login
+	loginBody := `{"email":"test@example.com","password":"mypassword"}`
+	resLog, err := http.Post(srv.URL+"/api/auth/login", "application/json", strings.NewReader(loginBody))
+	if err != nil {
+		t.Fatalf("login failed: %v", err)
+	}
+	defer resLog.Body.Close()
+	if resLog.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", resLog.StatusCode)
+	}
+
+	// Test list users
+	resList, err := http.Get(srv.URL + "/api/users")
+	if err != nil {
+		t.Fatalf("list users failed: %v", err)
+	}
+	defer resList.Body.Close()
+	if resList.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", resList.StatusCode)
+	}
 }

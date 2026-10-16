@@ -18,21 +18,26 @@ import './LandingPage.css';
 function LandingPage() {
   const navigate = useNavigate();
   const { user, openAuth } = useAuth();
-  const pendingStart = useRef(false);
+  const pendingLogin = useRef(false);
 
   useEffect(() => {
-    if (user && pendingStart.current) {
-      pendingStart.current = false;
-      navigate('/dashboard');
+    if (user && pendingLogin.current) {
+      pendingLogin.current = false;
+      navigate('/onboarding');
     }
   }, [user, navigate]);
 
   const start = () => {
+    // Show campaign screen then watchlist
+    navigate('/onboarding');
+  };
+
+  const login = () => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/onboarding');
     } else {
-      pendingStart.current = true;
-      openAuth('signup');
+      pendingLogin.current = true;
+      openAuth('login');
     }
   };
 
@@ -40,9 +45,9 @@ function LandingPage() {
 
   return (
     <div className="landing">
-      <LandingNav signedIn={signedIn} onLogin={() => openAuth('login')} onStart={start} />
+      <LandingNav signedIn={signedIn} onLogin={login} onStart={start} />
       <main>
-        <Hero signedIn={signedIn} onStart={start} />
+        <Hero signedIn={signedIn} onStart={start} onLogin={login} />
         <OptionSellingExplainer />
         <WorkflowSteps />
         <ProductPillars />

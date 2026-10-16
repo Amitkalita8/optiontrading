@@ -2,6 +2,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"log"
@@ -10,22 +11,60 @@ import (
 	"time"
 
 	"optiontrading/backend/internal/approaches"
+	"optiontrading/backend/internal/campaigns"
 	"optiontrading/backend/internal/config"
 	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/market"
+	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/quotes"
+	"optiontrading/backend/internal/tradelog"
+	"optiontrading/backend/internal/users"
+	"optiontrading/backend/internal/watchlists"
 )
 
 type API struct {
-	cfg        config.Config
-	quotes     *quotes.Service
-	approaches *approaches.Repository
-	insights   *insights.Service
-	now        func() time.Time
+	cfg           config.Config
+	db            *sql.DB
+	quotes        *quotes.Service
+	approaches    *approaches.Repository
+	insights      *insights.Service
+	watchlists    *watchlists.Repository
+	campaigns     *campaigns.Repository
+	positions     *positions.Repository
+	tradeLog      *tradelog.Repository
+	notifications *notifications.Repository
+	users         *users.Repository
+	now           func() time.Time
 }
 
-func New(cfg config.Config, q *quotes.Service, ap *approaches.Repository, in *insights.Service) *API {
-	return &API{cfg: cfg, quotes: q, approaches: ap, insights: in, now: time.Now}
+func New(
+	cfg config.Config,
+	db *sql.DB,
+	q *quotes.Service,
+	ap *approaches.Repository,
+	in *insights.Service,
+	wl *watchlists.Repository,
+	cp *campaigns.Repository,
+	pos *positions.Repository,
+	tl *tradelog.Repository,
+	notif *notifications.Repository,
+	u *users.Repository,
+) *API {
+	return &API{
+		cfg:           cfg,
+		db:            db,
+		quotes:        q,
+		approaches:    ap,
+		insights:      in,
+		watchlists:    wl,
+		campaigns:     cp,
+		positions:     pos,
+		tradeLog:      tl,
+		notifications: notif,
+		users:         u,
+		now:           time.Now,
+	}
 }
 
 // Routes returns the router with middleware applied.
@@ -37,6 +76,13 @@ func New(cfg config.Config, q *quotes.Service, ap *approaches.Repository, in *in
 //	GET /api/market/history/{symbol}?range=1D   (1D 1W 1M 3M 6M 1Y 3Y 5Y ALL)
 //	GET /api/market/stream?symbols=AAPL,MSFT&series=1   (Server-Sent Events)
 //	/api/approaches…                                   (see approaches.go)
+//	/api/watchlists…                                   (see watchlists.go)
+//	/api/campaigns…                                    (see campaigns.go)
+//	/api/positions…                                    (see positions.go)
+//	/api/trade-log…                                    (see tradelog.go)
+//	/api/notifications…                                (see notifications.go)
+//	/api/auth…                                         (see auth.go)
+//	/phpmyadmin…                                       (see database_admin.go)
 func (a *API) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", a.health)
@@ -46,8 +92,25 @@ func (a *API) Routes() http.Handler {
 	mux.HandleFunc("GET /api/market/history/{symbol}", a.history)
 	mux.HandleFunc("GET /api/market/stream", a.stream)
 	a.approachRoutes(mux)
+	a.watchlistRoutes(mux)
+	a.campaignRoutes(mux)
+	a.positionRoutes(mux)
+	a.tradelogRoutes(mux)
+	a.notificationRoutes(mux)
+	a.authRoutes(mux)
 	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
-	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins))
+	a.databaseAdminRoutes(mux)
+	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken))
+}
+
+func (a *API) userID(r *http.Request) string {
+	if uid := strings.TrimSpace(r.Header.Get("X-User-Id")); uid != "" {
+		return uid
+	}
+	if uid := strings.TrimSpace(r.URL.Query().Get("user_id")); uid != "" {
+		return uid
+	}
+	return "default"
 }
 
 func (a *API) health(w http.ResponseWriter, r *http.Request) {

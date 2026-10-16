@@ -26,6 +26,8 @@ type Config struct {
 	GroqAPIKey string
 	// GroqModel is the chat model the screener asks (env GROQ_MODEL).
 	GroqModel string
+	// APIToken protects the API endpoints when non-empty (env API_TOKEN).
+	APIToken string
 }
 
 func Load() Config {
@@ -39,6 +41,7 @@ func Load() Config {
 		SeedDemoData:         env("SEED_DEMO_DATA", "true") != "false",
 		GroqAPIKey:           env("GROQ_API_KEY", ""),
 		GroqModel:            env("GROQ_MODEL", "openai/gpt-oss-120b"),
+		APIToken:             env("API_TOKEN", ""),
 	}
 }
 

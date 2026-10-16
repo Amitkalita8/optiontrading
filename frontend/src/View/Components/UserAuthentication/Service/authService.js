@@ -60,36 +60,159 @@ function startSession(user) {
 }
 
 export async function signUp({ name, email, password }) {
-  await wait();
   const cleanEmail = normalizeEmail(email);
   if (password.length < PASSWORD_MIN_LENGTH) {
     throw new Error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters.`);
   }
-  const accounts = read(ACCOUNTS_KEY, []);
-  if (accounts.some((a) => a.email === cleanEmail)) {
-    throw new Error('An account with this email already exists. Try logging in.');
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.trim(),
+        email: cleanEmail,
+        password,
+        provider: 'email',
+      }),
+    });
+    if (res.status === 409) {
+      throw new Error('An account with this email already exists. Try logging in.');
+    }
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to register account.');
+    }
+    const data = await res.json();
+    return startSession({
+      name: data.user.name,
+      email: data.user.email,
+      provider: data.user.provider || 'email',
+    });
+  } catch (err) {
+    // If backend connection fails, fallback to localStorage mock for resilience
+    if (err.message?.includes('already exists') || err.message?.includes('at least')) {
+      throw err;
+    }
+    await wait();
+    const accounts = read(ACCOUNTS_KEY, []);
+    if (accounts.some((a) => a.email === cleanEmail)) {
+      throw new Error('An account with this email already exists. Try logging in.');
+    }
+    const account = { name: name.trim(), email: cleanEmail, passwordHash: await sha256(password) };
+    write(ACCOUNTS_KEY, [...accounts, account]);
+    return startSession({ name: account.name, email: account.email, provider: 'email' });
   }
-  const account = { name: name.trim(), email: cleanEmail, passwordHash: await sha256(password) };
-  write(ACCOUNTS_KEY, [...accounts, account]);
-  return startSession({ name: account.name, email: account.email, provider: 'password' });
 }
 
 export async function logIn({ email, password }) {
-  await wait();
   const cleanEmail = normalizeEmail(email);
-  const account = read(ACCOUNTS_KEY, []).find((a) => a.email === cleanEmail);
-  if (!account || account.passwordHash !== (await sha256(password))) {
-    throw new Error('Incorrect email or password.');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password }),
+    });
+    if (res.status === 401) {
+      throw new Error('Incorrect email or password.');
+    }
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to log in.');
+    }
+    const data = await res.json();
+    return startSession({
+      name: data.user.name,
+      email: data.user.email,
+      provider: data.user.provider || 'email',
+    });
+  } catch (err) {
+    if (err.message === 'Incorrect email or password.') {
+      throw err;
+    }
+    // Fallback to local mock accounts if backend is unreachable
+    await wait();
+    const account = read(ACCOUNTS_KEY, []).find((a) => a.email === cleanEmail);
+    if (!account || account.passwordHash !== (await sha256(password))) {
+      throw new Error('Incorrect email or password.');
+    }
+    return startSession({ name: account.name, email: account.email, provider: 'email' });
   }
-  return startSession({ name: account.name, email: account.email, provider: 'password' });
 }
 
-export function logInWithGoogle(credential) {
+export async function logInWithGoogle(credential) {
   const { name, email, picture } = decodeJwtPayload(credential);
+  try {
+    await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name ?? email,
+        email,
+        avatar_url: picture || '',
+        provider: 'google',
+      }),
+    });
+  } catch (err) {
+    console.warn('Backend sync failed for Google user:', err);
+  }
+
   return startSession({ name: name ?? email, email, picture, provider: 'google' });
+}
+
+let hasSynced = false;
+
+// Automatically sync any previously stored session or local accounts to SQLite backend database
+export function syncLocalAccountsToBackend() {
+  if (hasSynced) return;
+  hasSynced = true;
+
+  try {
+    const session = read(SESSION_KEY, null);
+    if (session && session.email) {
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: session.name || session.email,
+          email: session.email,
+          avatar_url: session.picture || '',
+          provider: session.provider || 'google',
+        }),
+      }).catch(() => {});
+    }
+
+    const accounts = read(ACCOUNTS_KEY, []);
+    for (const acc of accounts) {
+      if (acc.email) {
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: acc.name || acc.email,
+            email: acc.email,
+            provider: 'email',
+          }),
+        }).catch(() => {});
+      }
+    }
+  } catch (e) {}
+}
+
+// Auto-run sync on script evaluation
+if (typeof window !== 'undefined') {
+  syncLocalAccountsToBackend();
 }
 
 export function logOut(user) {
   if (user?.provider === 'google') googleLogout();
   write(SESSION_KEY, null);
+  try {
+    localStorage.removeItem('active_campaign_name');
+    localStorage.removeItem('active_campaign_data');
+    localStorage.removeItem('active_watchlist_tickers');
+    localStorage.removeItem('active_watchlist_name');
+    localStorage.removeItem('has_onboarded');
+  } catch (e) {}
 }

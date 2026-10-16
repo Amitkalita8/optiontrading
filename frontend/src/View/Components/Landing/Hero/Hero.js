@@ -10,7 +10,7 @@ const MARKET_LABEL = {
   closed: 'US market closed · live data',
 };
 
-function Hero({ signedIn, onStart }) {
+function Hero({ signedIn, onStart, onLogin }) {
   const { status } = useMarketStatus();
 
   return (
@@ -25,7 +25,12 @@ function Hero({ signedIn, onStart }) {
             <button type="button" className="btn btn--primary hero__cta" onClick={onStart}>
               {signedIn ? 'Open dashboard' : 'Get started'}
             </button>
-            <a href="#how-it-works" className="btn btn--outline-accent hero__secondary">
+            {!signedIn && (
+              <button type="button" className="btn btn--outline-accent hero__login-btn" onClick={onLogin}>
+                Log in
+              </button>
+            )}
+            <a href="#how-it-works" className="btn btn--outline hero__secondary">
               See how it works
             </a>
           </div>
