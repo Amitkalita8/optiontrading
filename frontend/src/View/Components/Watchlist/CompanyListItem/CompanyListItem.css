@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   padding: 22px 24px;
-  background: #f5f0ed;
+  background: var(--beige);
   border: 1px solid #ece6e2;
   border-radius: var(--radius-md);
 }

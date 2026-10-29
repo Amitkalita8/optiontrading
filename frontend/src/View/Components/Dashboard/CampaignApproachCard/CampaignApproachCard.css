@@ -74,3 +74,187 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ---------- Live approach card (header, Set Approach menu, compact dropdowns) ---------- */
+.campaign-approach-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.campaign-approach-card__using {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.campaign-approach-card__using a {
+  font-weight: 600;
+  color: var(--green-700);
+}
+
+.campaign-approach-card__saving {
+  color: var(--text-soft);
+}
+
+.campaign-approach-card__set {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.campaign-approach-card__set-btn {
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--green-700);
+  background: none;
+  border: none;
+}
+
+.campaign-approach-card__set-btn:hover {
+  text-decoration: underline;
+}
+
+.campaign-approach-card__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  max-height: 300px;
+  padding: 6px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.campaign-approach-card__menu button,
+.campaign-approach-card__new {
+  padding: 9px 10px;
+  font-size: 14px;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.campaign-approach-card__menu button:hover {
+  background: var(--surface-muted);
+}
+
+.campaign-approach-card__menu button.is-current {
+  color: var(--green-900);
+  background: var(--green-50);
+  border-color: var(--green-100);
+}
+
+.campaign-approach-card__new {
+  margin-top: 4px;
+  font-weight: 600;
+  color: var(--green-700);
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+
+/* Compact dropdowns inside the card. */
+.campaign-approach-card .search-select {
+  gap: 6px;
+}
+
+.campaign-approach-card .search-select__label {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.campaign-approach-card .search-select__trigger {
+  height: 44px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.campaign-approach-card .search-select__popup {
+  min-width: 180px;
+}
+
+.campaign-approach-card .search-select__option {
+  min-height: 38px;
+  font-size: 14px;
+}
+
+
+.campaign-approach-card__empty p {
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.campaign-approach-card__fields.campaign-approach-card__fields--outlook-only {
+  max-width: 220px;
+  grid-template-columns: 1fr;
+}
+
+/* Strategy shows the most text ("Covered Call +1"): give it more room. */
+.campaign-approach-card__fields {
+  grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr));
+}
+
+/* Strategy multi-select (label left, green checkbox right — as designed). */
+.strategy-menu__popup {
+  min-width: 220px;
+}
+
+.strategy-menu__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 46px;
+  padding: 8px 10px;
+  font-size: 15px;
+  color: var(--text);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.strategy-menu__option:hover {
+  background: var(--surface-muted);
+}
+
+.strategy-menu__option--locked {
+  cursor: not-allowed;
+}
+
+.strategy-menu__option:has(input:focus-visible) {
+  box-shadow: 0 0 0 2px var(--green-200);
+}
+
+.strategy-menu__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  background: var(--surface);
+  border: 1.5px solid var(--text-muted);
+  border-radius: 4px;
+}
+
+.strategy-menu__box--on {
+  background: var(--green-700);
+  border-color: var(--green-700);
+}
+
+.campaign-approach-card__menu-hint {
+  padding: 6px 10px 8px;
+  font-size: 12px;
+  color: var(--text-soft);
+}

@@ -54,6 +54,13 @@ function decodeJwtPayload(token) {
 // Session = the signed-in user's public profile: { name, email, picture?, provider }.
 export const loadSession = () => read(SESSION_KEY, null);
 
+// Merge display fields (name, photo) into the stored session.
+export function updateSession(patch) {
+  const current = read(SESSION_KEY, null);
+  if (!current) return null;
+  return startSession({ ...current, ...patch });
+}
+
 function startSession(user) {
   write(SESSION_KEY, user);
   return user;

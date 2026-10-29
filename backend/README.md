@@ -32,6 +32,9 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | DELETE | `/api/approaches/{id}` | Delete → 204; 409 if campaigns still use it |
 | GET | `/api/market/stream?symbols=AAPL,MSFT&series=1` | Server-Sent Events: `status` (on connect and on change) and `quotes` (every 5 s while open, 60 s while closed) |
 | POST | `/api/screener/ask` | AI screener. Body `{ "symbol": "AAPL", "question": "optional" }` → rating `good`/`medium`/`poor`, outlook, reasons, risks, option idea and the live metrics used. 503 without `GROQ_API_KEY`; answers cached 10 min |
+| GET | `/api/profile` | Signed-in user's profile (`X-User-Id`): `{ profile }`, or `{ profile: null }` if never saved |
+| PUT | `/api/profile` | Save name, phone, country (ISO code), language (`en hi es de fr ru`), time zone (IANA), date format and photo (data URL ≤ 300 KB). 422 `{ error, fields }` on invalid input; also renames the account |
+| GET | `/api/auth/me` · POST `/api/auth/change-password` | Current account; change password (`currentPassword`, `newPassword`) |
 
 `phase` is one of `pre-market` (4:00–9:30 ET), `open`, `after-hours` (close–20:00 ET) or `closed`.
 
@@ -60,6 +63,7 @@ internal/store/      SQLite connection + numbered schema migrations (PRAGMA user
 internal/approaches/ trade approach model, validation, options catalogue, repository, demo seed
 internal/market/     NYSE trading calendar (hours, holidays, early closes)
 internal/quotes/     Yahoo Finance client (quotes + history ranges) + TTL cache with request de-duplication
+internal/profiles/   user profile + regional preferences (validation, storage)
 internal/insights/   AI screener: live metrics (trend, returns, volatility) + Groq client
 internal/api/        HTTP handlers, SSE stream, middleware (logging, recovery, CORS)
 ```

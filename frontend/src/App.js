@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './View/Components/Layout/AppLayout';
 import { AuthProvider } from './View/Components/UserAuthentication/AuthContext/AuthContext';
 import { MarketStatusProvider } from './Controller/MarketStatusContext';
+import { AppearanceProvider } from './Controller/AppearanceContext';
+import { LocaleProvider } from './Controller/LocaleContext';
 import DashboardSkeleton from './View/Pages/Dashboard/DashboardSkeleton';
 import CampaignsSkeleton from './View/Pages/Campaigns/CampaignsSkeleton';
 import OpportunitiesSkeleton from './View/Pages/Opportunities/OpportunitiesSkeleton';
@@ -12,6 +14,7 @@ import ApproachEditorSkeleton from './View/Pages/TradeApproach/ApproachEditorSke
 import { AddCompanySkeleton, CreateWatchlistSkeleton } from './View/Pages/Watchlist/WatchlistFlowSkeletons';
 import StockPageSkeleton from './View/Pages/Stock/StockPageSkeleton';
 import AskAISkeleton from './View/Pages/AskAI/AskAISkeleton';
+import NotificationsSkeleton from './View/Pages/Notifications/NotificationsSkeleton';
 import PlaceholderPage from './View/Pages/Placeholder/PlaceholderPage';
 // The landing page is the entry point, so it isn't code-split.
 import LandingPage from './View/Pages/Landing/LandingPage';
@@ -34,14 +37,15 @@ const TradeReportPage = lazy(() => import('./View/Pages/TradeLog/TradeReportPage
 const NotificationsPage = lazy(() => import('./View/Pages/Notifications/NotificationsPage'));
 const OnboardingPage = lazy(() => import('./View/Pages/Onboarding/OnboardingPage'));
 const OpportunityDetailsPage = lazy(() => import('./View/Pages/Opportunities/OpportunityDetailsPage'));
+const ProfilePage = lazy(() => import('./View/Pages/Profile/ProfilePage'));
 
-const placeholderRoutes = [
-  { path: 'settings', title: 'Settings' },
-];
+const placeholderRoutes = [];
 
 function App() {
   return (
+    <AppearanceProvider>
     <AuthProvider>
+    <LocaleProvider>
       <MarketStatusProvider>
         <BrowserRouter>
           <Routes>
@@ -194,7 +198,7 @@ function App() {
               <Route
                 path="notifications"
                 element={
-                  <Suspense fallback={<div className="loading" />}>
+                  <Suspense fallback={<NotificationsSkeleton />}>
                     <NotificationsPage />
                   </Suspense>
                 }
@@ -207,6 +211,30 @@ function App() {
                   </Suspense>
                 }
               />
+              <Route
+                path="profile"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <ProfilePage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="settings"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <ProfilePage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="settings/:tab"
+                element={
+                  <Suspense fallback={<div className="loading" />}>
+                    <ProfilePage />
+                  </Suspense>
+                }
+              />
               {placeholderRoutes.map((r) => (
                 <Route key={r.path} path={r.path} element={<PlaceholderPage title={r.title} />} />
               ))}
@@ -215,7 +243,9 @@ function App() {
           </Routes>
         </BrowserRouter>
       </MarketStatusProvider>
+    </LocaleProvider>
     </AuthProvider>
+    </AppearanceProvider>
   );
 }
 

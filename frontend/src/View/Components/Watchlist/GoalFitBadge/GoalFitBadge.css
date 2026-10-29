@@ -15,12 +15,12 @@
 
 .goal-fit--moderate {
   color: #b35d0d;
-  background: #fff6e5;
+  background: var(--amber-50);
   border-color: #fbe3b8;
 }
 
 .goal-fit--weak {
   color: var(--text-muted);
-  background: #f5f6f7;
+  background: var(--surface-muted);
   border-color: #e3e5e8;
 }

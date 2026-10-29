@@ -41,7 +41,7 @@
 }
 
 .action-menu__item--danger:hover:not(:disabled) {
-  background: #fdeff0;
+  background: var(--red-50);
 }
 
 .action-menu__item:disabled {

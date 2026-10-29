@@ -9,8 +9,8 @@
   padding: 10px 12px;
   font-size: 13.5px;
   color: #a1242a;
-  background: #fdeff0;
-  border: 1px solid #f7d3d5;
+  background: var(--red-50);
+  border: 1px solid var(--red-100);
   border-radius: var(--radius-sm);
 }
 

@@ -14,17 +14,26 @@ var (
 
 // Campaign is a stored campaign.
 type Campaign struct {
-	ID         int64     `json:"id"`
-	Name       string    `json:"name"`
-	Capital    float64   `json:"capital"`
-	Goal       float64   `json:"goal"`
-	Earned     float64   `json:"earned"`
-	Status     string    `json:"status"`
-	StartDate  string    `json:"startDate"`
-	EndDate    string    `json:"endDate"`
-	ApproachID *int64    `json:"approachId,omitempty"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID         int64   `json:"id"`
+	Name       string  `json:"name"`
+	Capital    float64 `json:"capital"`
+	Goal       float64 `json:"goal"`
+	Earned     float64 `json:"earned"`
+	Status     string  `json:"status"`
+	StartDate  string  `json:"startDate"`
+	EndDate    string  `json:"endDate"`
+	ApproachID *int64  `json:"approachId,omitempty"`
+	// WatchlistID is the list the campaign screens; MarketOutlook is the
+	// trader's view for it (bullish | neutral | bearish).
+	WatchlistID   *int64 `json:"watchlistId,omitempty"`
+	MarketOutlook string `json:"marketOutlook"`
+	// Approach settings shown on the dashboard (values from Options).
+	Strategies      []string  `json:"strategies"`
+	Moneyness       string    `json:"moneyness"`
+	HoldingDuration string    `json:"holdingDuration"`
+	Risk            string    `json:"risk"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 // Input is the user-editable part of a campaign.
@@ -37,16 +46,22 @@ type Input struct {
 	StartDate  string  `json:"startDate"` // YYYY-MM-DD
 	EndDate    string  `json:"endDate"`   // YYYY-MM-DD
 	ApproachID *int64  `json:"approachId"`
+	// Optional on update: omitted keeps the current value.
+	WatchlistID   *int64 `json:"watchlistId"`
+	MarketOutlook string `json:"marketOutlook"`
 }
 
 // Summary is aggregate stats across all campaigns.
 type Summary struct {
-	Total            int     `json:"total"`
-	TotalCapital     float64 `json:"totalCapital"`
-	TotalEarned      float64 `json:"totalEarned"`
-	TotalGoal        float64 `json:"totalGoal"`
+	Total             int     `json:"total"`
+	TotalCapital      float64 `json:"totalCapital"`
+	TotalEarned       float64 `json:"totalEarned"`
+	TotalGoal         float64 `json:"totalGoal"`
 	PortfolioYieldPct float64 `json:"portfolioYieldPct"`
 }
+
+// ValidOutlooks are the allowed market outlooks.
+var ValidOutlooks = map[string]bool{"bullish": true, "neutral": true, "bearish": true}
 
 // FieldErrors maps a JSON field name to a human-readable problem.
 type FieldErrors map[string]string
@@ -67,6 +82,7 @@ func (in *Input) Normalize() {
 	if in.Status == "" {
 		in.Status = "active"
 	}
+	in.MarketOutlook = strings.ToLower(strings.TrimSpace(in.MarketOutlook))
 }
 
 // Validate returns field-level errors; empty map means valid.
@@ -93,5 +109,11 @@ func (in Input) Validate() FieldErrors {
 	if in.EndDate == "" {
 		errs["endDate"] = "End date is required (YYYY-MM-DD)."
 	}
+	if in.MarketOutlook != "" && !ValidOutlooks[in.MarketOutlook] {
+		errs["marketOutlook"] = "Market outlook must be bullish, neutral or bearish."
+	}
 	return errs
 }
+
+// Error lets FieldErrors be returned as an error (e.g. from SetLinks).
+func (e FieldErrors) Error() string { return "invalid campaign input" }

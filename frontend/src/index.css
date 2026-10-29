@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap');
 
-:root {
+:root,
+[data-theme='light'] {
   --bg: #f6f5f1;
   --surface: #ffffff;
   --surface-muted: #f1f4f1;
@@ -14,6 +15,17 @@
   --green-100: #dcebe2;
   --green-50: #eef5f0;
   --beige: #f3eeea;
+  /* Dark green used as a fill (stays dark in every theme, unlike --green-900 text). */
+  --green-deep: #173d2c;
+  --green-800: #1e5c3e;
+
+  --nav-text: #526058;
+  --sidebar-bg: #fbfaf6;
+  --sidebar-border: #edebe4;
+
+  --red-50: #fdeff0;
+  --red-100: #f7d3d5;
+  --amber-50: #fff6e5;
 
   --text: #1b2621;
   --text-muted: #5f6b66;
@@ -32,6 +44,63 @@
 
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by Controller/AppearanceContext
+   (Settings › Appearance). Components read the tokens above, so only the
+   tokens change here. Any element can carry data-theme to preview a theme. */
+:root[data-theme='dark'],
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0e1311;
+  --surface: #161d1a;
+  --surface-muted: #1c2420;
+  --border: #29332e;
+  --border-strong: #36423c;
+
+  --green-900: #d3ebdd;
+  --green-700: #45b57a;
+  --green-600: #52c287;
+  --green-200: #2c5a42;
+  --green-100: #22392d;
+  --green-50: #1a2a22;
+  --beige: #1b231f;
+  --green-deep: #1f5a3f;
+  --green-800: #7fd3a5;
+
+  --nav-text: #a4b1ab;
+  --sidebar-bg: #121816;
+  --sidebar-border: #29332e;
+
+  --red-50: #361c1f;
+  --red-100: #57292d;
+  --amber-50: #33281a;
+
+  --text: #e6ece9;
+  --text-muted: #a4b1ab;
+  --text-soft: #7b8883;
+
+  --orange-bg: #3a2619;
+  --orange-text: #f0a063;
+  --blue: #93abff;
+  --blue-bg: #19203a;
+  --blue-border: #2d3b63;
+
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* PNG nav/stat icons are drawn dark-on-transparent; lighten them in dark mode. */
+:root[data-theme='dark'] img[src*='/static/media/'][src$='.png']:not(.ticker-logo) {
+  filter: invert(0.88) hue-rotate(180deg);
+}
+
+/* Compact density: tighter table rows everywhere (Settings › Appearance). */
+:root[data-density='compact'] table:not(.density-sample, .quotes-preview__table) :is(th, td) {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
 }
 
 *,

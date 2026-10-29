@@ -26,12 +26,13 @@ function UserAvatar({ user, size = 44 }) {
     );
   }
 
-  if (user.picture && !photoFailed) {
+  const imageSrc = user.picture || user.photo;
+  if (imageSrc && !photoFailed) {
     return (
       <img
         className="user-avatar user-avatar--photo"
         style={style}
-        src={user.picture}
+        src={imageSrc}
         alt=""
         // Google profile photos can refuse requests that carry a referrer.
         referrerPolicy="no-referrer"

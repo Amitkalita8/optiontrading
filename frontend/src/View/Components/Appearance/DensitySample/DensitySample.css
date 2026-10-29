@@ -1,0 +1,42 @@
+.density-sample {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--border);
+}
+
+.density-sample th {
+  padding: 8px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+}
+
+.density-sample td {
+  padding: 8px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+
+/* Symbol column takes the slack, like the design. */
+.density-sample :is(th, td):first-child {
+  width: 100%;
+}
+
+.density-sample :is(th, td):not(:first-child) {
+  white-space: nowrap;
+}
+
+/* !important: the global compact setting must not flatten this comparison. */
+.density-sample--comfortable td {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+.density-sample--compact td {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}

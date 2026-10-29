@@ -1,0 +1,113 @@
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: var(--surface);
+}
+
+.notification-item + .notification-item {
+  border-top: 1px solid var(--border);
+}
+
+.notification-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.notification-item__unread {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.notification-item__unread::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--green-700);
+  border-radius: 50%;
+}
+
+.notification-item__text {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.notification-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.notification-item__required {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notification-item__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.notification-item__action {
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--green-700);
+  background: none;
+  border: none;
+}
+
+.notification-item__action:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .notification-item {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .notification-item__body {
+    flex-basis: calc(100% - 58px);
+  }
+
+  .notification-item__side {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 12px;
+    width: 100%;
+    padding-left: 58px;
+  }
+}

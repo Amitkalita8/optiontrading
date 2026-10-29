@@ -120,7 +120,7 @@
 }
 
 .approach-modal__pill.is-active {
-  background: var(--green-900);
+  background: var(--green-deep);
   border-color: var(--green-900);
   color: #ffffff;
 }

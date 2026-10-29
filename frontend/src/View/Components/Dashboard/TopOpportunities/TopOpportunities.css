@@ -65,7 +65,7 @@
 /* ---------- Opportunity card ---------- */
 .opp-card {
   padding: 18px;
-  background: #f7faf8;
+  background: var(--surface-muted);
   border: 1px solid var(--green-100);
   border-radius: var(--radius-md);
 }

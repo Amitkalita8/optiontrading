@@ -14,7 +14,7 @@
 
 .symbol-badge--gray {
   color: #4b5563;
-  background: #f5f6f7;
+  background: var(--surface-muted);
   border-color: #e3e5e8;
 }
 
@@ -32,12 +32,12 @@
 
 .symbol-badge--amber {
   color: #b35d0d;
-  background: #fff6e5;
+  background: var(--amber-50);
   border-color: #fbe3b8;
 }
 
 .symbol-badge--red {
   color: #c0262d;
-  background: #fdeff0;
-  border-color: #f7d3d5;
+  background: var(--red-50);
+  border-color: var(--red-100);
 }

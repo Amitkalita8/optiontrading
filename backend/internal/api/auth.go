@@ -30,6 +30,7 @@ func (a *API) authRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/register", a.handleRegister)
 	mux.HandleFunc("POST /api/auth/signup", a.handleRegister)
 	mux.HandleFunc("POST /api/auth/login", a.handleLogin)
+	mux.HandleFunc("GET /api/auth/me", a.handleMe)
 	mux.HandleFunc("GET /api/users", a.handleListUsers)
 }
 
@@ -131,4 +132,32 @@ func (a *API) handleListUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, list)
+}
+
+func (a *API) handleMe(w http.ResponseWriter, r *http.Request) {
+	if a.users == nil {
+		writeError(w, http.StatusServiceUnavailable, "user service not available")
+		return
+	}
+	uid := a.userID(r)
+	if uid == "" || uid == "default" {
+		list, err := a.users.List(r.Context())
+		if err == nil && len(list) > 0 {
+			writeJSON(w, http.StatusOK, authResponse{User: list[0]})
+			return
+		}
+		writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+	u, err := a.users.FindByIDOrEmail(r.Context(), uid)
+	if err != nil || u == nil {
+		list, _ := a.users.List(r.Context())
+		if len(list) > 0 {
+			writeJSON(w, http.StatusOK, authResponse{User: list[0]})
+			return
+		}
+		writeError(w, http.StatusUnauthorized, "user not found")
+		return
+	}
+	writeJSON(w, http.StatusOK, authResponse{User: *u})
 }

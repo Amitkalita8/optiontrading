@@ -2,24 +2,27 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import NavIcon from '../Icons/NavIcon';
 import { ChevronIcon } from '../Icons/FallbackIcons';
+import { useT } from '../../../Controller/LocaleContext';
 
 const matches = (path, pathname) => (path === '/' ? pathname === '/' : pathname.startsWith(path));
 
 // Single nav link; `sub` renders it as a child row inside a group.
 function NavItemLink({ item, collapsed, sub = false }) {
   const { pathname } = useLocation();
+  const t = useT();
+  const label = t(item.labelKey);
   const isActive = matches(item.path, pathname);
   const base = sub && !collapsed ? 'sidebar-subitem' : 'sidebar-item';
   return (
     <NavLink
       to={item.path}
       className={`${base} ${isActive ? `${base}--active` : ''}`}
-      title={collapsed ? item.label : undefined}
+      title={collapsed ? label : undefined}
       end={item.path === '/'}
     >
       <NavIcon icon={item.icon} active={isActive} />
-      {!collapsed && <span className="sidebar-item__label">{item.label}</span>}
-      {item.hasBadge && <span className="sidebar-item__badge" aria-label="New notifications" />}
+      {!collapsed && <span className="sidebar-item__label">{label}</span>}
+      {item.hasBadge && <span className="sidebar-item__badge" aria-label={t('nav.newNotifications')} />}
     </NavLink>
   );
 }
@@ -29,6 +32,8 @@ function NavItemLink({ item, collapsed, sub = false }) {
 // sidebar to expand, and each child shows as its own icon below it.
 function NavGroup({ item, collapsed, onExpand }) {
   const { pathname } = useLocation();
+  const t = useT();
+  const label = t(item.labelKey);
   const childActive = item.children.some((c) => matches(c.path, pathname));
   const [open, setOpen] = useState(true);
 
@@ -38,8 +43,8 @@ function NavGroup({ item, collapsed, onExpand }) {
         <button
           type="button"
           className={`sidebar-item ${childActive ? 'sidebar-item--within' : ''}`}
-          title={`${item.label} — expand menu`}
-          aria-label={`${item.label}: expand menu`}
+          title={t('nav.expandMenu', { label })}
+          aria-label={t('nav.expandMenu', { label })}
           onClick={onExpand}
         >
           <NavIcon icon={item.icon} active={false} />
@@ -60,7 +65,7 @@ function NavGroup({ item, collapsed, onExpand }) {
         onClick={() => setOpen((o) => !o)}
       >
         <NavIcon icon={item.icon} active={false} />
-        <span className="sidebar-item__label">{item.label}</span>
+        <span className="sidebar-item__label">{label}</span>
         <span className="sidebar-item__chevron">
           <ChevronIcon direction={open ? 'up' : 'down'} />
         </span>

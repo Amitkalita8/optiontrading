@@ -2,7 +2,7 @@ import logos from './logos';
 import './TickerLogo.css';
 
 // Company logo for a ticker; falls back to a text badge when no image exists.
-function TickerLogo({ ticker, color = 'var(--green-900)', size = 44 }) {
+function TickerLogo({ ticker, color = 'var(--green-deep)', size = 44 }) {
   const logo = logos[ticker];
 
   if (logo) {

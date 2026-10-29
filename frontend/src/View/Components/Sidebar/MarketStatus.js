@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMarketStatus } from '../../../Controller/MarketStatusContext';
 import { formatCountdown, formatDayET, formatET } from '../../../Controller/marketAlerts';
-
-const LABELS = {
-  open: 'Market Open',
-  'pre-market': 'Pre-market',
-  'after-hours': 'After hours',
-  closed: 'Market Closed',
-};
+import { useT } from '../../../Controller/LocaleContext';
 
 // Re-render every 30s so the countdown in the tooltip stays current.
 function useNow(intervalMs) {
@@ -19,30 +13,31 @@ function useNow(intervalMs) {
   return now;
 }
 
-function describe(status, now) {
+function describe(status, now, t) {
   if (status.isOpen) {
-    return `Closes ${formatET(status.nextClose)} · in ${formatCountdown(status.nextClose - now)}`;
+    return t('market.closesIn', { time: formatET(status.nextClose), countdown: formatCountdown(status.nextClose - now) });
   }
   const holiday = status.holiday ? `${status.holiday} · ` : '';
-  return `${holiday}Opens ${formatDayET(status.nextOpen)} · in ${formatCountdown(status.nextOpen - now)}`;
+  return holiday + t('market.opensIn', { time: formatDayET(status.nextOpen), countdown: formatCountdown(status.nextOpen - now) });
 }
 
 // Live US market status. compact = dot only (icon rail).
 function MarketStatus({ compact = false }) {
   const { status, error } = useMarketStatus();
   const now = useNow(30_000);
+  const t = useT();
 
   let tone = 'loading';
-  let label = 'Market…';
-  let detail = 'Checking market status';
+  let label = t('market.loading');
+  let detail = t('market.checking');
   if (status) {
     tone = status.phase;
-    label = LABELS[status.phase] ?? status.phase;
-    detail = describe(status, now);
+    label = t(`market.${status.phase}`);
+    detail = describe(status, now, t);
   } else if (error) {
     tone = 'offline';
-    label = 'Status offline';
-    detail = 'Market status is unavailable. Is the backend running?';
+    label = t('market.offline');
+    detail = t('market.offlineDetail');
   }
 
   return (

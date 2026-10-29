@@ -1,0 +1,191 @@
+/* Shared layout for the settings tabs built from the design (Appearance,
+   Plan & Billing, Help & Legal): page heading + white section cards. */
+.settings-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-sans);
+}
+
+.settings-tab__title {
+  font-size: 34px;
+  color: var(--green-900);
+}
+
+.settings-tab__subtitle {
+  margin-top: 8px;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.settings-card {
+  min-width: 0;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.settings-card__title {
+  font-size: 26px;
+  color: var(--green-900);
+}
+
+.settings-card__lead {
+  margin: 6px 0 18px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* Light-green secondary button used across these tabs. */
+.settings-soft-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--green-700);
+  white-space: nowrap;
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius-md);
+}
+
+.settings-soft-btn:hover {
+  background: var(--green-100);
+}
+
+/* A row with a title/description on the left and a chevron on the right. */
+.settings-link-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-link-row:last-child {
+  border-bottom: none;
+}
+
+.settings-link-row:hover .settings-link-row__title {
+  color: var(--green-700);
+}
+
+.settings-link-row__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-link-row__title {
+  display: block;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.settings-link-row__desc {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.settings-link-row__chevron {
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+@media (max-width: 767px) {
+  .settings-tab__title {
+    font-size: 28px;
+  }
+
+  .settings-card {
+    padding: 16px;
+  }
+
+  .settings-card__title {
+    font-size: 22px;
+  }
+}
+
+/* A setting: label + description on the left, a control on the right. */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 0;
+}
+
+.settings-row:first-of-type {
+  padding-top: 4px;
+}
+
+.settings-row:last-child {
+  padding-bottom: 0;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--border);
+}
+
+.settings-row__text {
+  min-width: 0;
+}
+
+.settings-row__label {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.settings-row__desc {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.settings-row__control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.settings-pill {
+  display: inline-flex;
+  padding: 3px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.settings-footnote {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .settings-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .settings-row--stack .settings-row__control {
+    align-items: flex-start;
+    width: 100%;
+  }
+}

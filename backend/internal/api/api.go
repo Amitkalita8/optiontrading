@@ -17,6 +17,7 @@ import (
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/notifications"
 	"optiontrading/backend/internal/positions"
+	"optiontrading/backend/internal/profiles"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/tradelog"
 	"optiontrading/backend/internal/users"
@@ -35,6 +36,7 @@ type API struct {
 	tradeLog      *tradelog.Repository
 	notifications *notifications.Repository
 	users         *users.Repository
+	profiles      *profiles.Repository
 	now           func() time.Time
 }
 
@@ -63,6 +65,7 @@ func New(
 		tradeLog:      tl,
 		notifications: notif,
 		users:         u,
+		profiles:      profiles.NewRepository(db),
 		now:           time.Now,
 	}
 }
@@ -98,6 +101,9 @@ func (a *API) Routes() http.Handler {
 	a.tradelogRoutes(mux)
 	a.notificationRoutes(mux)
 	a.authRoutes(mux)
+	a.accountRoutes(mux)
+	a.profileRoutes(mux)
+	a.dashboardRoutes(mux)
 	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
 	a.databaseAdminRoutes(mux)
 	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken))

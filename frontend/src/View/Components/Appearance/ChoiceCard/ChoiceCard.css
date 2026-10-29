@@ -1,0 +1,69 @@
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.choice-card:hover {
+  border-color: var(--border-strong);
+}
+
+.choice-card--checked,
+.choice-card--checked:hover {
+  border: 2px solid var(--green-700);
+  padding: 15px;
+}
+
+.choice-card:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--green-100);
+}
+
+.choice-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.choice-card__label {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.choice-card__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.choice-card__selected {
+  font-size: 14px;
+  color: var(--green-700);
+}
+
+.choice-card__radio {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.choice-card--checked .choice-card__radio {
+  border: 2px solid var(--green-700);
+  background: radial-gradient(circle, var(--green-700) 0 5px, var(--surface) 5.5px);
+}
+
+.choice-card__desc {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}

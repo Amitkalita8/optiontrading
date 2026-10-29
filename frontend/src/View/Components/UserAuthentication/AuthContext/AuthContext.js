@@ -31,6 +31,8 @@ export function AuthProvider({ children }) {
       logIn: async (credentials) => finish(await authService.logIn(credentials)),
       signUp: async (details) => finish(await authService.signUp(details)),
       logInWithGoogle: async (credential) => finish(await authService.logInWithGoogle(credential)),
+      // Update display fields (e.g. name, photo from Settings › Profile).
+      updateUser: (patch) => setUser(authService.updateSession(patch)),
       logOut: () => {
         authService.logOut(user);
         setUser(null);

@@ -309,12 +309,12 @@
 }
 
 .tradelog-table__result-pill.is-win {
-  background: #d4ebd9;
+  background: var(--green-100);
   color: var(--green-700);
 }
 
 .tradelog-table__result-pill.is-loss {
-  background: #fee2e2;
+  background: var(--red-50);
   color: #dc2626;
 }
 
@@ -511,7 +511,7 @@
 }
 
 .tradelog-view__heat-cell--loss {
-  background: #fde8e8;
+  background: var(--red-50);
   color: #c53030;
   border: 1px solid #fbcfe8;
 }
@@ -562,7 +562,7 @@
 }
 
 .tradelog-view__legend-box--profit { background: #dff4e8; border: 1px solid #c2ecd5; }
-.tradelog-view__legend-box--loss { background: #fde8e8; border: 1px solid #fbcfe8; }
+.tradelog-view__legend-box--loss { background: var(--red-50); border: 1px solid #fbcfe8; }
 .tradelog-view__legend-box--none { background: var(--surface-muted); border: 1px solid var(--border); }
 
 /* AI Insights Summary */

@@ -96,7 +96,7 @@
 
 .insight__pill--bearish {
   color: #c0262d;
-  background: #fdeff0;
+  background: var(--red-50);
 }
 
 .insight__summary {

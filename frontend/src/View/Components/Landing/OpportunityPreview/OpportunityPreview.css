@@ -114,7 +114,7 @@
   padding: 10px 12px;
   font-size: 13.5px;
   color: #8a4b0f;
-  background: #fff6e5;
+  background: var(--amber-50);
   border-radius: var(--radius-sm);
 }
 

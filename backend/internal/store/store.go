@@ -123,6 +123,49 @@ var migrations = []string{
 		created_at    TEXT    NOT NULL,
 		updated_at    TEXT    NOT NULL
 	)`,
+
+	// 8: notifications — source line, "action required" flag and the action
+	// link; the old demo rows are replaced by the new demo set on next seed.
+	`ALTER TABLE notifications ADD COLUMN source          TEXT    NOT NULL DEFAULT '';
+	ALTER TABLE notifications ADD COLUMN action_required INTEGER NOT NULL DEFAULT 0;
+	ALTER TABLE notifications ADD COLUMN action_label    TEXT    NOT NULL DEFAULT '';
+	ALTER TABLE notifications ADD COLUMN action_path     TEXT    NOT NULL DEFAULT '';
+	DELETE FROM notifications WHERE title IN
+		('NVDA Earnings Approaching', 'Profit Target Reached', 'Market Volatility Shift')`,
+
+	// 9: profiles — personal details and regional preferences per user (email)
+	`CREATE TABLE profiles (
+		user_id      TEXT PRIMARY KEY COLLATE NOCASE,
+		full_name    TEXT NOT NULL,
+		display_name TEXT NOT NULL DEFAULT '',
+		country_code TEXT NOT NULL DEFAULT '+91',
+		phone        TEXT NOT NULL DEFAULT '',
+		country      TEXT NOT NULL DEFAULT 'IN',      -- ISO 3166-1 alpha-2
+		language     TEXT NOT NULL DEFAULT 'en',
+		time_zone    TEXT NOT NULL DEFAULT 'Asia/Kolkata', -- IANA
+		date_format  TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
+		photo        TEXT NOT NULL DEFAULT '',        -- data URL
+		updated_at   TEXT NOT NULL
+	)`,
+
+	// 10: campaigns link to a watchlist and keep a market outlook; user_state
+	// remembers each user's active dashboard campaign. Existing campaigns get
+	// the user's most recent watchlist.
+	`ALTER TABLE campaigns ADD COLUMN watchlist_id INTEGER REFERENCES watchlists(id) ON DELETE SET NULL;
+	ALTER TABLE campaigns ADD COLUMN market_outlook TEXT NOT NULL DEFAULT 'neutral';
+	UPDATE campaigns SET watchlist_id = (
+		SELECT w.id FROM watchlists w WHERE w.user_id = campaigns.user_id ORDER BY w.id DESC LIMIT 1);
+	CREATE TABLE user_state (
+		user_id            TEXT PRIMARY KEY COLLATE NOCASE,
+		active_campaign_id INTEGER REFERENCES campaigns(id) ON DELETE SET NULL,
+		updated_at         TEXT NOT NULL
+	)`,
+
+	// 11: each campaign's own approach settings (dashboard › Campaign Approach).
+	`ALTER TABLE campaigns ADD COLUMN strategies TEXT NOT NULL DEFAULT '["covered_call"]';
+	ALTER TABLE campaigns ADD COLUMN moneyness TEXT NOT NULL DEFAULT 'OTM';
+	ALTER TABLE campaigns ADD COLUMN holding_duration TEXT NOT NULL DEFAULT '1-4w';
+	ALTER TABLE campaigns ADD COLUMN risk_level TEXT NOT NULL DEFAULT 'moderate'`,
 }
 
 // Open opens (creating if needed) the database at path and migrates it.

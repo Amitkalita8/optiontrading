@@ -1,0 +1,240 @@
+.billing-plan {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.billing-plan__name {
+  margin-top: 16px;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.billing-plan__note {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.billing-plan__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.billing-pill {
+  display: inline-flex;
+  padding: 3px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.billing-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0 0;
+}
+
+.billing-overview dt {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.billing-overview dd {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.billing-methods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.billing-method {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.billing-method:first-child {
+  padding-top: 0;
+}
+
+.billing-method:last-child {
+  padding-bottom: 0;
+}
+
+.billing-method + .billing-method {
+  border-top: 1px solid var(--border);
+}
+
+.billing-method__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.billing-method__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.billing-method__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.billing-method__note {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.billing-table__scroll {
+  overflow-x: auto;
+}
+
+.billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.billing-table th {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+  background: var(--surface-muted);
+}
+
+.billing-table td {
+  padding: 20px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.billing-table__actions {
+  width: 1%;
+  text-align: center !important;
+}
+
+.billing-status--failed {
+  color: #c0262d;
+}
+
+.billing-status--successful {
+  color: var(--green-700);
+}
+
+.billing-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.billing-menu__trigger {
+  display: inline-flex;
+  padding: 6px;
+  color: var(--green-700);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.billing-menu__trigger:hover {
+  background: var(--green-50);
+}
+
+.billing-menu__list {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.billing-menu__list button {
+  padding: 9px 12px;
+  font-size: 14px;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.billing-menu__list button:hover {
+  background: var(--surface-muted);
+}
+
+.billing-footnote {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1199px) {
+  .billing-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .billing-plan {
+    flex-direction: column;
+  }
+
+  .billing-plan__side {
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+
+  .billing-method {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .billing-method__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .billing-method .settings-soft-btn {
+    width: 100%;
+  }
+}

@@ -54,11 +54,11 @@
 
 .decision__col--not li span {
   color: #b83232;
-  background: #fdeff0;
+  background: var(--red-50);
 }
 
 .decision__col--do {
-  background: var(--green-900);
+  background: var(--green-deep);
 }
 
 .decision__col--do h3 {

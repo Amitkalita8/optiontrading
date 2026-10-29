@@ -1,153 +1,95 @@
 import { useState } from 'react';
 import useAsyncData from '../../../Controller/useAsyncData';
+import { useLocale } from '../../../Controller/LocaleContext';
 import {
   fetchNotifications,
-  markNotificationRead,
+  groupByDay,
   markAllNotificationsRead,
-  deleteNotification,
+  markNotificationRead,
+  NOTIFICATION_FILTERS,
 } from '../../../Model/Notifications/notificationModel';
-import Card from '../../Components/Common/Card/Card';
 import ErrorState from '../../Components/Common/ErrorState/ErrorState';
-import '../../Components/Common/Button/Button.css';
+import NotificationItem from '../../Components/Notifications/NotificationItem/NotificationItem';
+import NotificationsSkeleton from './NotificationsSkeleton';
 import './NotificationsPage.css';
 
+const EMPTY = { all: 'notif.emptyAll', unread: 'notif.emptyUnread', action: 'notif.emptyAction' };
+
 function NotificationsPage() {
-  const { data: notifications, status, reload } = useAsyncData(fetchNotifications);
-  const [filter, setFilter] = useState('All'); // 'All' | 'Unread'
+  const { data, status, reload } = useAsyncData(fetchNotifications);
+  const { t, dayKey, formatDate } = useLocale();
+  const [filter, setFilter] = useState('all');
+  // Optimistic read state so rows update instantly; reload() confirms.
+  const [readIds, setReadIds] = useState(() => new Set());
 
-  if (status === 'loading') {
-    return (
-      <div className="notifications-page">
-        <Card><div className="notifications-page__skeleton" style={{ height: 350 }} /></Card>
-      </div>
-    );
-  }
+  if (status === 'loading' && !data) return <NotificationsSkeleton />;
+  if (status === 'error') return <ErrorState message={t('notif.loadError')} onRetry={reload} />;
 
-  if (status === 'error') {
-    return <ErrorState message="Could not load notifications." onRetry={reload} />;
-  }
+  const list = data.map((n) => (readIds.has(n.id) ? { ...n, read: true } : n));
+  const unread = list.filter((n) => !n.read).length;
+  const active = NOTIFICATION_FILTERS.find((f) => f.key === filter);
+  const groups = groupByDay(list.filter(active.test), dayKey);
+  const groupLabel = (g) => (g.when === 'older' ? formatDate(g.date) : t(`notif.${g.when}`));
 
-  const list = notifications || [];
-  const unreadCount = list.filter((n) => !n.read).length;
-  const filtered = filter === 'Unread' ? list.filter((n) => !n.read) : list;
-
-  const handleMarkRead = async (id) => {
-    await markNotificationRead(id);
-    reload();
+  const markRead = (id) => {
+    setReadIds((s) => new Set(s).add(id));
+    markNotificationRead(id).catch(reload);
   };
-
-  const handleMarkAllRead = async () => {
-    await markAllNotificationsRead();
-    reload();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteNotification(id);
-    reload();
-  };
-
-  const getTone = (kind) => {
-    switch (kind?.toLowerCase()) {
-      case 'alert':
-        return 'tone--amber';
-      case 'success':
-        return 'tone--green';
-      default:
-        return 'tone--blue';
-    }
+  const markAll = () => {
+    setReadIds(new Set(list.map((n) => n.id)));
+    markAllNotificationsRead().then(reload, reload);
   };
 
   return (
-    <div className="notifications-page">
-      <Card className="notifications-page__card">
-        <div className="notifications-page__header">
-          <div>
-            <div className="notifications-page__title-row">
-              <h1 className="card__title">Notifications</h1>
-              {unreadCount > 0 && (
-                <span className="notifications-page__unread-badge">{unreadCount} new</span>
-              )}
-            </div>
-            <p className="notifications-page__subtitle">
-              System alerts, trade fills, risk warnings, and campaign updates
-            </p>
-          </div>
+    <div className="notifications">
+      <header className="notifications__header">
+        <h1 className="notifications__title">
+          {t('nav.notifications')}
+          {unread > 0 && <span className="notifications__count">{t('notif.unreadCount', { n: unread })}</span>}
+        </h1>
+        <p className="notifications__subtitle">{t('notif.subtitle')}</p>
+      </header>
 
-          <div className="notifications-page__header-actions">
-            <div className="notifications-page__filters">
-              <button
-                type="button"
-                className={`notifications-page__filter-btn ${filter === 'All' ? 'is-active' : ''}`}
-                onClick={() => setFilter('All')}
-              >
-                All ({list.length})
-              </button>
-              <button
-                type="button"
-                className={`notifications-page__filter-btn ${filter === 'Unread' ? 'is-active' : ''}`}
-                onClick={() => setFilter('Unread')}
-              >
-                Unread ({unreadCount})
-              </button>
-            </div>
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                className="btn btn--outline"
-                onClick={handleMarkAllRead}
-              >
-                Mark all read
-              </button>
-            )}
-          </div>
+      <div className="notifications__toolbar">
+        <div className="notifications__filters" role="tablist" aria-label={t('notif.filter')}>
+          {NOTIFICATION_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              role="tab"
+              aria-selected={filter === f.key}
+              className={`notifications__filter ${filter === f.key ? 'notifications__filter--active' : ''}`}
+              onClick={() => setFilter(f.key)}
+            >
+              {t(f.label)}
+              {f.key === 'unread' && unread > 0 && <span className="notifications__filter-count">{unread}</span>}
+            </button>
+          ))}
         </div>
+        <button type="button" className="notifications__mark-all" onClick={markAll} disabled={unread === 0}>
+          {t('notif.markAll')}
+        </button>
+      </div>
 
-        {filtered.length === 0 ? (
-          <div className="notifications-page__empty">
-            {filter === 'Unread' ? 'All caught up! No unread notifications.' : 'No notifications yet.'}
-          </div>
-        ) : (
-          <div className="notifications-page__list">
-            {filtered.map((item) => {
-              const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleString() : '';
-              return (
-                <div
-                  key={item.id}
-                  className={`notifications-page__item ${item.read ? 'is-read' : 'is-unread'} ${getTone(item.kind)}`}
-                >
-                  <div className="notifications-page__item-indicator" />
-                  <div className="notifications-page__item-content">
-                    <div className="notifications-page__item-top">
-                      <span className="notifications-page__item-title">{item.title}</span>
-                      <span className="notifications-page__item-date">{dateStr}</span>
-                    </div>
-                    <p className="notifications-page__item-body">{item.body}</p>
-                  </div>
-                  <div className="notifications-page__item-actions">
-                    {!item.read && (
-                      <button
-                        type="button"
-                        className="notifications-page__btn-text"
-                        onClick={() => handleMarkRead(item.id)}
-                      >
-                        Mark read
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="notifications-page__btn-delete"
-                      title="Dismiss"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
+      {groups.length === 0 ? (
+        <p className="notifications__empty">{t(EMPTY[filter])}</p>
+      ) : (
+        <div className="notifications__list">
+          {groups.map((g) => (
+            <section key={g.id} aria-label={groupLabel(g)}>
+              <h2 className="notifications__group">
+                {groupLabel(g)}
+                <span>{g.items.length === 1 ? t('notif.event') : t('notif.events', { n: g.items.length })}</span>
+              </h2>
+              <ul className="notifications__items">
+                {g.items.map((n) => (
+                  <NotificationItem key={n.id} notification={n} onRead={markRead} />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

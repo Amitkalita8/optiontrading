@@ -1,19 +1,36 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext/AuthContext';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import { useT } from '../../../../Controller/LocaleContext';
 import './UserMenu.css';
 
-// Account button. Signed out: opens the login popup. Signed in: toggles a menu
-// with the user's details and Log out.
-// variant 'full' shows name/email beside the avatar (expanded sidebar);
-// 'compact' is the avatar alone (icon rail, mobile header).
-// placement: 'top-start' (menu opens above, sidebar) | 'bottom-end' (below, header).
+// Account button. Opens menu with Profile and Log out options.
+// Clicking Profile navigates to /profile; clicking Log out logs out and goes to landing page (/).
 function UserMenu({ variant = 'full', placement = 'top-start', avatarSize = 44 }) {
-  const { user, openAuth, logOut } = useAuth();
+  const { user, logOut } = useAuth();
+  const navigate = useNavigate();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState(null);
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
+
+  // Sync with locally saved profile customizations if present
+  let savedProfile = null;
+  try {
+    const raw = localStorage.getItem('kushmanda.profileSettings');
+    if (raw) savedProfile = JSON.parse(raw);
+  } catch {
+    // Ignore
+  }
+
+  const displayUser = user || {
+    name: savedProfile?.fullName || 'Vishu Jain',
+    email: savedProfile?.email || 'vishu@kushmanda.ai',
+    picture: savedProfile?.photo || null,
+    provider: 'local',
+  };
 
   // The menu is position: fixed so it isn't clipped by the sidebar's overflow.
   useLayoutEffect(() => {
@@ -34,7 +51,7 @@ function UserMenu({ variant = 'full', placement = 'top-start', avatarSize = 44 }
     const onKey = (e) => {
       if (e.key === 'Escape') {
         setOpen(false);
-        buttonRef.current.focus();
+        buttonRef.current?.focus();
       }
     };
     const close = () => setOpen(false);
@@ -48,8 +65,8 @@ function UserMenu({ variant = 'full', placement = 'top-start', avatarSize = 44 }
     };
   }, [open]);
 
-  const onClick = () => (user ? setOpen((o) => !o) : openAuth('login'));
-  const label = user ? `Account: ${user.name}` : 'Log in or sign up';
+  const onClick = () => setOpen((o) => !o);
+  const label = `Account: ${displayUser.name}`;
 
   return (
     <>
@@ -59,51 +76,66 @@ function UserMenu({ variant = 'full', placement = 'top-start', avatarSize = 44 }
         className={`user-menu user-menu--${variant}`}
         onClick={onClick}
         aria-label={variant === 'compact' ? label : undefined}
-        aria-haspopup={user ? 'menu' : 'dialog'}
-        aria-expanded={user ? open : undefined}
+        aria-haspopup="menu"
+        aria-expanded={open}
         title={variant === 'compact' ? label : undefined}
       >
-        <UserAvatar user={user} size={avatarSize} />
+        <UserAvatar user={displayUser} size={avatarSize} />
         {variant === 'full' && (
           <span className="user-menu__text">
-            {user ? (
-              <>
-                <span className="user-menu__name">{user.name}</span>
-                <span className="user-menu__email">{user.email}</span>
-              </>
-            ) : (
-              <>
-                <span className="user-menu__name">Log in</span>
-                <span className="user-menu__email">or create an account</span>
-              </>
-            )}
+            <span className="user-menu__name">{displayUser.name}</span>
+            <span className="user-menu__email">{displayUser.email}</span>
           </span>
         )}
       </button>
 
-      {open && user && position && (
-        <div ref={menuRef} className="user-menu__popover" style={position} role="menu" aria-label="Account">
+      {open && position && (
+        <div ref={menuRef} className="user-menu__popover" style={position} role="menu" aria-label={t('menu.account')}>
           <div className="user-menu__header">
-            <UserAvatar user={user} size={40} />
+            <UserAvatar user={displayUser} size={40} />
             <div className="user-menu__text">
-              <span className="user-menu__name">{user.name}</span>
-              <span className="user-menu__email">{user.email}</span>
-              <span className="user-menu__provider">
-                {user.provider === 'google' ? 'Signed in with Google' : 'Signed in with email'}
-              </span>
+              <span className="user-menu__name">{displayUser.name}</span>
+              <span className="user-menu__email">{displayUser.email}</span>
             </div>
           </div>
-          <button
-            type="button"
-            role="menuitem"
-            className="user-menu__item"
-            onClick={() => {
-              setOpen(false);
-              logOut();
-            }}
-          >
-            Log out
-          </button>
+
+          <div className="user-menu__actions">
+            {/* Option 1: Profile (Settings page matching screenshot) */}
+            <button
+              type="button"
+              role="menuitem"
+              className="user-menu__item user-menu__item--profile"
+              onClick={() => {
+                setOpen(false);
+                navigate('/profile');
+              }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>{t('menu.profile')}</span>
+            </button>
+
+            {/* Option 2: Log out -> logs out and navigates to landing page (/) */}
+            <button
+              type="button"
+              role="menuitem"
+              className="user-menu__item user-menu__item--logout"
+              onClick={() => {
+                setOpen(false);
+                logOut();
+                navigate('/');
+              }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span>{t('menu.logout')}</span>
+            </button>
+          </div>
         </div>
       )}
     </>

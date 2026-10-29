@@ -1,0 +1,11 @@
+.notification-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  color: var(--green-900);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}

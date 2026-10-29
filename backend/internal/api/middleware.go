@@ -63,8 +63,8 @@ func cors(allowed []string) middleware {
 			if origin != "" && slices.Contains(allowed, origin) {
 				h := w.Header()
 				h.Set("Access-Control-Allow-Origin", origin)
-				h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-				h.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+				h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+				h.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Id")
 				h.Add("Vary", "Origin")
 			}
 			if r.Method == http.MethodOptions {

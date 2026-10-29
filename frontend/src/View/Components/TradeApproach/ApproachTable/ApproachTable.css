@@ -118,8 +118,8 @@
 
 .approach-notice--error {
   color: #a1242a;
-  background: #fdeff0;
-  border-color: #f7d3d5;
+  background: var(--red-50);
+  border-color: var(--red-100);
 }
 
 .approach-notice button {

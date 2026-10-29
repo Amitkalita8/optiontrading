@@ -1,0 +1,138 @@
+.appearance {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-sans);
+}
+
+.appearance__title {
+  font-size: 34px;
+  color: var(--green-900);
+}
+
+.appearance__subtitle {
+  margin-top: 8px;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.appearance__section {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.appearance__heading {
+  font-size: 26px;
+  color: var(--green-900);
+}
+
+.appearance__lead {
+  margin: 6px 0 18px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.appearance__grid {
+  display: grid;
+  gap: 16px;
+}
+
+.appearance__grid--themes {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.appearance__grid--density {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.appearance__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.appearance__note {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.appearance__actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.appearance__cancel,
+.appearance__save {
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+}
+
+.appearance__cancel {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+
+.appearance__cancel:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+
+.appearance__save {
+  color: #fff;
+  background: var(--green-700);
+  border: 1px solid transparent;
+}
+
+.appearance__save:hover:not(:disabled) {
+  background: var(--green-600);
+}
+
+/* Nothing to save yet: the muted green from the design. */
+.appearance__save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.appearance__cancel:disabled {
+  cursor: default;
+}
+
+@media (max-width: 1199px) {
+  .appearance__grid--themes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .appearance__title {
+    font-size: 28px;
+  }
+
+  .appearance__heading {
+    font-size: 22px;
+  }
+
+  .appearance__section {
+    padding: 16px;
+  }
+
+  .appearance__grid--themes,
+  .appearance__grid--density {
+    grid-template-columns: 1fr;
+  }
+
+  .appearance__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .appearance__actions > * {
+    flex: 1;
+  }
+}

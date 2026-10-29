@@ -76,6 +76,33 @@ func (r *Repository) FindByEmail(ctx context.Context, email string) (*User, erro
 	return &u, nil
 }
 
+func (r *Repository) FindByIDOrEmail(ctx context.Context, identifier string) (*User, error) {
+	query := `
+		SELECT id, name, email, password_hash, provider, avatar_url, created_at, updated_at
+		FROM users
+		WHERE email = ? COLLATE NOCASE OR CAST(id AS TEXT) = ?
+		LIMIT 1
+	`
+	var u User
+	err := r.db.QueryRowContext(ctx, query, identifier, identifier).Scan(
+		&u.ID,
+		&u.Name,
+		&u.Email,
+		&u.PasswordHash,
+		&u.Provider,
+		&u.AvatarURL,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
 func (r *Repository) List(ctx context.Context) ([]User, error) {
 	query := `
 		SELECT id, name, email, password_hash, provider, avatar_url, created_at, updated_at
@@ -154,4 +181,26 @@ func (r *Repository) SeedDemo(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+// UpdatePassword stores a new password hash and bumps updated_at.
+func (r *Repository) UpdatePassword(ctx context.Context, email, hash string) (*User, error) {
+	res, err := r.db.ExecContext(ctx,
+		`UPDATE users SET password_hash = ?, updated_at = ? WHERE email = ? COLLATE NOCASE`,
+		hash, time.Now().UTC().Format(time.RFC3339), email)
+	if err != nil {
+		return nil, err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return nil, ErrNotFound
+	}
+	return r.FindByEmail(ctx, email)
+}
+
+// UpdateName changes the display name on the account (from Settings › Profile).
+func (r *Repository) UpdateName(ctx context.Context, email, name string) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE users SET name = ?, updated_at = ? WHERE email = ? COLLATE NOCASE`,
+		name, time.Now().UTC().Format(time.RFC3339), email)
+	return err
 }

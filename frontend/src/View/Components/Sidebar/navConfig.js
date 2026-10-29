@@ -20,23 +20,28 @@ import { BookIcon, HomeIcon, TradeLogIcon } from '../Icons/FallbackIcons';
 export const mainNav = [
   {
     label: 'Dashboard',
+    labelKey: 'nav.dashboard',
     path: '/dashboard',
     // No light home PNG yet: outline SVG when idle, dark PNG when active.
     icon: { Svg: HomeIcon, dark: homeDark },
   },
-  { label: 'Campaigns', path: '/campaigns', icon: { light: campaignLight, dark: campaignDark } },
+  { label: 'Campaigns',
+    labelKey: 'nav.campaigns', path: '/campaigns', icon: { light: campaignLight, dark: campaignDark } },
   {
     // Group: expands to its children; active when one of them is.
     label: 'AI Screeners',
+    labelKey: 'nav.aiScreeners',
     icon: { light: screenersLight, dark: screenersDark },
     children: [
       {
         label: 'Trade Approach',
+    labelKey: 'nav.tradeApproach',
         path: '/trade-approaches',
         icon: { light: tradeApproachLight, dark: tradeApproachDark, tight: true },
       },
       {
         label: 'Watchlists',
+    labelKey: 'nav.watchlists',
         path: '/watchlist',
         // No filled book PNG yet: filled SVG when active.
         icon: { light: watchlistLight, Svg: BookIcon, tight: true },
@@ -44,17 +49,23 @@ export const mainNav = [
       {
         // Rate a stock good / medium / poor for option selling (Groq via the backend).
         label: 'Ask AI',
+    labelKey: 'nav.askAi',
         path: '/ask-ai',
         icon: { light: screenersLight, dark: screenersDark, tight: true },
       },
     ],
   },
-  { label: 'Opportunities', path: '/opportunities', icon: { light: opportunitiesLight, dark: opportunitiesDark } },
-  { label: 'Existing Positions', path: '/positions', icon: { light: positionsLight, dark: positionsDark } },
-  { label: 'Trade Log', path: '/trade-log', icon: { Svg: TradeLogIcon } },
+  { label: 'Opportunities',
+    labelKey: 'nav.opportunities', path: '/opportunities', icon: { light: opportunitiesLight, dark: opportunitiesDark } },
+  { label: 'Existing Positions',
+    labelKey: 'nav.positions', path: '/positions', icon: { light: positionsLight, dark: positionsDark } },
+  { label: 'Trade Log',
+    labelKey: 'nav.tradeLog', path: '/trade-log', icon: { Svg: TradeLogIcon } },
 ];
 
 export const footerNav = [
-  { label: 'Notifications', path: '/notifications', icon: { light: notificationsLight }, hasBadge: true },
-  { label: 'Settings', path: '/settings', icon: { light: settingsLight } },
+  { label: 'Notifications',
+    labelKey: 'nav.notifications', path: '/notifications', icon: { light: notificationsLight }, hasBadge: true },
+  { label: 'Settings',
+    labelKey: 'nav.settings', path: '/settings', icon: { light: settingsLight } },
 ];

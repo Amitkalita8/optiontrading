@@ -47,7 +47,7 @@
   top: 50%;
   width: 12px;
   height: 12px;
-  background: var(--green-900);
+  background: var(--green-deep);
   border: 2px solid var(--surface);
   border-radius: 50%;
   transform: translate(-50%, -50%);

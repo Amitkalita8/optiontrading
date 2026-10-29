@@ -34,7 +34,7 @@
   padding: 16px 24px;
   font-size: 16px;
   color: var(--green-900);
-  background: #fff;
+  background: var(--surface);
 }
 
 .cta-band__primary:hover {

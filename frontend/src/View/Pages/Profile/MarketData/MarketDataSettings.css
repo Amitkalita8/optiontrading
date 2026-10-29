@@ -1,0 +1,61 @@
+.market-data__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.market-data__refresh {
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-700);
+  background: none;
+  border: none;
+}
+
+.market-data__refresh:disabled {
+  color: var(--text-soft);
+  cursor: default;
+}
+
+.market-data__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.market-data__pill--ok {
+  color: var(--green-900);
+  background: var(--green-50);
+  border-color: var(--green-100);
+}
+
+.market-data__pill--down {
+  color: #c0262d;
+  background: var(--red-50);
+  border-color: var(--red-100);
+}
+
+.market-data__pill--sample {
+  color: #b46a10;
+  background: var(--amber-50);
+  border-color: transparent;
+}
+
+.market-data__freshness {
+  font-size: 17px;
+  color: var(--text-muted);
+}
+
+.market-data__detail {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .market-data__detail {
+    text-align: left;
+  }
+}

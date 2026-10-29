@@ -198,7 +198,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 16px 20px;
-  background: #f0f7f3;
+  background: var(--green-50);
   border: 1px solid #cce5d6;
   border-radius: var(--radius-md);
   margin-bottom: 20px;
@@ -261,7 +261,7 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--green-900);
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .pos-detail__section-title {
@@ -374,7 +374,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #d4ebd9;
+  background: var(--green-100);
   color: var(--green-700);
   font-size: 12px;
   font-weight: 700;
@@ -531,7 +531,7 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #d4ebd9;
+  background: var(--green-100);
   color: var(--green-700);
   font-size: 26px;
   font-weight: 700;

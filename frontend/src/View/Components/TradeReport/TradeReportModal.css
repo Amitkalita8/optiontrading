@@ -289,7 +289,7 @@
   height: 60px;
   border-radius: 50%;
   border: 3px solid var(--green-700);
-  background: #ffffff;
+  background: var(--surface);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -341,7 +341,7 @@
 }
 
 .tr-modal__diag-tag--green {
-  background: #d4ebd9;
+  background: var(--green-100);
   color: var(--green-700);
 }
 
@@ -351,7 +351,7 @@
 }
 
 .tr-modal__diag-tag--red {
-  background: #fee2e2;
+  background: var(--red-50);
   color: #dc2626;
 }
 
@@ -480,7 +480,7 @@
 
 .tr-modal__thesis-banner {
   padding: 8px 12px;
-  background: #d4ebd9;
+  background: var(--green-100);
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;

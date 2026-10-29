@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCampaign } from '../../../Model/Campaigns/campaignModel';
 import { createWatchlist } from '../../../Model/Watchlists/watchlistModel';
+import { setActiveCampaign } from '../../../Model/Dashboard/dashboardModel';
 import { searchCompanies, getCompany } from '../../../Model/Companies/companyModel';
 import TickerLogo from '../../Components/Common/TickerLogo/TickerLogo';
 import { formatCurrency } from '../../../Utils/format';
@@ -76,38 +77,33 @@ function OnboardingPage() {
   const handleFinish = async () => {
     setSaving(true);
     try {
-      // 1. Create campaign in backend
-      await createCampaign({
+      // 1. The watchlist the campaign will screen.
+      const watchlist = await createWatchlist({
+        name: watchlistName.trim() || 'New watchlist - testing',
+        tickers: selectedTickers,
+      }).catch((e) => {
+        console.warn('create watchlist failed', e);
+        return null;
+      });
+
+      // 2. The campaign, linked to that watchlist.
+      const campaign = await createCampaign({
         name: name.trim() || 'Banking Income 2026',
         capital: parseFloat(capital) || 500000,
         goal: targets.campaignTarget,
         earned: 0,
-        status: 'on track',
+        status: 'active',
         startDate,
         endDate,
-      }).catch((e) => console.warn('create campaign fallback', e));
+        watchlistId: watchlist?.id ? Number(watchlist.id) : null,
+      }).catch((e) => {
+        console.warn('create campaign failed', e);
+        return null;
+      });
 
-      // 2. Create watchlist in backend
-      await createWatchlist({
-        name: watchlistName.trim() || 'New watchlist - testing',
-        tickers: selectedTickers,
-      }).catch((e) => console.warn('create watchlist fallback', e));
-
-      // Store in localStorage for dashboard active view
+      // 3. Show it on the dashboard.
+      if (campaign?.id) await setActiveCampaign(campaign.id).catch(() => {});
       localStorage.setItem('has_onboarded', 'true');
-      localStorage.setItem('active_campaign_name', name.trim() || 'Banking Income 2026');
-      localStorage.setItem('active_campaign_data', JSON.stringify({
-        name: name.trim() || 'Banking Income 2026',
-        capital: parseFloat(capital) || 500000,
-        goal: targets.campaignTarget,
-        netTarget: targets.netTarget,
-        monthlyTarget: targets.monthlyTarget,
-        weeklyTarget: targets.weeklyTarget,
-        startDate,
-        endDate,
-      }));
-      localStorage.setItem('active_watchlist_tickers', JSON.stringify(selectedTickers));
-      localStorage.setItem('active_watchlist_name', watchlistName.trim() || 'New watchlist - testing');
     } finally {
       setSaving(false);
       navigate('/dashboard');

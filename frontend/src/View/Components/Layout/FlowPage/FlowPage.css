@@ -9,7 +9,7 @@
 
 .flow-page__band {
   padding: 28px 34px;
-  background: #f4efec;
+  background: var(--beige);
 }
 
 .flow-page__band h1 {
