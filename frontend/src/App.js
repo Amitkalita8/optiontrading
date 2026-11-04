@@ -38,18 +38,49 @@ const NotificationsPage = lazy(() => import('./View/Pages/Notifications/Notifica
 const OnboardingPage = lazy(() => import('./View/Pages/Onboarding/OnboardingPage'));
 const OpportunityDetailsPage = lazy(() => import('./View/Pages/Opportunities/OpportunityDetailsPage'));
 const ProfilePage = lazy(() => import('./View/Pages/Profile/ProfilePage'));
+const SignInPage = lazy(() => import('./View/Pages/Auth/SignInPage'));
+const SignUpPage = lazy(() => import('./View/Pages/Auth/SignUpPage'));
+const ForgotPasswordPage = lazy(() => import('./View/Pages/Auth/PasswordResetPages').then((m) => ({ default: m.ForgotPasswordPage })));
+const VerifyCodePage = lazy(() => import('./View/Pages/Auth/PasswordResetPages').then((m) => ({ default: m.VerifyCodePage })));
+const ResetPasswordPage = lazy(() => import('./View/Pages/Auth/PasswordResetPages').then((m) => ({ default: m.ResetPasswordPage })));
+const ResetSuccessPage = lazy(() => import('./View/Pages/Auth/PasswordResetPages').then((m) => ({ default: m.ResetSuccessPage })));
+const TradingModePage = lazy(() => import('./View/Pages/Auth/SignupSetupPages').then((m) => ({ default: m.TradingModePage })));
+const ConnectBrokerPage = lazy(() => import('./View/Pages/Auth/SignupSetupPages').then((m) => ({ default: m.ConnectBrokerPage })));
+
+// Sign-in, sign-up and password pages (full screen, outside the app layout).
+const AUTH_ROUTES = [
+  ['signin', SignInPage],
+  ['signup', SignUpPage],
+  ['signup/trading-mode', TradingModePage],
+  ['signup/connect-broker', ConnectBrokerPage],
+  ['forgot-password', ForgotPasswordPage],
+  ['verify-code', VerifyCodePage],
+  ['reset-password', ResetPasswordPage],
+  ['reset-success', ResetSuccessPage],
+];
 
 const placeholderRoutes = [];
 
 function App() {
   return (
+    <BrowserRouter>
     <AppearanceProvider>
     <AuthProvider>
     <LocaleProvider>
       <MarketStatusProvider>
-        <BrowserRouter>
           <Routes>
             <Route index element={<LandingPage />} />
+            {AUTH_ROUTES.map(([path, Page]) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Suspense fallback={<div className="auth-page" aria-busy="true" />}>
+                    <Page />
+                  </Suspense>
+                }
+              />
+            ))}
             <Route
               path="onboarding"
               element={
@@ -241,11 +272,11 @@ function App() {
               <Route path="*" element={<PlaceholderPage title="Page not found" />} />
             </Route>
           </Routes>
-        </BrowserRouter>
       </MarketStatusProvider>
     </LocaleProvider>
     </AuthProvider>
     </AppearanceProvider>
+    </BrowserRouter>
   );
 }
 

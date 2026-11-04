@@ -1,27 +1,28 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 import { GOOGLE_CLIENT_ID } from '../config';
 import * as authService from '../Service/authService';
-import AuthModal from '../AuthModal/AuthModal';
 
 const AuthContext = createContext(null);
 
-// Holds the signed-in user and the login/sign-up popup. Wrap the app in it once.
+// Holds the signed-in user. Wrap the app in it once, inside the router
+// (openAuth navigates to the sign-in / sign-up pages).
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(authService.loadSession);
-  const [modalMode, setModalMode] = useState(null); // null | 'login' | 'signup'
+  const navigate = useNavigate();
 
   useEffect(() => {
     authService.syncLocalAccountsToBackend();
   }, []);
 
-  const openAuth = useCallback((mode = 'login') => setModalMode(mode), []);
-  const closeAuth = useCallback(() => setModalMode(null), []);
+  // Sign-in / sign-up are pages now (/signin, /signup).
+  const openAuth = useCallback((mode = 'login') => navigate(mode === 'signup' ? '/signup' : '/signin'), [navigate]);
+  const closeAuth = useCallback(() => {}, []);
 
   const value = useMemo(() => {
     const finish = (u) => {
       setUser(u);
-      setModalMode(null);
       return u;
     };
     return {
@@ -31,6 +32,7 @@ export function AuthProvider({ children }) {
       logIn: async (credentials) => finish(await authService.logIn(credentials)),
       signUp: async (details) => finish(await authService.signUp(details)),
       logInWithGoogle: async (credential) => finish(await authService.logInWithGoogle(credential)),
+      logInWithGoogleProfile: async (profile) => finish(await authService.logInWithGoogleProfile(profile)),
       // Update display fields (e.g. name, photo from Settings › Profile).
       updateUser: (patch) => setUser(authService.updateSession(patch)),
       logOut: () => {
@@ -43,7 +45,6 @@ export function AuthProvider({ children }) {
   const content = (
     <AuthContext.Provider value={value}>
       {children}
-      <AuthModal mode={modalMode} onModeChange={setModalMode} onClose={closeAuth} />
     </AuthContext.Provider>
   );
 

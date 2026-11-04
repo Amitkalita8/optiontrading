@@ -1,0 +1,69 @@
+.campaign-dialog__muted {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.campaign-dialog__text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.campaign-dialog__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: none;
+}
+
+.campaign-dialog__choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.campaign-dialog__choice.is-selected {
+  background: var(--green-50);
+  border-color: var(--green-700);
+}
+
+.campaign-dialog__choice input {
+  accent-color: var(--green-700);
+}
+
+.campaign-dialog__choice-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.campaign-dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.campaign-dialog__actions--end {
+  justify-content: flex-end;
+}
+
+.campaign-dialog__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-700);
+}
+
+.campaign-dialog__danger,
+.campaign-dialog__danger:hover:not(:disabled) {
+  background: #c0262d;
+}

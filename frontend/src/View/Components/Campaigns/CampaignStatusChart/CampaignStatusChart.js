@@ -1,10 +1,13 @@
 import Card from '../../Common/Card/Card';
 import './CampaignStatusChart.css';
 
+// The first three always show (as designed); Paused / Upcoming only when used.
 const STATUSES = [
   { key: 'On Track', color: 'var(--green-700)' },
   { key: 'Behind', color: 'var(--green-200)' },
   { key: 'Completed', color: 'var(--beige)' },
+  { key: 'Paused', color: 'var(--border-strong)', optional: true },
+  { key: 'Upcoming', color: 'var(--blue-border)', optional: true },
 ];
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -15,8 +18,8 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 function CampaignStatusChart({ campaigns }) {
   const total = campaigns.length;
   let offset = 0;
-  const segments = STATUSES.map((s) => {
-    const count = campaigns.filter((c) => c.status === s.key).length;
+  const segments = STATUSES.filter((s) => !s.optional || campaigns.some((c) => c.statusLabel === s.key)).map((s) => {
+    const count = campaigns.filter((c) => c.statusLabel === s.key).length;
     const length = total ? (count / total) * CIRCUMFERENCE : 0;
     const segment = { ...s, count, length, offset };
     offset += length;

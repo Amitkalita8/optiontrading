@@ -51,6 +51,7 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | `SEED_DEMO_DATA` | `true` | Insert the four example approaches into an empty database |
 | `GROQ_API_KEY` | — | Groq key for the AI screener. Put it in `backend/.env` (git-ignored; see `.env.example`) |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq chat model the screener uses |
+| `SMTP_HOST`, `SMTP_PORT` (587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | — | Email for password-reset codes. Without `SMTP_HOST` the code is printed in the backend log (development only) |
 
 Variables can also be set in `backend/.env` (read at startup; real environment variables win).
 

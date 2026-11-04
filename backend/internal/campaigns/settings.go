@@ -63,6 +63,8 @@ type Settings struct {
 	Moneyness       string    `json:"moneyness"`
 	HoldingDuration string    `json:"holdingDuration"`
 	Risk            string    `json:"risk"`
+	// Status: active (resume) | paused | completed.
+	Status string `json:"status"`
 }
 
 // Normalize lower-cases enum values and de-duplicates strategies.
@@ -71,6 +73,7 @@ func (s *Settings) Normalize() {
 	s.Moneyness = strings.ToUpper(strings.TrimSpace(s.Moneyness))
 	s.HoldingDuration = strings.ToLower(strings.TrimSpace(s.HoldingDuration))
 	s.Risk = strings.ToLower(strings.TrimSpace(s.Risk))
+	s.Status = strings.ToLower(strings.TrimSpace(s.Status))
 	if s.Strategies != nil {
 		seen := map[string]bool{}
 		out := []string{}
@@ -99,6 +102,9 @@ func (s Settings) Validate() FieldErrors {
 	}
 	if s.Risk != "" && !valid(Options.Risks, s.Risk) {
 		errs["risk"] = "Risk must be low, moderate or high."
+	}
+	if s.Status != "" && s.Status != "active" && s.Status != "paused" && s.Status != "completed" {
+		errs["status"] = "Status must be active, paused or completed."
 	}
 	if s.Strategies != nil {
 		if len(*s.Strategies) == 0 {

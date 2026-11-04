@@ -26,6 +26,9 @@ type Config struct {
 	GroqAPIKey string
 	// GroqModel is the chat model the screener asks (env GROQ_MODEL).
 	GroqModel string
+	// SMTP sends password-reset codes (SMTP_HOST, SMTP_PORT, SMTP_USER,
+	// SMTP_PASS, SMTP_FROM). Without SMTP_HOST, codes are written to the log.
+	SMTPHost, SMTPPort, SMTPUser, SMTPPass, SMTPFrom string
 	// APIToken protects the API endpoints when non-empty (env API_TOKEN).
 	APIToken string
 }
@@ -41,6 +44,11 @@ func Load() Config {
 		SeedDemoData:         env("SEED_DEMO_DATA", "true") != "false",
 		GroqAPIKey:           env("GROQ_API_KEY", ""),
 		GroqModel:            env("GROQ_MODEL", "openai/gpt-oss-120b"),
+		SMTPHost:             env("SMTP_HOST", ""),
+		SMTPPort:             env("SMTP_PORT", "587"),
+		SMTPUser:             env("SMTP_USER", ""),
+		SMTPPass:             env("SMTP_PASS", ""),
+		SMTPFrom:             env("SMTP_FROM", ""),
 		APIToken:             env("API_TOKEN", ""),
 	}
 }

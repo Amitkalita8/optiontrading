@@ -166,6 +166,20 @@ var migrations = []string{
 	ALTER TABLE campaigns ADD COLUMN moneyness TEXT NOT NULL DEFAULT 'OTM';
 	ALTER TABLE campaigns ADD COLUMN holding_duration TEXT NOT NULL DEFAULT '1-4w';
 	ALTER TABLE campaigns ADD COLUMN risk_level TEXT NOT NULL DEFAULT 'moderate'`,
+
+	// 12: forgot-password codes / reset tokens (hashes only) and the sign-up
+	// choices (trading mode, broker) per user.
+	`CREATE TABLE password_resets (
+		email            TEXT PRIMARY KEY COLLATE NOCASE,
+		code_hash        TEXT NOT NULL,
+		expires_at       TEXT NOT NULL,
+		attempts         INTEGER NOT NULL DEFAULT 0,
+		token_hash       TEXT NOT NULL DEFAULT '',
+		token_expires_at TEXT NOT NULL DEFAULT '',
+		created_at       TEXT NOT NULL
+	);
+	ALTER TABLE user_state ADD COLUMN trading_mode TEXT NOT NULL DEFAULT '';
+	ALTER TABLE user_state ADD COLUMN broker TEXT NOT NULL DEFAULT ''`,
 }
 
 // Open opens (creating if needed) the database at path and migrates it.

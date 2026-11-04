@@ -3,7 +3,7 @@ import KebabButton from '../KebabButton/KebabButton';
 import './ActionMenu.css';
 
 // "⋮" button with a dropdown of actions.
-// items: [{ label, onSelect, danger?, disabled?, hint? }]
+// items: [{ label, onSelect, icon?, danger?, disabled?, hint? }]
 // The menu is position: fixed so table/card overflow can't clip it.
 function ActionMenu({ label, items, variant, size }) {
   const [open, setOpen] = useState(false);
@@ -71,8 +71,11 @@ function ActionMenu({ label, items, variant, size }) {
                 item.onSelect();
               }}
             >
-              {item.label}
-              {item.hint && item.disabled && <small>{item.hint}</small>}
+              {item.icon && <span className="action-menu__icon" aria-hidden="true">{item.icon}</span>}
+              <span className="action-menu__text">
+                {item.label}
+                {item.hint && item.disabled && <small>{item.hint}</small>}
+              </span>
             </button>
           ))}
         </div>

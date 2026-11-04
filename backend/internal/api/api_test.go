@@ -67,6 +67,7 @@ func newTestServer(t *testing.T) *httptest.Server {
 		notifications.NewRepository(db),
 		users.NewRepository(db),
 	)
+	a.mailer = outbox // tests read sent codes from here
 	srv := httptest.NewServer(a.Routes())
 	t.Cleanup(srv.Close)
 	return srv

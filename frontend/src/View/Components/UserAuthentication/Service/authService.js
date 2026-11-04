@@ -1,5 +1,6 @@
 import { googleLogout } from '@react-oauth/google';
 import { PASSWORD_MIN_LENGTH } from '../config';
+import { API_BASE } from '../../../../Utils/api';
 
 /*
  * MOCK authentication until the backend exists.
@@ -52,17 +53,36 @@ function decodeJwtPayload(token) {
 }
 
 // Session = the signed-in user's public profile: { name, email, picture?, provider }.
-export const loadSession = () => read(SESSION_KEY, null);
+// "Remember me" keeps it in localStorage; otherwise it lives in sessionStorage
+// and ends when the browser closes.
+function readTabSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export const loadSession = () => read(SESSION_KEY, null) ?? readTabSession();
 
 // Merge display fields (name, photo) into the stored session.
 export function updateSession(patch) {
-  const current = read(SESSION_KEY, null);
+  const remembered = read(SESSION_KEY, null);
+  const current = remembered ?? readTabSession();
   if (!current) return null;
-  return startSession({ ...current, ...patch });
+  return startSession({ ...current, ...patch }, Boolean(remembered));
 }
 
-function startSession(user) {
-  write(SESSION_KEY, user);
+function startSession(user, remember = true) {
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+    if (!remember) sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  } catch {
+    // sessionStorage unavailable: fall back to remembering.
+    remember = true;
+  }
+  write(SESSION_KEY, remember ? user : null);
   return user;
 }
 
@@ -73,7 +93,7 @@ export async function signUp({ name, email, password }) {
   }
 
   try {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -112,11 +132,11 @@ export async function signUp({ name, email, password }) {
   }
 }
 
-export async function logIn({ email, password }) {
+export async function logIn({ email, password, remember = true }) {
   const cleanEmail = normalizeEmail(email);
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: cleanEmail, password }),
@@ -129,11 +149,14 @@ export async function logIn({ email, password }) {
       throw new Error(errData.error || 'Failed to log in.');
     }
     const data = await res.json();
-    return startSession({
-      name: data.user.name,
-      email: data.user.email,
-      provider: data.user.provider || 'email',
-    });
+    return startSession(
+      {
+        name: data.user.name,
+        email: data.user.email,
+        provider: data.user.provider || 'email',
+      },
+      remember,
+    );
   } catch (err) {
     if (err.message === 'Incorrect email or password.') {
       throw err;
@@ -144,14 +167,19 @@ export async function logIn({ email, password }) {
     if (!account || account.passwordHash !== (await sha256(password))) {
       throw new Error('Incorrect email or password.');
     }
-    return startSession({ name: account.name, email: account.email, provider: 'email' });
+    return startSession({ name: account.name, email: account.email, provider: 'email' }, remember);
   }
 }
 
 export async function logInWithGoogle(credential) {
-  const { name, email, picture } = decodeJwtPayload(credential);
+  return logInWithGoogleProfile(decodeJwtPayload(credential));
+}
+
+// Google sign-in from a verified profile ({ name, email, picture }), e.g. from
+// the userinfo endpoint after the custom Google button's token flow.
+export async function logInWithGoogleProfile({ name, email, picture }) {
   try {
-    await fetch('/api/auth/register', {
+    await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -178,7 +206,7 @@ export function syncLocalAccountsToBackend() {
   try {
     const session = read(SESSION_KEY, null);
     if (session && session.email) {
-      fetch('/api/auth/register', {
+      fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -193,7 +221,7 @@ export function syncLocalAccountsToBackend() {
     const accounts = read(ACCOUNTS_KEY, []);
     for (const acc of accounts) {
       if (acc.email) {
-        fetch('/api/auth/register', {
+        fetch(`${API_BASE}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -215,6 +243,9 @@ if (typeof window !== 'undefined') {
 export function logOut(user) {
   if (user?.provider === 'google') googleLogout();
   write(SESSION_KEY, null);
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch (e) {}
   try {
     localStorage.removeItem('active_campaign_name');
     localStorage.removeItem('active_campaign_data');

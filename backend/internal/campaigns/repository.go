@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -163,10 +164,11 @@ func (r *Repository) ApplySettings(ctx context.Context, id int64, st Settings, u
 		   moneyness        = COALESCE(NULLIF(?, ''), moneyness),
 		   holding_duration = COALESCE(NULLIF(?, ''), holding_duration),
 		   risk_level       = COALESCE(NULLIF(?, ''), risk_level),
+		   status           = COALESCE(NULLIF(?, ''), status),
 		   updated_at       = ?
 		 WHERE id = ? AND user_id = ?`,
 		nullableID(st.ApproachID), nullableID(st.WatchlistID), st.MarketOutlook, strategies,
-		st.Moneyness, st.HoldingDuration, st.Risk, r.now().UTC().Format(time.RFC3339Nano), id, userID)
+		st.Moneyness, st.HoldingDuration, st.Risk, st.Status, r.now().UTC().Format(time.RFC3339Nano), id, userID)
 	if err != nil {
 		return Campaign{}, err
 	}
@@ -236,4 +238,36 @@ func (r *Repository) SetActive(ctx context.Context, id int64, userID string) err
 		 ON CONFLICT(user_id) DO UPDATE SET active_campaign_id = excluded.active_campaign_id, updated_at = excluded.updated_at`,
 		userID, id, r.now().UTC().Format(time.RFC3339Nano))
 	return err
+}
+
+// Duplicate copies a campaign (settings, links, dates) as a new active
+// campaign named "<name> (copy)" with nothing earned yet.
+func (r *Repository) Duplicate(ctx context.Context, id int64, userID string) (Campaign, error) {
+	src, err := r.Get(ctx, id, userID)
+	if err != nil {
+		return Campaign{}, err
+	}
+	name := src.Name + " (copy)"
+	for i := 2; ; i++ {
+		var n int
+		if err := r.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND name = ?`, userID, name).Scan(&n); err != nil {
+			return Campaign{}, err
+		}
+		if n == 0 {
+			break
+		}
+		name = src.Name + " (copy " + strconv.Itoa(i) + ")"
+	}
+	now := r.now().UTC().Format(time.RFC3339Nano)
+	res, err := r.db.ExecContext(ctx,
+		`INSERT INTO campaigns (user_id, name, capital, goal, earned, status, start_date, end_date, approach_id, watchlist_id,
+		   market_outlook, strategies, moneyness, holding_duration, risk_level, created_at, updated_at)
+		 SELECT user_id, ?, capital, goal, 0, 'active', start_date, end_date, approach_id, watchlist_id,
+		   market_outlook, strategies, moneyness, holding_duration, risk_level, ?, ?
+		 FROM campaigns WHERE id = ? AND user_id = ?`, name, now, now, id, userID)
+	if err != nil {
+		return Campaign{}, err
+	}
+	newID, _ := res.LastInsertId()
+	return r.Get(ctx, newID, userID)
 }

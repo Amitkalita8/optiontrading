@@ -14,8 +14,10 @@ import (
 	"optiontrading/backend/internal/campaigns"
 	"optiontrading/backend/internal/config"
 	"optiontrading/backend/internal/insights"
+	"optiontrading/backend/internal/mailer"
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/passwordreset"
 	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/profiles"
 	"optiontrading/backend/internal/quotes"
@@ -37,6 +39,8 @@ type API struct {
 	notifications *notifications.Repository
 	users         *users.Repository
 	profiles      *profiles.Repository
+	resets        *passwordreset.Service
+	mailer        mailer.Mailer
 	now           func() time.Time
 }
 
@@ -66,6 +70,8 @@ func New(
 		notifications: notif,
 		users:         u,
 		profiles:      profiles.NewRepository(db),
+		resets:        passwordreset.New(db),
+		mailer:        mailer.New(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom),
 		now:           time.Now,
 	}
 }
@@ -104,6 +110,7 @@ func (a *API) Routes() http.Handler {
 	a.accountRoutes(mux)
 	a.profileRoutes(mux)
 	a.dashboardRoutes(mux)
+	a.passwordResetRoutes(mux)
 	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
 	a.databaseAdminRoutes(mux)
 	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken))

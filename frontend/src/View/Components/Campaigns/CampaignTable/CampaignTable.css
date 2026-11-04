@@ -211,3 +211,45 @@
     padding: 12px 0 0;
   }
 }
+
+/* Status badge per health. */
+.campaign-table__badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 999px;
+  color: var(--green-900);
+  background: var(--green-50);
+}
+
+.campaign-table__badge--behind {
+  color: #b46a10;
+  background: var(--amber-50);
+}
+
+.campaign-table__badge--paused {
+  color: var(--text-muted);
+  background: var(--surface-muted);
+}
+
+.campaign-table__badge--completed {
+  color: var(--text);
+  background: var(--beige);
+}
+
+.campaign-table__badge--upcoming {
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+
+.campaign-table__row--busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.campaign-table__empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--text-muted);
+}

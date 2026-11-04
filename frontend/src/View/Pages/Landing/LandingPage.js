@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Components/UserAuthentication/AuthContext/AuthContext';
 import LandingNav from '../../Components/Landing/LandingNav/LandingNav';
@@ -14,32 +13,13 @@ import '../../Components/Common/Button/Button.css';
 import './LandingPage.css';
 
 // Public landing page (route "/"), outside the app layout.
-// "Get started" opens sign-up and continues to the dashboard once signed in.
+// "Get started" opens sign-up (then trading mode → onboarding); "Log in" opens sign-in.
 function LandingPage() {
   const navigate = useNavigate();
-  const { user, openAuth } = useAuth();
-  const pendingLogin = useRef(false);
-
-  useEffect(() => {
-    if (user && pendingLogin.current) {
-      pendingLogin.current = false;
-      navigate('/onboarding');
-    }
-  }, [user, navigate]);
-
-  const start = () => {
-    // Show campaign screen then watchlist
-    navigate('/onboarding');
-  };
-
-  const login = () => {
-    if (user) {
-      navigate('/onboarding');
-    } else {
-      pendingLogin.current = true;
-      openAuth('login');
-    }
-  };
+  const { user } = useAuth();
+  // Signed-in users go straight to the app; others to the auth pages.
+  const start = () => navigate(user ? '/dashboard' : '/signup');
+  const login = () => navigate(user ? '/dashboard' : '/signin');
 
   const signedIn = Boolean(user);
 

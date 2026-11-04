@@ -1,0 +1,164 @@
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 24px;
+  font-family: var(--font-sans);
+  background: var(--bg);
+}
+
+.auth-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  width: min(1100px, 100%);
+  min-height: 620px;
+  overflow: hidden;
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(20, 40, 30, 0.12);
+}
+
+/* ---------- Brand panel ---------- */
+.auth-card__brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 40px 32px;
+  overflow: hidden;
+  background: #ddeee5;
+}
+
+:root[data-theme='dark'] .auth-card__brand {
+  background: var(--green-50);
+}
+
+.auth-card__logo {
+  align-self: flex-start;
+}
+
+/* Decorative dashed lines (top right) and dot grid (bottom left). */
+.auth-card__stripes {
+  position: absolute;
+  top: 26px;
+  right: 34px;
+  width: 22px;
+  height: 64px;
+  background: repeating-linear-gradient(90deg, var(--green-200) 0 2px, transparent 2px 8px);
+  mask: repeating-linear-gradient(180deg, #000 0 8px, transparent 8px 12px);
+  opacity: 0.9;
+}
+
+.auth-card__dots {
+  position: absolute;
+  bottom: 22px;
+  left: 24px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, var(--green-200) 2px, transparent 2.5px) 0 0 / 10px 10px;
+}
+
+.auth-card__monitor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto 0;
+  padding: 24px 8px 0;
+}
+
+.auth-card__screen {
+  width: 100%;
+  max-width: 420px;
+  padding: 7px;
+  background: #111;
+  border-radius: 6px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.auth-card__screen img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top left;
+  border-radius: 2px;
+}
+
+.auth-card__neck {
+  width: 70px;
+  height: 56px;
+  background: linear-gradient(180deg, #e3e5e6, #c9cccd);
+}
+
+.auth-card__base {
+  width: 120px;
+  height: 8px;
+  background: linear-gradient(180deg, #d5d8d9, #b8bbbc);
+  border-radius: 0 0 6px 6px;
+}
+
+.auth-card__pitch {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.auth-card__pitch h2 {
+  font-size: 26px;
+  color: var(--green-900);
+}
+
+.auth-card__pitch p {
+  max-width: 380px;
+  margin: 8px auto 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ---------- Form panel ---------- */
+.auth-card__form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 56px;
+}
+
+/* ---------- Wide layout (no brand panel) ---------- */
+.auth-page--wide {
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 28px;
+  padding-top: 48px;
+}
+
+.auth-page__wide-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(820px, 100%);
+}
+
+.auth-page__wide-body {
+  width: min(820px, 100%);
+}
+
+@media (max-width: 900px) {
+  .auth-card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .auth-card__brand {
+    display: none;
+  }
+
+  .auth-card__form {
+    padding: 32px 22px;
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-page {
+    padding: 16px;
+  }
+}
