@@ -142,7 +142,11 @@ export async function logIn({ email, password, remember = true }) {
       body: JSON.stringify({ email: cleanEmail, password }),
     });
     if (res.status === 401) {
-      throw new Error('Incorrect email or password.');
+      const body = await res.json().catch(() => ({}));
+      const authErr = new Error(body.error || 'Incorrect email or password.');
+      authErr.fromServer = true; // a real answer: don't fall back to browser-only accounts
+      authErr.code = body.code;
+      throw authErr;
     }
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
@@ -158,7 +162,7 @@ export async function logIn({ email, password, remember = true }) {
       remember,
     );
   } catch (err) {
-    if (err.message === 'Incorrect email or password.') {
+    if (err.fromServer || err.message === 'Incorrect email or password.') {
       throw err;
     }
     // Fallback to local mock accounts if backend is unreachable

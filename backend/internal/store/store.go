@@ -180,6 +180,11 @@ var migrations = []string{
 	);
 	ALTER TABLE user_state ADD COLUMN trading_mode TEXT NOT NULL DEFAULT '';
 	ALTER TABLE user_state ADD COLUMN broker TEXT NOT NULL DEFAULT ''`,
+
+	// 13: accounts synced without a password were stored with the hash of an
+	// empty string; mark them as having no password (set via Forgot password).
+	`UPDATE users SET password_hash = ''
+	 WHERE password_hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'`,
 }
 
 // Open opens (creating if needed) the database at path and migrates it.

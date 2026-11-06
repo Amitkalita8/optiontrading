@@ -47,3 +47,25 @@ func TestChangePassword(t *testing.T) {
 		t.Errorf("login with old password = %d, want 401", got)
 	}
 }
+
+func TestLoginWithoutStoredPassword(t *testing.T) {
+	srv := newTestServer(t)
+	// Created by the client sync without a password.
+	if got := doJSON(t, "POST", srv.URL+"/api/auth/register", "", `{"name":"Sync","email":"sync@example.com"}`); got != 201 {
+		t.Fatalf("sync register = %d", got)
+	}
+	code, out := call(t, "POST", srv.URL+"/api/auth/login", "", `{"email":"sync@example.com","password":"anything1!"}`)
+	if code != 401 || out["code"] != "password_not_set" {
+		t.Errorf("login without stored password = %d %v, want 401 password_not_set", code, out)
+	}
+	// Forgot password then works and sets one.
+	call(t, "POST", srv.URL+"/api/auth/forgot", "", `{"email":"sync@example.com"}`)
+	_, v := call(t, "POST", srv.URL+"/api/auth/verify-code", "", `{"email":"sync@example.com","code":"`+outbox.lastCode(t, "sync@example.com")+`"}`)
+	call(t, "POST", srv.URL+"/api/auth/reset-password", "", `{"resetToken":"`+v["resetToken"].(string)+`","newPassword":"Fresh1!pass"}`)
+	if got := doJSON(t, "POST", srv.URL+"/api/auth/login", "", `{"email":"sync@example.com","password":"Fresh1!pass"}`); got != 200 {
+		t.Errorf("login after reset = %d", got)
+	}
+	if got := doJSON(t, "POST", srv.URL+"/api/auth/login", "", `{"email":"sync@example.com","password":"wrong"}`); got != 401 {
+		t.Errorf("wrong password = %d", got)
+	}
+}

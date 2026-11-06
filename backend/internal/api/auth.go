@@ -57,17 +57,29 @@ func (a *API) handleRegister(w http.ResponseWriter, r *http.Request) {
 		req.Provider = "email"
 	}
 
-	// Check if already exists (idempotent registration / sync)
+	// Already registered: a sign-up with a password must not take over the
+	// account (409). Password-less calls (Google sign-in, the client sync) stay
+	// idempotent and just return the account.
 	existing, err := a.users.FindByEmail(r.Context(), req.Email)
 	if err == nil && existing != nil {
+		if req.Password != "" {
+			writeError(w, http.StatusConflict, "An account with this email already exists. Sign in instead.")
+			return
+		}
 		writeJSON(w, http.StatusOK, authResponse{User: *existing})
 		return
+	}
+	// An email account created without a password has none until it is set
+	// with "Forgot password"; never store the hash of an empty password.
+	passwordHash := ""
+	if req.Password != "" {
+		passwordHash = users.HashPassword(req.Password)
 	}
 
 	u := users.User{
 		Name:         req.Name,
 		Email:        req.Email,
-		PasswordHash: users.HashPassword(req.Password),
+		PasswordHash: passwordHash,
 		Provider:     req.Provider,
 		AvatarURL:    req.AvatarURL,
 	}
@@ -112,9 +124,18 @@ func (a *API) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expectedHash := users.HashPassword(req.Password)
-	if u.PasswordHash != "" && u.PasswordHash != expectedHash {
-		writeError(w, http.StatusUnauthorized, "incorrect email or password")
+	// No password stored (Google accounts, or accounts copied from the old
+	// browser-only sign-up): never accept a typed password for them.
+	if u.PasswordHash == "" || u.PasswordHash == users.HashPassword("") {
+		msg := "This account doesn't have a password yet. Use “Forgot password” to set one."
+		if u.Provider == "google" {
+			msg = "This account uses Google sign-in. Continue with Google instead."
+		}
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": msg, "code": "password_not_set"})
+		return
+	}
+	if u.PasswordHash != users.HashPassword(req.Password) {
+		writeError(w, http.StatusUnauthorized, "Incorrect email or password.")
 		return
 	}
 

@@ -210,8 +210,13 @@ func TestAuthRegisterAndLogin(t *testing.T) {
 		t.Fatalf("dup register failed: %v", err)
 	}
 	defer resDup.Body.Close()
-	if resDup.StatusCode != http.StatusOK {
-		t.Fatalf("expected 200 OK (idempotent), got %d", resDup.StatusCode)
+	// Signing up again with a password must not take over the account.
+	if resDup.StatusCode != http.StatusConflict {
+		t.Fatalf("expected 409 for a duplicate sign-up, got %d", resDup.StatusCode)
+	}
+	// Password-less sync (Google / client) stays idempotent.
+	if got := doJSON(t, "POST", srv.URL+"/api/auth/register", "", `{"name":"Tester","email":"test@example.com"}`); got != http.StatusOK {
+		t.Fatalf("expected 200 for password-less sync, got %d", got)
 	}
 
 	// Test login
