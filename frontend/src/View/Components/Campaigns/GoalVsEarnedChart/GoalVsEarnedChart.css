@@ -51,6 +51,7 @@
   position: relative;
   flex: 1;
   min-height: 180px;
+  margin-top: 12px; /* room for the top tick label */
   margin-left: var(--axis-width);
 }
 
@@ -75,13 +76,16 @@
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
+  gap: 4%;
+  padding: 0 2%;
 }
 
 .goal-chart__group {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  width: 28%;
+  gap: 12%;
+  flex: 0 1 28%; /* 3 campaigns: 28% each; more share the width */
+  min-width: 0;
   height: 100%;
 }
 
@@ -94,13 +98,18 @@
 .goal-chart__labels {
   display: flex;
   justify-content: space-around;
+  gap: 4%;
+  padding: 0 2%;
   margin: 14px 0 0 var(--axis-width);
   font-size: 14px;
   text-align: center;
 }
 
 .goal-chart__labels span {
-  width: 28%;
+  flex: 0 1 28%;
+  min-width: 0;
+  overflow-wrap: break-word; /* only when a word cannot fit */
+  hyphens: auto;
 }
 
 @media (max-width: 767px) {
@@ -117,15 +126,28 @@
   }
 
   .goal-chart__group {
-    gap: 5px;
-    width: 30%;
+    gap: 10%;
   }
 
   .goal-chart__labels {
     font-size: 12px;
   }
 
+  .goal-chart__labels {
+    gap: 2%;
+    padding: 0;
+  }
+
   .goal-chart__labels span {
-    width: 30%;
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: normal; /* never split a word mid-letter */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .goal-chart__groups {
+    gap: 2%;
+    padding: 0;
   }
 }
