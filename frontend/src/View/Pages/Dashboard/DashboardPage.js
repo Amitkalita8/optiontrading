@@ -96,7 +96,7 @@ function DashboardPage() {
         />
       </div>
 
-      <AiOpportunitiesCard />
+      <AiOpportunitiesCard campaignId={campaign.id} version={`${campaign.updatedAt}|${watchlist?.id}|${(watchlist?.tickers || []).join()}`} />
 
       <ControlBanner />
     </div>

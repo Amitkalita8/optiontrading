@@ -627,3 +627,50 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Engine 01 additions */
+.opp-details__scan-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.opp-details__reasons-head--warn {
+  display: block;
+  margin-top: 18px;
+  color: var(--orange-text);
+}
+
+.opp-details__warnings {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.opp-details__reward-metrics {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.opp-details__risk-val--gain {
+  color: var(--green-700);
+}
+
+.opp-details__payoff {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.opp-details__place-error {
+  flex-basis: 100%;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--red-600);
+  text-align: right;
+}

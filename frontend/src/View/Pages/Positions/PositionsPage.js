@@ -1,69 +1,159 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Card from '../../Components/Common/Card/Card';
-import Pagination from '../../Components/Common/Pagination/Pagination';
-import TickerLogo from '../../Components/Common/TickerLogo/TickerLogo';
-import CampaignApproachModal from '../../Components/CampaignApproachModal/CampaignApproachModal';
-import { existingPositions } from '../../../Data/existingPositionsData';
-import { formatCurrency, formatPrice } from '../../../Utils/format';
-import '../../Components/Common/Button/Button.css';
-import './PositionsPage.css';
+import { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Card from "../../Components/Common/Card/Card";
+import Pagination from "../../Components/Common/Pagination/Pagination";
+import TickerLogo from "../../Components/Common/TickerLogo/TickerLogo";
+import CampaignApproachModal from "../../Components/CampaignApproachModal/CampaignApproachModal";
+import {
+  HEALTH,
+  fetchPositionIntel,
+  ivLevel,
+  signedMoney,
+} from "../../../Model/Positions/positionIntelModel";
+import "../../Components/Common/Button/Button.css";
+import "./PositionsPage.css";
 
 const PAGE_SIZE = 10;
+const IV_COLORS = {
+  High: "var(--red-600)",
+  Normal: "var(--orange-text)",
+  Low: "var(--green-600)",
+};
+const REFRESH_MS = 5 * 60 * 1000; // the engine reassesses in the background
 
+// Engine 02: every open position with its health and best next action.
 function PositionsPage() {
   const navigate = useNavigate();
-  const [positions, setPositions] = useState(existingPositions);
+  const [state, setState] = useState({
+    status: "loading",
+    rows: [],
+    error: null,
+    at: null,
+  });
   const [page, setPage] = useState(1);
   const [approachModalOpen, setApproachModalOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
 
-  const total = positions.length;
+  const load = useCallback((quiet) => {
+    if (!quiet)
+      setState((s) => ({
+        ...s,
+        status: s.rows.length ? "refreshing" : "loading",
+        error: null,
+      }));
+    return fetchPositionIntel()
+      .then((rows) =>
+        setState({ status: "ready", rows, error: null, at: new Date() }),
+      )
+      .catch((error) =>
+        setState((s) => ({
+          ...s,
+          status: s.rows.length ? "ready" : "error",
+          error,
+        })),
+      );
+  }, []);
+
+  useEffect(() => {
+    load(false);
+    const t = setInterval(() => load(true), REFRESH_MS);
+    return () => clearInterval(t);
+  }, [load]);
+
+  const { rows, status, error } = state;
+  const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const start = (page - 1) * PAGE_SIZE;
-  const currentPositions = positions.slice(start, start + PAGE_SIZE);
+  const current = rows.slice(start, start + PAGE_SIZE);
+  const counts = rows.reduce(
+    (acc, r) => ({ ...acc, [r.health]: (acc[r.health] || 0) + 1 }),
+    {},
+  );
 
   const handleDownloadReport = () => {
-    setDownloading(true);
-    setTimeout(() => {
-      const csvRows = [
-        ['Symbol', 'Position', 'Open P&L ($)', 'Open P&L (%)', 'Entry Price', 'Delta', 'Theta', 'IV (%)', 'IV Level', 'Goal Contribution (%)'],
-        ...positions.map((p) => [
-          p.symbol,
-          `"${p.position} - ${p.positionSubtitle}"`,
-          p.openPL,
-          p.openPLPct,
-          p.entryPrice,
-          p.delta,
-          p.theta,
-          p.impliedVolatility,
-          p.ivLevel,
-          p.goalContribution,
-        ]),
-      ];
-      const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map((e) => e.join(',')).join('\n');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `trade_report_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setDownloading(false);
-    }, 600);
+    const csvRows = [
+      [
+        "Symbol",
+        "Position",
+        "Health",
+        "Next action",
+        "Open P&L ($)",
+        "Open P&L (%)",
+        "Entry price",
+        "Delta",
+        "Theta ($/day)",
+        "IV (%)",
+        "Goal contribution (%)",
+      ],
+      ...rows.map((r) => [
+        r.symbol,
+        `"${r.strategy} - ${r.description || ""}"`,
+        HEALTH[r.health]?.label || r.health,
+        `"${r.action}"`,
+        r.overview?.openPL ?? "",
+        r.overview?.openPLPct ?? "",
+        r.overview?.entryOptionPrice ?? "",
+        r.current?.delta ?? "",
+        r.current?.theta ?? "",
+        r.current?.iv ?? "",
+        r.overview?.goalContributionPct ?? "",
+      ]),
+    ];
+    const blob = new Blob([csvRows.map((e) => e.join(",")).join("\n")], {
+      type: "text/csv",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `positions_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
   };
 
   return (
     <div className="positions-view">
-      {/* Existing Positions Main Card */}
       <Card className="positions-card">
-        {/* Header */}
         <div className="positions-card__header">
           <div>
             <h1 className="positions-card__title">Existing Positions</h1>
             <p className="positions-card__subtitle">
-              Best actions for your open positions
+              Best actions for your open positions, reassessed against live
+              prices, your risk limits and campaign goal
             </p>
+            <div className="positions-card__status">
+              {[
+                "action_needed",
+                "expired",
+                "watch",
+                "healthy",
+                "needs_details",
+              ].map(
+                (h) =>
+                  counts[h] > 0 && (
+                    <span
+                      key={h}
+                      className={`health-chip health-chip--${HEALTH[h].tone}`}
+                    >
+                      {counts[h]} {HEALTH[h].label.toLowerCase()}
+                    </span>
+                  ),
+              )}
+              {state.at && (
+                <span className="positions-card__updated">
+                  Updated{" "}
+                  {state.at.toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </span>
+              )}
+              <button
+                type="button"
+                className="positions-card__refresh"
+                onClick={() => load(false)}
+                disabled={status === "refreshing" || status === "loading"}
+              >
+                {status === "refreshing" ? "Checking…" : "Refresh"}
+              </button>
+            </div>
           </div>
 
           <button
@@ -75,177 +165,223 @@ function PositionsPage() {
               ♟
             </span>
             <span>Approach</span>
-            <span className="positions-card__tune-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="21" x2="4" y2="14" />
-                <line x1="4" y1="10" x2="4" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12" y2="3" />
-                <line x1="20" y1="21" x2="20" y2="16" />
-                <line x1="20" y1="12" x2="20" y2="3" />
-                <line x1="1" y1="14" x2="7" y2="14" />
-                <line x1="9" y1="8" x2="15" y2="8" />
-                <line x1="17" y1="16" x2="23" y2="16" />
-              </svg>
-            </span>
           </button>
         </div>
 
-        {/* Scrollable Table */}
-        <div className="positions-card__table-wrap">
-          <table className="positions-table">
-            <thead>
-              <tr>
-                <th className="positions-table__th--symbol">SYMBOL</th>
-                <th className="positions-table__th--pos">POSITION</th>
-                <th className="positions-table__th--pl">OPEN P&amp;L (%)</th>
-                <th>ENTRY PRICE</th>
-                <th>DELTA</th>
-                <th>THETA</th>
-                <th>IMPLIED VOLATILITY</th>
-                <th>GOAL CONTRIBUTION</th>
-                <th className="positions-table__th--action">ACTION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPositions.map((pos) => {
-                const isPos = pos.openPL >= 0;
-                const plSign = isPos ? '+' : '-';
-                const formattedPL = `${plSign}$${Math.abs(pos.openPL).toLocaleString()}`;
-                const formattedPct = `(${isPos ? '+' : ''}${pos.openPLPct}%)`;
+        {status === "loading" && (
+          <div
+            className="positions-card__skeleton"
+            aria-busy="true"
+            aria-label="Assessing positions"
+          >
+            {[0, 1, 2].map((i) => (
+              <div key={i} />
+            ))}
+          </div>
+        )}
+        {status === "error" && (
+          <div className="positions-card__notice" role="alert">
+            <strong>Couldn&apos;t assess your positions</strong>
+            <p>{error?.message}</p>
+            <button
+              type="button"
+              className="btn btn--outline"
+              onClick={() => load(false)}
+            >
+              Try again
+            </button>
+          </div>
+        )}
+        {status !== "loading" && status !== "error" && total === 0 && (
+          <div className="positions-card__notice">
+            <strong>No open positions</strong>
+            <p>
+              Positions you place from an opportunity appear here, and the
+              engine starts monitoring them right away.
+            </p>
+            <Link to="/opportunities" className="btn btn--primary">
+              Find opportunities
+            </Link>
+          </div>
+        )}
 
-                return (
-                  <tr
-                    key={pos.id}
-                    className="positions-table__row positions-table__row--clickable"
-                    onClick={() => navigate(`/positions/${pos.id}`)}
-                  >
-                    {/* SYMBOL */}
-                    <td className="positions-table__td--symbol">
-                      <Link
-                        to={`/positions/${pos.id}`}
-                        className="positions-table__symbol-link"
-                        onClick={(e) => e.stopPropagation()}
-                        title={`View ${pos.symbol} position & opportunity details`}
+        {total > 0 && (
+          <div className="positions-card__table-wrap">
+            <table className="positions-table">
+              <thead>
+                <tr>
+                  <th className="positions-table__th--symbol">SYMBOL</th>
+                  <th className="positions-table__th--pos">POSITION</th>
+                  <th className="positions-table__th--pl">OPEN P&amp;L (%)</th>
+                  <th>ENTRY PRICE</th>
+                  <th>DELTA</th>
+                  <th>THETA</th>
+                  <th>IMPLIED VOLATILITY</th>
+                  <th>GOAL CONTRIBUTION</th>
+                  <th className="positions-table__th--action">NEXT ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {current.map((r) => {
+                  const ov = r.overview || {};
+                  const cur = r.current;
+                  const pl = ov.openPL || 0;
+                  const health = HEALTH[r.health] || HEALTH.unavailable;
+                  const level = cur ? ivLevel(cur.iv) : null;
+                  return (
+                    <tr
+                      key={r.positionId}
+                      className="positions-table__row positions-table__row--clickable"
+                      onClick={() => navigate(`/positions/${r.positionId}`)}
+                    >
+                      <td className="positions-table__td--symbol">
+                        <Link
+                          to={`/positions/${r.positionId}`}
+                          className="positions-table__symbol-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <TickerLogo ticker={r.symbol} size={36} />
+                          <span className="positions-table__symbol-name">
+                            {r.symbol}
+                          </span>
+                        </Link>
+                      </td>
+                      <td className="positions-table__td--pos">
+                        <div className="positions-table__pos-title">
+                          {r.strategy}
+                        </div>
+                        <div className="positions-table__pos-sub">
+                          {r.description}
+                        </div>
+                      </td>
+                      <td className="positions-table__td--pl">
+                        {r.health === "unavailable" ? (
+                          "—"
+                        ) : (
+                          <div
+                            className={`positions-table__pl ${pl >= 0 ? "is-positive" : "is-negative"}`}
+                          >
+                            <span className="positions-table__pl-val">
+                              {signedMoney(pl, 0)}
+                            </span>
+                            <span className="positions-table__pl-pct">
+                              ({pl >= 0 ? "+" : ""}
+                              {ov.openPLPct}%)
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="positions-table__td--numeric">
+                        {ov.entryOptionPrice
+                          ? `$${ov.entryOptionPrice.toFixed(2)}`
+                          : "—"}
+                      </td>
+                      <td
+                        className="positions-table__td--numeric"
+                        title={
+                          cur
+                            ? `Position delta: ${cur.delta.toFixed(0)} shares`
+                            : undefined
+                        }
                       >
-                        <TickerLogo ticker={pos.symbol} size={36} />
-                        <span className="positions-table__symbol-name">{pos.symbol}</span>
-                      </Link>
-                    </td>
+                        {cur ? cur.shortDelta.toFixed(2) : "—"}
+                      </td>
+                      <td className="positions-table__td--numeric">
+                        {cur ? `${signedMoney(cur.theta)}/d` : "—"}
+                      </td>
+                      <td className="positions-table__td--iv">
+                        {cur ? (
+                          <div className="positions-table__iv-cell">
+                            <span className="positions-table__iv-pct">
+                              {cur.iv.toFixed(1)}%
+                            </span>
+                            <span
+                              className="positions-table__iv-dot"
+                              style={{ backgroundColor: IV_COLORS[level] }}
+                            />
+                            <span className="positions-table__iv-level">
+                              {level}
+                            </span>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="positions-table__td--numeric">
+                        {ov.goalContributionPct != null
+                          ? `${ov.goalContributionPct.toFixed(1)}%`
+                          : "—"}
+                      </td>
+                      <td className="positions-table__td--action">
+                        <Link
+                          to={`/positions/${r.positionId}`}
+                          className="positions-table__next"
+                          onClick={(e) => e.stopPropagation()}
+                          title={r.healthReason}
+                        >
+                          <span
+                            className={`health-chip health-chip--${health.tone}`}
+                          >
+                            {health.label}
+                          </span>
+                          <span className="positions-table__next-action">
+                            {r.action} ›
+                          </span>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-                    {/* POSITION */}
-                    <td className="positions-table__td--pos">
-                      <div className="positions-table__pos-title">{pos.position}</div>
-                      <div className="positions-table__pos-sub">{pos.positionSubtitle}</div>
-                    </td>
-
-                    {/* OPEN P&L */}
-                    <td className="positions-table__td--pl">
-                      <div className={`positions-table__pl ${isPos ? 'is-positive' : 'is-negative'}`}>
-                        <span className="positions-table__pl-val">{formattedPL}</span>
-                        <span className="positions-table__pl-pct">{formattedPct}</span>
-                      </div>
-                    </td>
-
-                    {/* ENTRY PRICE */}
-                    <td className="positions-table__td--numeric">
-                      ${pos.entryPrice.toFixed(2)}
-                    </td>
-
-                    {/* DELTA */}
-                    <td className="positions-table__td--numeric">
-                      {pos.delta > 0 ? pos.delta.toFixed(2) : pos.delta.toFixed(2)}
-                    </td>
-
-                    {/* THETA */}
-                    <td className="positions-table__td--numeric">
-                      {pos.theta.toFixed(2)}
-                    </td>
-
-                    {/* IMPLIED VOLATILITY */}
-                    <td className="positions-table__td--iv">
-                      <div className="positions-table__iv-cell">
-                        <span className="positions-table__iv-pct">{pos.impliedVolatility.toFixed(1)}%</span>
-                        <span className="positions-table__iv-dot" style={{ backgroundColor: pos.ivColor }} />
-                        <span className="positions-table__iv-level">{pos.ivLevel}</span>
-                      </div>
-                    </td>
-
-                    {/* GOAL CONTRIBUTION */}
-                    <td className="positions-table__td--numeric">
-                      {pos.goalContribution.toFixed(1)}%
-                    </td>
-
-                    {/* ACTION */}
-                    <td className="positions-table__td--action">
-                      <Link
-                        to={`/positions/${pos.id}`}
-                        className="positions-table__view-link"
-                      >
-                        View opportunity &gt;
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer / Pagination */}
-        <div className="positions-card__footer">
-          <span className="positions-card__count-text">
-            Showing {start + 1}–{Math.min(start + PAGE_SIZE, total)} of {total} opportunities
-          </span>
-          {totalPages > 1 && (
-            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-          )}
-        </div>
+        {total > 0 && (
+          <div className="positions-card__footer">
+            <span className="positions-card__count-text">
+              Showing {start + 1}–{Math.min(start + PAGE_SIZE, total)} of{" "}
+              {total} open positions
+            </span>
+            {totalPages > 1 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onChange={setPage}
+              />
+            )}
+          </div>
+        )}
       </Card>
 
-      {/* Trade Report Section (Matching bottom of Screen 1) */}
       <Card className="trade-report-card">
         <div className="trade-report-card__inner">
           <div className="trade-report-card__info">
-            <h2 className="trade-report-card__title">
-              <Link to="/trade-log/msft-1" style={{ color: 'inherit', textDecoration: 'none' }}>
-                Trade Report
-              </Link>
-            </h2>
+            <h2 className="trade-report-card__title">Trade Report</h2>
             <p className="trade-report-card__subtitle">
-              Detailed analysis of your trade performance and insights
+              Every open, close and roll the engine recorded, with prices and
+              notes
             </p>
           </div>
-
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div className="trade-report-card__actions">
             <Link
-              to="/trade-log/msft-1"
+              to="/trade-log"
               className="btn btn--primary trade-report-card__view-btn"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', padding: '9px 18px', fontSize: '13.5px' }}
             >
               View Report →
             </Link>
-
             <button
               type="button"
               className="btn btn--outline-accent trade-report-card__download-btn"
               onClick={handleDownloadReport}
-              disabled={downloading}
+              disabled={total === 0}
             >
-              <span className="trade-report-card__download-icon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </span>
-              <span>{downloading ? 'Preparing Report...' : 'Download Report'}</span>
+              Download CSV
             </button>
           </div>
         </div>
       </Card>
 
-      {/* Campaign Approach Modal */}
       <CampaignApproachModal
         isOpen={approachModalOpen}
         onClose={() => setApproachModalOpen(false)}

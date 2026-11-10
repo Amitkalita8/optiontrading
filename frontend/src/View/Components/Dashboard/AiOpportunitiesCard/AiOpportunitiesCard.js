@@ -3,29 +3,18 @@ import Card from '../../Common/Card/Card';
 import SymbolBadge from '../../Common/SymbolBadge/SymbolBadge';
 import { formatPrice } from '../../../../Utils/format';
 import { ChevronIcon } from '../../Icons/FallbackIcons';
+import useOpportunities from '../../../../Controller/useOpportunities';
+import { OpportunityNotice, ScanMeta } from '../../Opportunities/OpportunityStatus/OpportunityStatus';
 import './AiOpportunitiesCard.css';
 
-const DEFAULT_OPPORTUNITIES = [
-  { id: 'msft-cc', symbol: 'MSFT', tone: 'gray', strategy: 'Covered Call', currentPrice: 912.0, strikePrice: 920.0, expiryDays: 30, premium: 329.09, annualizedYield: 1.8 },
-  { id: 'nvda-sp', symbol: 'NVDA', tone: 'green', strategy: 'Covered Call', currentPrice: 245.6, strikePrice: 250.0, expiryDays: 15, premium: 189.39, annualizedYield: 3.4 },
-  { id: 'meta-ic', symbol: 'META', tone: 'blue', strategy: 'Iron Condor', currentPrice: 350.0, strikePrice: 400.0, expiryDays: 60, premium: 495.27, annualizedYield: 21.0 },
-  { id: 'amzn-bcs', symbol: 'AMZN', tone: 'amber', strategy: 'Bull Call Spread', currentPrice: 178.4, strikePrice: 200.5, expiryDays: 45, premium: 131.39, annualizedYield: 7.5 },
-  { id: 'aapl-bps', symbol: 'AAPL', abbr: 'AP', tone: 'gray', strategy: 'Bear Put Spread', currentPrice: 189.32, strikePrice: 200.0, expiryDays: 90, premium: 50.57, annualizedYield: 13.5 },
-];
+const COLUMNS = ['Symbol', 'Strategy', 'Current Price', 'Strike Price', 'Expiry', 'Premium', 'Annualized Yield', 'Action'];
 
-const COLUMNS = [
-  'Symbol',
-  'Strategy',
-  'Current Price',
-  'Strike Price',
-  'Expiry',
-  'Premium',
-  'Annualized Yield',
-  'Action',
-];
-
-function AiOpportunitiesCard({ opportunities = DEFAULT_OPPORTUNITIES }) {
-  const list = (opportunities && opportunities.length > 0) ? opportunities.slice(0, 5) : DEFAULT_OPPORTUNITIES;
+// Top five ideas from Engine 01 for the campaign shown on the dashboard.
+// `version` (the campaign's updatedAt) refetches after its settings change.
+function AiOpportunitiesCard({ campaignId, version }) {
+  const { scan, status, error, refresh, refreshing, reload } = useOpportunities(campaignId, version);
+  const list = scan?.opportunities?.slice(0, 5) || [];
+  const total = scan?.opportunities?.length || 0;
 
   return (
     <Card className="ai-opps-card">
@@ -33,53 +22,75 @@ function AiOpportunitiesCard({ opportunities = DEFAULT_OPPORTUNITIES }) {
         <div>
           <h2 className="card__title">AI Opportunities</h2>
           <p className="ai-opps-card__subtitle">
-            AI found 10 new opportunities based on your campaign goals and watchlist.
+            {status === 'loading' && !scan
+              ? 'Scanning your watchlist for option-selling trades…'
+              : scan
+                ? `AI found ${total} ${total === 1 ? 'opportunity' : 'opportunities'} based on your campaign goals and watchlist.`
+                : 'Option-selling ideas ranked against your campaign goal.'}
           </p>
+          <ScanMeta scan={scan} onRefresh={refresh} refreshing={refreshing} />
         </div>
-        <Link to="/opportunities" className="ai-opps-card__view-all">
-          View All <span aria-hidden="true">→</span>
-        </Link>
+        {total > 0 && (
+          <Link to="/opportunities" className="ai-opps-card__view-all">
+            View All <span aria-hidden="true">→</span>
+          </Link>
+        )}
       </div>
 
-      <div className="ai-opps-card__table-wrap">
-        <table className="ai-opps-card__table">
-          <thead>
-            <tr>
-              {COLUMNS.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((o) => (
-              <tr key={o.id}>
-                <td className="ai-opps-card__symbol">
-                  <Link to={`/stocks/${o.symbol}`} className="ai-opps-card__symbol-link">
-                    <SymbolBadge symbol={o.symbol} abbr={o.abbr} tone={o.tone} />
-                    <span>{o.symbol}</span>
-                  </Link>
-                </td>
-                <td className="ai-opps-card__strategy">{o.strategy}</td>
-                <td data-label="Current Price">{formatPrice(o.currentPrice)}</td>
-                <td data-label="Strike Price">{formatPrice(o.strikePrice)}</td>
-                <td data-label="Expiry">{o.expiryDays}d</td>
-                <td data-label="Premium">{formatPrice(o.premium)}</td>
-                <td data-label="Annualized Yield">{o.annualizedYield?.toFixed(1)}%</td>
-                <td className="ai-opps-card__action">
-                  <Link
-                    to={`/opportunities/${o.id}`}
-                    className="ai-opps-card__action-link"
-                    aria-label={`View ${o.symbol} ${o.strategy} opportunity`}
-                  >
-                    View opportunity
-                    <ChevronIcon direction="right" size={14} />
-                  </Link>
-                </td>
+      {status === 'loading' && !scan && (
+        <div className="opp-status__rows" aria-busy="true" aria-label="Loading opportunities">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="opp-status__row-skeleton" />
+          ))}
+        </div>
+      )}
+
+      {(error || (scan && total === 0)) && <OpportunityNotice error={error} scan={scan} onRetry={reload} />}
+
+      {list.length > 0 && (
+        <div className="ai-opps-card__table-wrap">
+          <table className="ai-opps-card__table">
+            <thead>
+              <tr>
+                {COLUMNS.map((col) => (
+                  <th key={col}>{col}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {list.map((o) => (
+                <tr key={o.id}>
+                  <td className="ai-opps-card__symbol">
+                    <Link to={`/stocks/${o.symbol}`} className="ai-opps-card__symbol-link">
+                      <SymbolBadge symbol={o.symbol} tone={o.tone} />
+                      <span>{o.symbol}</span>
+                    </Link>
+                  </td>
+                  <td className="ai-opps-card__strategy">
+                    {o.strategy}
+                    <span className="ai-opps-card__score" title="Opportunity score">{o.score}</span>
+                  </td>
+                  <td data-label="Current Price">{formatPrice(o.currentPrice)}</td>
+                  <td data-label="Strike Price">{o.legs?.length > 1 ? o.strikeText : formatPrice(o.strikePrice)}</td>
+                  <td data-label="Expiry">{o.expiryDays}d</td>
+                  <td data-label="Premium">{formatPrice(o.premium)}</td>
+                  <td data-label="Annualized Yield">{o.annualizedYield?.toFixed(1)}%</td>
+                  <td className="ai-opps-card__action">
+                    <Link
+                      to={`/opportunities/${encodeURIComponent(o.id)}`}
+                      className="ai-opps-card__action-link"
+                      aria-label={`View ${o.symbol} ${o.strategy} opportunity`}
+                    >
+                      View opportunity
+                      <ChevronIcon direction="right" size={14} />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Card>
   );
 }

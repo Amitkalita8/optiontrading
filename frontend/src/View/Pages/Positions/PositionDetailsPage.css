@@ -1,0 +1,324 @@
+/* Engine 02 — position details additions (base layout: PositionOpportunityDetailsPage.css) */
+
+.pos-detail__skeleton {
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--surface-muted), var(--border), var(--surface-muted));
+  background-size: 200% 100%;
+  animation: pos-intel-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes pos-intel-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pos-detail__skeleton { animation: none; }
+}
+
+.pos-detail__subtitle .health-chip {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+
+.pos-intel__meta {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pos-intel__refresh {
+  margin-left: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--green-700);
+  font: inherit;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.pos-intel__refresh:disabled {
+  color: var(--text-muted);
+  cursor: progress;
+}
+
+/* What changed */
+.pos-intel__changes {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.pos-intel__changes li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  background: var(--surface);
+}
+
+.pos-intel__changes li.is-good {
+  border-left-color: var(--green-600);
+}
+
+.pos-intel__changes li.is-bad {
+  border-left-color: var(--red-600);
+}
+
+.pos-intel__change-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pos-intel__change-vals {
+  font-size: 14px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.pos-intel__change-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Action chooser */
+.pos-intel__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.pos-intel__choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pos-intel__choice:hover {
+  border-color: var(--green-600);
+}
+
+.pos-intel__choice.is-selected {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 1px var(--green-700);
+  background: var(--green-50);
+}
+
+.pos-intel__choice-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.pos-intel__badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--green-700);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pos-intel__choice-score {
+  min-width: 28px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pos-intel__not-rec {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-50);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.pos-intel__playbook {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.pos-intel__playbook .is-tradeoff {
+  color: var(--text-muted);
+}
+
+/* Before → after */
+.pos-intel__impact-wrap {
+  overflow-x: auto;
+}
+
+.pos-intel__impact {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pos-intel__impact th,
+.pos-intel__impact td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.pos-intel__impact thead th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pos-intel__impact tbody th {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.pos-intel__impact td {
+  color: var(--text);
+}
+
+.pos-intel__impact td.is-better {
+  color: var(--green-700);
+  font-weight: 600;
+}
+
+.pos-intel__impact td.is-worse {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+.pos-intel__closed-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.pos-intel__decision-grid {
+  margin: 16px 0;
+}
+
+/* Sidebar orders */
+.pos-intel__steps {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.pos-intel__step-side {
+  font-weight: 700;
+}
+
+.pos-intel__step-price {
+  margin-left: 4px;
+  color: var(--text-muted);
+}
+
+.pos-intel__side-note {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pos-intel__apply-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--red-600);
+}
+
+/* Needs-details form */
+.pos-fix__form {
+  display: grid;
+  gap: 14px;
+}
+
+.pos-fix__legs {
+  display: grid;
+  gap: 10px;
+}
+
+.pos-fix__leg {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) 32px;
+  gap: 10px;
+  align-items: end;
+}
+
+.pos-fix__field {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pos-fix__field input,
+.pos-fix__field select {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.pos-fix__remove,
+.pos-fix__add {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pos-fix__remove {
+  height: 38px;
+  font-size: 18px;
+}
+
+.pos-fix__add {
+  justify-self: start;
+  padding: 6px 12px;
+  color: var(--green-700);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .pos-fix__leg {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -185,6 +185,33 @@ var migrations = []string{
 	// empty string; mark them as having no password (set via Forgot password).
 	`UPDATE users SET password_hash = ''
 	 WHERE password_hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'`,
+
+	// 14: Engine 01 keeps each campaign's latest opportunity scan.
+	`CREATE TABLE opportunity_scans (
+		campaign_id  INTEGER PRIMARY KEY REFERENCES campaigns(id) ON DELETE CASCADE,
+		user_id      TEXT NOT NULL,
+		input_key    TEXT NOT NULL,
+		generated_at TEXT NOT NULL,
+		payload      TEXT NOT NULL
+	);
+	CREATE INDEX opportunity_scans_user ON opportunity_scans(user_id)`,
+
+	// 15: Engine 02 — entry assumptions on positions + the latest assessment.
+	`ALTER TABLE positions ADD COLUMN legs TEXT NOT NULL DEFAULT '';
+	ALTER TABLE positions ADD COLUMN entry_price REAL NOT NULL DEFAULT 0;
+	ALTER TABLE positions ADD COLUMN entry_iv REAL NOT NULL DEFAULT 0;
+	ALTER TABLE positions ADD COLUMN entry_delta REAL NOT NULL DEFAULT 0;
+	ALTER TABLE positions ADD COLUMN entry_pop REAL NOT NULL DEFAULT 0;
+	ALTER TABLE positions ADD COLUMN opportunity_id TEXT NOT NULL DEFAULT '';
+	ALTER TABLE positions ADD COLUMN rolled_from INTEGER REFERENCES positions(id) ON DELETE SET NULL;
+	CREATE TABLE position_assessments (
+		position_id  INTEGER PRIMARY KEY REFERENCES positions(id) ON DELETE CASCADE,
+		user_id      TEXT NOT NULL,
+		generated_at TEXT NOT NULL,
+		action       TEXT NOT NULL,
+		health       TEXT NOT NULL,
+		payload      TEXT NOT NULL
+	)`,
 }
 
 // Open opens (creating if needed) the database at path and migrates it.

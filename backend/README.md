@@ -35,6 +35,12 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | GET | `/api/profile` | Signed-in user's profile (`X-User-Id`): `{ profile }`, or `{ profile: null }` if never saved |
 | PUT | `/api/profile` | Save name, phone, country (ISO code), language (`en hi es de fr ru`), time zone (IANA), date format and photo (data URL ≤ 300 KB). 422 `{ error, fields }` on invalid input; also renames the account |
 | GET | `/api/auth/me` · POST `/api/auth/change-password` | Current account; change password (`currentPassword`, `newPassword`) |
+| GET | `/api/opportunities?campaignId=` | **Engine 01** ranked option-selling ideas for that (else the active) campaign: score, POP, Greeks, yield, sizing, reasons, warnings. 404 `no_campaign`, 422 `no_watchlist`, 502 if option data is down |
+| GET | `/api/campaigns/{id}/opportunities` · POST `…/opportunities/refresh` | Same for one campaign; `refresh` rescans now |
+| GET | `/api/positions/intelligence` | **Engine 02**: every open position with health (`action_needed` `expired` `watch` `healthy` `needs_details`), recommended action, P&L, Greeks, IV, goal contribution; most urgent first |
+| GET | `/api/positions/{id}/intelligence` | Full assessment: overview, entry vs now (“what changed”), recommended action + scored alternatives with the resulting position, decision layer. `?refresh=1` reassesses now |
+| POST | `/api/positions/{id}/actions` | `{actionId, reviewedNetCredit}` apply a confirmed action (hold / close / roll / reduce / record expiry): reprices first, 409 `stale` if it moved; records trade log + campaign earnings |
+| GET | `/api/opportunities/{oppId}` | One opportunity from the user's latest scans, with the campaign goal it was scored against |
 
 `phase` is one of `pre-market` (4:00–9:30 ET), `open`, `after-hours` (close–20:00 ET) or `closed`.
 
@@ -66,6 +72,8 @@ internal/market/     NYSE trading calendar (hours, holidays, early closes)
 internal/quotes/     Yahoo Finance client (quotes + history ranges) + TTL cache with request de-duplication
 internal/profiles/   user profile + regional preferences (validation, storage)
 internal/insights/   AI screener: live metrics (trend, returns, volatility) + Groq client
+internal/opportunities/ Engine 01: Yahoo option chains (cookie + crumb), Black-Scholes Greeks, candidate
+                     trades per strategy, scoring against the campaign, cached scans + background refresh
 internal/api/        HTTP handlers, SSE stream, middleware (logging, recovery, CORS)
 ```
 
@@ -74,6 +82,54 @@ internal/api/        HTTP handlers, SSE stream, middleware (logging, recovery, C
 SQLite via [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) — pure Go, so no C compiler is needed. The file
 is created at `DB_PATH` on first start and migrated automatically. To add a table or column, **append** a statement to
 `migrations` in `internal/store/store.go` (never edit one that has already run). Delete the file to start fresh.
+
+## Engine 01 — AI Opportunity Discovery
+
+Always on after a campaign is created. For every running campaign with a watchlist it:
+
+1. **Reads the inputs**: campaign capital, goal, dates and earnings (required annualized return, weekly target);
+   the watchlist's tickers; the approach (strategies, moneyness, holding duration, market outlook, risk).
+2. **Pulls live option chains** from Yahoo for up to two expiries inside the holding window
+   (intraday 0–2 days, 1–7 days, 7–31 days, 28–63 days). Yahoo has no Greeks, so delta, theta and
+   probabilities come from Black-Scholes on implied volatility. Outside market hours bid/ask are 0 and IV is
+   bogus, so the last trade is used and IV is re-derived from it (marked `priceSource: last-trade`).
+3. **Builds candidates**: covered calls and cash-secured puts by delta band (low 0.06–0.18, moderate 0.14–0.30,
+   high 0.24–0.42; ATM = nearest strike, ITM = 0.55–0.75), short strangles/straddles (Reg-T margin estimate)
+   and iron condors (wings ≈ 5% away). The outlook nudges the strikes (bullish sells puts closer, calls further).
+4. **Filters** contracts with no price or a bid-ask spread over 50%, trades bigger than the campaign's capital,
+   and, for low-risk campaigns, trades that span earnings.
+5. **Scores 0–100**: goal fit 30 (yield vs the return the goal needs), probability of profit 25, liquidity 15
+   (spread, open interest), risk fit 15 (capital share vs the risk level's 15/25/40% cap, undefined risk,
+   earnings) and outlook fit 15. It keeps the best contract per symbol and strategy and returns the top 25,
+   with key reasons and warnings (earnings, ex-dividend, undefined risk, stale prices, past campaign end).
+
+Scans are stored in `opportunity_scans` and served from there until they are 10 minutes old while the market
+is open (3 hours otherwise), or until anything the engine reads changes (settings, watchlist, earnings).
+A background loop checks every minute. Live test: `go test -tags live -run Live -v ./internal/opportunities/`.
+
+## Engine 02 — Existing Position Intelligence
+
+Monitors open positions (it never discovers new trades). For each one it:
+
+1. **Monitors**: reprices every leg from the live chain (mark, IV, delta, theta, spread); unlisted expiries or
+   strikes are estimated with Black-Scholes and flagged. Earnings before expiry are tracked.
+2. **Reassesses** against the entry assumptions (underlying, IV, delta, POP stored when the position was opened,
+   or reconstructed from the opening day's close for older positions), the campaign's risk band (delta, POP floor,
+   capital cap) and the goal's pace.
+3. **Finds the best action** by scoring hold, close (take profit / cut loss), roll out, roll up/down & out (tries
+   expiries about 2, 4 and 6 weeks out and prefers strikes that still roll for a credit) and reduce (half the
+   contracts). Score = safety 45 + income 30 + value 25, plus playbook rules (50%/80% take-profit, 2× stop-loss,
+   avoid assignment, defend a tested strike for a credit, …). Hold wins ties within 2 points to avoid churn.
+4. **Recommends** with what changed, the resulting position (breakeven, POP, max risk, Greeks, exposure, goal
+   contribution), reasons, invalidation conditions, data-reliability confidence and disclosures.
+5. **Applies** what the user confirms after re-pricing: close/expiry closes the position, reduce lowers the
+   quantity, roll closes and opens the new position (linked by `rolled_from`); realized P&L goes to the trade log and the
+   campaign's earnings.
+
+A background loop reassesses every open position each minute when stale (5 min while the market is open,
+2 h otherwise) and raises a notification when a position newly needs an action. Covered calls are judged on the
+combined option + share P&L. Positions without legs or with an invalid expiry are reported as `needs_details`,
+and the details page offers a form to supply them.
 
 ## Caveats
 

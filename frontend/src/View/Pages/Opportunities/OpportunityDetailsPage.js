@@ -7,6 +7,8 @@ import { appendTradeLog } from '../../../Model/TradeLog/tradelogModel';
 import Card from '../../Components/Common/Card/Card';
 import TickerLogo from '../../Components/Common/TickerLogo/TickerLogo';
 import ErrorState from '../../Components/Common/ErrorState/ErrorState';
+import DecisionLayer from '../../Components/Opportunities/DecisionLayer/DecisionLayer';
+import PayoffChart from '../../Components/Opportunities/PayoffChart/PayoffChart';
 import { formatCurrency, formatPrice } from '../../../Utils/format';
 import '../../Components/Common/Button/Button.css';
 import './OpportunityDetailsPage.css';
@@ -20,6 +22,7 @@ function OpportunityDetailsPage() {
   const [acknowledged, setAcknowledged] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [placeError, setPlaceError] = useState(null);
 
   if (status === 'loading') {
     return (
@@ -45,30 +48,42 @@ function OpportunityDetailsPage() {
     }
 
     setPlacing(true);
+    setPlaceError(null);
     try {
-      // 1. Record position in backend
-      await createPosition({
+      // Record the position with its legs and entry assumptions, so Engine 02
+      // (position intelligence) can later compare it against how it started.
+      const mainShort = (opp.legs || []).find((l) => l.action === 'sell') || {};
+      const position = await createPosition({
+        campaignId: opp.campaignId,
+        opportunityId: opp.id,
         symbol: opp.symbol,
         strategy: opp.contractType || opp.strategy,
-        quantity: 1,
+        quantity: opp.contracts || 1,
         strike: opp.strike,
-        expiry: opp.expirationText.split(' ')[0] || '2026-07-31',
-        premiumCredit: opp.premiumToEarn || 1245,
-        currentValue: 0,
+        expiry: opp.expiry,
+        premiumCredit: opp.premium, // per contract set
+        currentValue: opp.premium,
         status: 'open',
         openedAt: new Date().toISOString().split('T')[0],
-      }).catch((e) => console.warn('Record position fallback', e));
+        legs: (opp.legs || []).map((l) => ({ action: l.action, type: l.type, strike: l.strike, premium: l.premium, contract: l.contract })),
+        entryPrice: opp.currentPrice,
+        entryIV: (opp.iv || 0) / 100,
+        entryDelta: Math.abs(mainShort.delta || 0),
+        entryPOP: opp.pop,
+      });
 
-      // 2. Log trade execution in trade log
       await appendTradeLog({
+        positionId: position?.id,
         symbol: opp.symbol,
         action: 'SELL_TO_OPEN',
-        quantity: 1,
-        price: (opp.premiumToEarn || 1245) / 100,
+        quantity: opp.contracts || 1,
+        price: opp.premium / 100,
         notes: `Executed ${opp.strategyText} via Opportunity Confirmation`,
-      }).catch((e) => console.warn('Append trade log fallback', e));
+      }).catch(() => {}); // the position is recorded either way
 
       setOrderPlaced(true);
+    } catch (err) {
+      setPlaceError(err.message || 'Could not record the order. Please try again.');
     } finally {
       setPlacing(false);
     }
@@ -86,6 +101,13 @@ function OpportunityDetailsPage() {
         <h1 className="opp-details__title">Opportunity Details</h1>
         <p className="opp-details__subtitle">
           See how this opportunity can be a perfect fit for your goal.
+          {opp.campaignName && (
+            <span className="opp-details__scan-note">
+              {' '}
+              Found for <b>{opp.campaignName}</b> · {opp.priceSource === 'live' ? 'live quotes' : 'priced from the last trade'} ·
+              scanned {new Date(opp.generatedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+            </span>
+          )}
         </p>
       </header>
 
@@ -168,7 +190,9 @@ function OpportunityDetailsPage() {
               <div className="opp-details__summary-col">
                 <span className="opp-details__summary-label">Premium To Earn</span>
                 <span className="opp-details__summary-val-sm">{formatCurrency(opp.premiumToEarn)}</span>
-                <span className="opp-details__summary-sub">per contract</span>
+                <span className="opp-details__summary-sub">
+                  {opp.contracts} {opp.contracts === 1 ? 'contract' : 'contracts'} suggested
+                </span>
               </div>
             </div>
           </Card>
@@ -184,24 +208,50 @@ function OpportunityDetailsPage() {
               <div className="opp-details__risk-col">
                 <span className="opp-details__risk-label">Max Risk</span>
                 <span className="opp-details__risk-val opp-details__risk-val--danger">
-                  {formatCurrency(opp.maxRisk)}
+                  {opp.maxRiskTotal == null ? 'Unlimited' : formatCurrency(opp.maxRiskTotal)}
                 </span>
-                <span className="opp-details__risk-sub">
-                  If {opp.symbol} closes below ${opp.strike} at expiration
-                </span>
+                <span className="opp-details__risk-sub">{opp.maxRiskText}</span>
               </div>
 
               <div className="opp-details__risk-col">
                 <span className="opp-details__risk-label">Risk Level</span>
                 <span className="opp-details__risk-val">{opp.riskLevel}</span>
-                <span className="opp-details__risk-sub">defined max. loss</span>
+                <span className="opp-details__risk-sub">{opp.maxRisk == null ? 'undefined max. loss' : 'defined max. loss'}</span>
               </div>
 
               <div className="opp-details__risk-col">
                 <span className="opp-details__risk-label">Breakeven</span>
-                <span className="opp-details__risk-val">{formatPrice(opp.breakeven)}</span>
+                <span className="opp-details__risk-val">{opp.breakevenText}</span>
                 <span className="opp-details__risk-sub">at expiration</span>
               </div>
+            </div>
+
+            <div className="opp-details__risk-metrics opp-details__reward-metrics">
+              <div className="opp-details__risk-col">
+                <span className="opp-details__risk-label">Max Profit</span>
+                <span className="opp-details__risk-val opp-details__risk-val--gain">{formatCurrency(opp.maxProfit)}</span>
+                <span className="opp-details__risk-sub">per contract</span>
+              </div>
+              <div className="opp-details__risk-col">
+                <span className="opp-details__risk-label">Return on Risk</span>
+                <span className="opp-details__risk-val">{opp.returnOnRisk == null ? '—' : `${opp.returnOnRisk}%`}</span>
+                <span className="opp-details__risk-sub">max profit ÷ max loss</span>
+              </div>
+              <div className="opp-details__risk-col">
+                <span className="opp-details__risk-label">Capital Efficiency</span>
+                <span className="opp-details__risk-val">{opp.annualizedYield}%</span>
+                <span className="opp-details__risk-sub">a year on {formatCurrency(opp.capitalRequired)} collateral</span>
+              </div>
+            </div>
+
+            <div className="opp-details__payoff">
+              <span className="opp-details__risk-label">Payoff at expiration (per contract)</span>
+              <PayoffChart
+                points={opp.payoff}
+                price={opp.currentPrice}
+                breakevens={[opp.breakeven, opp.breakevenHigh].filter(Boolean)}
+                symbol={opp.symbol}
+              />
             </div>
           </Card>
         </div>
@@ -247,14 +297,14 @@ function OpportunityDetailsPage() {
 
             <div className="opp-details__goal-breakdown">
               <div className="opp-details__goal-row">
-                <span className="opp-details__goal-label">Weekly Target</span>
-                <span className="opp-details__goal-val">{formatCurrency(opp.weeklyTarget)}</span>
+                <span className="opp-details__goal-label">Campaign Target</span>
+                <span className="opp-details__goal-val">{formatCurrency(opp.campaignTarget)}</span>
               </div>
 
               <div className="opp-details__goal-row">
-                <span className="opp-details__goal-label">Earned This Week</span>
+                <span className="opp-details__goal-label">Earned So Far</span>
                 <span className="opp-details__goal-val">
-                  {formatCurrency(opp.earnedThisWeek)} <span className="opp-details__goal-pct">({opp.earnedThisWeekPct}%)</span>
+                  {formatCurrency(opp.earnedSoFar)} <span className="opp-details__goal-pct">({opp.earnedPct}%)</span>
                 </span>
               </div>
 
@@ -270,18 +320,21 @@ function OpportunityDetailsPage() {
                 <div className="opp-details__track">
                   <div
                     className="opp-details__track-fill--base"
-                    style={{ width: `${opp.earnedThisWeekPct}%` }}
+                    style={{ width: `${opp.earnedPct}%` }}
                   />
                   <div
                     className="opp-details__track-fill--increment"
                     style={{
-                      left: `${opp.earnedThisWeekPct}%`,
-                      width: `${opp.withThisTradePct - opp.earnedThisWeekPct}%`,
+                      left: `${opp.earnedPct}%`,
+                      width: `${opp.withThisTradePct - opp.earnedPct}%`,
                     }}
                   />
                 </div>
                 <div className="opp-details__track-labels">
-                  <span style={{ left: `${opp.earnedThisWeekPct}%` }}>{opp.earnedThisWeekPct}%</span>
+                  {/* Labels closer than ~8% would overlap: show only the result. */}
+                  {opp.withThisTradePct - opp.earnedPct >= 8 && (
+                    <span style={{ left: `${opp.earnedPct}%` }}>{opp.earnedPct}%</span>
+                  )}
                   <span style={{ left: `${opp.withThisTradePct}%` }}>{opp.withThisTradePct}%</span>
                 </div>
               </div>
@@ -290,7 +343,7 @@ function OpportunityDetailsPage() {
               <div className="opp-details__goal-callout">
                 <span className="opp-details__improvement-pill">+{opp.goalImprovementPct}% Goal Improvement</span>
                 <span className="opp-details__improvement-text">
-                  You&apos;ll be {opp.withThisTradePct}% toward this week&apos;s target
+                  You&apos;ll be {opp.withThisTradePct}% toward your campaign target
                 </span>
               </div>
             </div>
@@ -303,42 +356,19 @@ function OpportunityDetailsPage() {
         <div className="opp-details__ai-head">
           <div className="opp-details__ai-head-title-row">
             <h2 className="card__title">AI Decision Layer</h2>
-            <span className="opp-details__info-icon" title="AI Recommendation Confidence Information">ⓘ</span>
+            <span
+              className="opp-details__info-icon"
+              title="Score measures how well the trade suits this campaign. Confidence measures how reliable the data behind it is."
+            >
+              ⓘ
+            </span>
           </div>
-          <p className="opp-details__card-subtitle">Know why this opportunity is recommended for you</p>
+          <p className="opp-details__card-subtitle">
+            Why it&apos;s recommended, whether it fits your limits, how it compares and what would change the call
+          </p>
         </div>
 
-        <div className="opp-details__ai-body">
-          <div className="opp-details__ai-score-col">
-            <div className="opp-details__ai-score-block">
-              <span className="opp-details__ai-score-label">Opportunity Score</span>
-              <div className="opp-details__ai-score-val">
-                <span className="opp-details__score-num">{opp.score}</span>
-                <span className="opp-details__score-total">/100</span>
-              </div>
-            </div>
-
-            <div className="opp-details__ai-confidence-block">
-              <span className="opp-details__ai-score-label">Confidence</span>
-              <span className="opp-details__confidence-pill">{opp.confidence}</span>
-            </div>
-          </div>
-
-          <div className="opp-details__ai-reasons-col">
-            <span className="opp-details__reasons-head">KEY REASONS</span>
-            <div className="opp-details__reasons-grid">
-              {opp.keyReasons.map((reason, idx) => (
-                <div key={idx} className="opp-details__reason-badge">
-                  <span className="opp-details__reason-check" aria-hidden="true">✓</span>
-                  <div className="opp-details__reason-text">
-                    <span className="opp-details__reason-title">{reason.title}</span>
-                    <span className="opp-details__reason-desc">{reason.desc}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <DecisionLayer opp={opp} />
       </Card>
 
       {/* Bottom Confirmation Card */}
@@ -367,6 +397,11 @@ function OpportunityDetailsPage() {
           >
             {placing ? 'Placing Order...' : 'Place Order'}
           </button>
+          {placeError && (
+            <p className="opp-details__place-error" role="alert">
+              {placeError}
+            </p>
+          )}
         </div>
       </Card>
 

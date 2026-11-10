@@ -271,3 +271,55 @@ func (r *Repository) Duplicate(ctx context.Context, id int64, userID string) (Ca
 	newID, _ := res.LastInsertId()
 	return r.Get(ctx, newID, userID)
 }
+
+// Owned is a campaign with its owner, for jobs that run across users.
+type Owned struct {
+	UserID string
+	Campaign
+}
+
+// ListRunning returns every campaign, of all users, whose status means it is
+// still trading (not paused or completed).
+func (r *Repository) ListRunning(ctx context.Context) ([]Owned, error) {
+	rows, err := r.db.QueryContext(ctx,
+		`SELECT user_id, `+selectCols+` FROM campaigns
+		 WHERE lower(status) NOT IN ('paused', 'completed') ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Owned
+	for rows.Next() {
+		var uid string
+		c, err := scanCampaign(prefixScanner{rows, &uid})
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, Owned{UserID: uid, Campaign: c})
+	}
+	return out, rows.Err()
+}
+
+// prefixScanner reads one extra leading column before the campaign columns.
+type prefixScanner struct {
+	row   scanner
+	first *string
+}
+
+func (p prefixScanner) Scan(dest ...any) error {
+	return p.row.Scan(append([]any{p.first}, dest...)...)
+}
+
+// AddEarned adds realized premium (negative for a loss) to the campaign.
+func (r *Repository) AddEarned(ctx context.Context, id int64, userID string, amount float64) error {
+	res, err := r.db.ExecContext(ctx,
+		`UPDATE campaigns SET earned = earned + ?, updated_at = ? WHERE id = ? AND user_id = ?`,
+		amount, r.now().UTC().Format(time.RFC3339Nano), id, userID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}

@@ -15,7 +15,8 @@ export class ApiError extends Error {
 
 function getActiveUserId() {
   try {
-    const raw = localStorage.getItem('kushmanda.session');
+    // "Remember me" off keeps the session in this tab only (sessionStorage).
+    const raw = localStorage.getItem('kushmanda.session') || sessionStorage.getItem('kushmanda.session');
     if (raw) {
       const u = JSON.parse(raw);
       if (u?.email) return u.email;
@@ -39,7 +40,11 @@ async function request(method, path, { body, signal } = {}) {
   });
   if (res.status === 204) return null;
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new ApiError(data?.error || `Request failed (${res.status})`, res.status, data?.fields);
+  if (!res.ok) {
+    const err = new ApiError(data?.error || `Request failed (${res.status})`, res.status, data?.fields);
+    if (data?.code) err.code = data.code; // machine-readable reason, e.g. no_watchlist
+    throw err;
+  }
   // e.g. an HTML page from a static server that has no backend behind it
   if (data === null) throw new ApiError('The server did not return JSON. Is the backend running?', res.status);
   return data;

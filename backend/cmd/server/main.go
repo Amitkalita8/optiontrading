@@ -86,21 +86,27 @@ func main() {
 	baseCtx, cancelBase := context.WithCancel(context.Background())
 	defer cancelBase()
 
+	app := api.New(
+		cfg,
+		db,
+		quoteService,
+		approachRepo,
+		insightService,
+		watchlistRepo,
+		campaignRepo,
+		positionRepo,
+		tradeLogRepo,
+		notificationRepo,
+		userRepo,
+	)
+	// Engine 01: keep every running campaign's opportunities fresh.
+	go app.Opportunities().Run(baseCtx)
+	// Engine 02: keep every open position assessed.
+	go app.PositionIntel().Run(baseCtx)
+
 	srv := &http.Server{
-		Addr: cfg.Addr,
-		Handler: api.New(
-			cfg,
-			db,
-			quoteService,
-			approachRepo,
-			insightService,
-			watchlistRepo,
-			campaignRepo,
-			positionRepo,
-			tradeLogRepo,
-			notificationRepo,
-			userRepo,
-		).Routes(),
+		Addr:              cfg.Addr,
+		Handler:           app.Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      30 * time.Second, // the stream handler lifts this for itself
 		IdleTimeout:       90 * time.Second,

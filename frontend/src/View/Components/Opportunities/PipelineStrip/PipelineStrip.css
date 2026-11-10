@@ -1,0 +1,120 @@
+.pipeline {
+  margin: 4px 0 20px;
+}
+
+.pipeline__stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  counter-reset: none;
+}
+
+.pipeline__stages li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.pipeline__stages li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--text-soft);
+  border-right: 1.5px solid var(--text-soft);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.pipeline__stages li.is-final {
+  border-color: var(--green-200);
+  background: var(--green-50);
+}
+
+.pipeline__step {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.pipeline__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pipeline__value {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.is-final .pipeline__value {
+  color: var(--green-700);
+}
+
+.pipeline__unit {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.pipeline__skipped {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pipeline__skipped summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pipeline__skipped ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.pipeline__stage-tag {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  margin-right: 4px;
+}
+
+@media (max-width: 1100px) {
+  .pipeline__stages {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pipeline__stages li:nth-child(3n)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .pipeline__stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pipeline__stages li::after {
+    display: none;
+  }
+}

@@ -17,6 +17,8 @@ import (
 	"optiontrading/backend/internal/insights"
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/opportunities"
+	"optiontrading/backend/internal/positionintel"
 	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/quotes"
 	"optiontrading/backend/internal/store"
@@ -68,6 +70,9 @@ func newTestServer(t *testing.T) *httptest.Server {
 		users.NewRepository(db),
 	)
 	a.mailer = outbox // tests read sent codes from here
+	// Never call Yahoo from tests.
+	a.opps = opportunities.NewService(db, fakeChains{}, a.campaigns, a.watchlists)
+	a.posIntel = positionintel.NewService(db, fakeChains{}, nil, a.positions, a.campaigns, a.notifications, a.tradeLog)
 	srv := httptest.NewServer(a.Routes())
 	t.Cleanup(srv.Close)
 	return srv

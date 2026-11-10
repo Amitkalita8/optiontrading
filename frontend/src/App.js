@@ -31,7 +31,7 @@ const TradeApproachesPage = lazy(() => import('./View/Pages/TradeApproach/TradeA
 const ApproachEditorPage = lazy(() => import('./View/Pages/TradeApproach/ApproachEditorPage'));
 const AskAIPage = lazy(() => import('./View/Pages/AskAI/AskAIPage'));
 const PositionsPage = lazy(() => import('./View/Pages/Positions/PositionsPage'));
-const PositionOpportunityDetailsPage = lazy(() => import('./View/Pages/Positions/PositionOpportunityDetailsPage'));
+const PositionDetailsPage = lazy(() => import('./View/Pages/Positions/PositionDetailsPage'));
 const TradeLogPage = lazy(() => import('./View/Pages/TradeLog/TradeLogPage'));
 const TradeReportPage = lazy(() => import('./View/Pages/TradeLog/TradeReportPage'));
 const NotificationsPage = lazy(() => import('./View/Pages/Notifications/NotificationsPage'));
@@ -190,7 +190,7 @@ function App() {
                 path="positions/:id"
                 element={
                   <Suspense fallback={<div className="loading" />}>
-                    <PositionOpportunityDetailsPage />
+                    <PositionDetailsPage />
                   </Suspense>
                 }
               />
@@ -198,7 +198,7 @@ function App() {
                 path="positions/opportunity/:id"
                 element={
                   <Suspense fallback={<div className="loading" />}>
-                    <PositionOpportunityDetailsPage />
+                    <PositionDetailsPage />
                   </Suspense>
                 }
               />

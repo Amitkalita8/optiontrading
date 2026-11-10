@@ -1,63 +1,81 @@
-import { newOpportunities } from '../../Data/mockData';
+import { getJSON, postJSON } from '../../Utils/api';
 import { getCompany } from '../Companies/companyModel';
-import { withLatency } from '../mockLatency';
 
-export function fetchOpportunities() {
-  return withLatency({ opportunities: newOpportunities });
+// Engine 01 — AI Opportunity Discovery (backend: internal/opportunities).
+// The backend scans the campaign's watchlist with live option chains, scores
+// every candidate trade against the campaign goal and approach, and keeps the
+// result fresh in the background. Errors carry `code`: no_campaign | no_watchlist.
+
+const TONES = ['gray', 'green', 'blue', 'amber'];
+const toneFor = (symbol) => TONES[[...symbol].reduce((n, ch) => n + ch.charCodeAt(0), 0) % TONES.length];
+
+// Rows for the tables: what the engine returns plus a badge colour.
+const toRow = (o) => ({ ...o, tone: toneFor(o.symbol) });
+
+// Scan for a campaign (default: the user's active campaign).
+export async function fetchOpportunities(campaignId) {
+  const path = campaignId ? `/api/opportunities?campaignId=${encodeURIComponent(campaignId)}` : '/api/opportunities';
+  const scan = await getJSON(path);
+  return { ...scan, opportunities: (scan.opportunities || []).map(toRow) };
 }
 
-export function fetchOpportunity(id) {
-  const opp = newOpportunities.find((o) => o.id === id || o.symbol.toLowerCase() === id?.toLowerCase()) || newOpportunities[0];
-  const company = getCompany(opp.symbol) || { name: `${opp.symbol} Corporation` };
+// Rescan now (ignores the cache).
+export async function refreshOpportunities(campaignId) {
+  const scan = await postJSON(`/api/campaigns/${campaignId}/opportunities/refresh`);
+  return { ...scan, opportunities: (scan.opportunities || []).map(toRow) };
+}
 
-  const isMsft = opp.symbol === 'MSFT';
-  const currentPrice = opp.currentPrice || (isMsft ? 912.0 : 250.0);
-  const strike = opp.strikePrice || (isMsft ? 920.0 : 260.0);
-  const expiryDays = opp.expiryDays || 30;
-  const premium = opp.premium || (isMsft ? 329.09 : 180.0);
-  const buyingPower = isMsft ? 91200 : Math.round(strike * 100);
-  const maxRisk = isMsft ? 6139 : Math.round(buyingPower * 0.08);
-  const breakeven = isMsft ? 913.86 : Math.round((currentPrice - premium / 100) * 100) / 100;
+const fmtDate = (iso, opts = { month: 'short', day: 'numeric', year: 'numeric' }) =>
+  iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(undefined, opts) : '—';
+const signed = (n, digits = 2) => `${n >= 0 ? '+' : ''}${n.toFixed(digits)}`;
+const pct = (n) => Math.max(0, Math.min(100, Math.round(n)));
 
-  const expDate = new Date(Date.now() + expiryDays * 86400000);
-  const expDateStr = isMsft ? 'July 31, 2026' : expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-  const details = {
-    ...opp,
-    companyName: (company.name || `${opp.symbol} Corporation`).toUpperCase(),
-    currentPrice,
-    strike,
-    buyingPower,
-    delta: isMsft ? '+0.15' : '+0.18',
-    theta: isMsft ? '-0.51' : '-0.42',
-    pop: isMsft ? 82 : 79,
-    nextEarning: isMsft ? 'July 30' : 'Aug 14',
-    dividend: isMsft ? '$3.32/yr' : '$1.80/yr',
-    goalContribution: isMsft ? 31 : 28,
-    estimatedWeekly: isMsft ? 10 : 9,
-    premiumToEarn: isMsft ? 1245 : Math.round(premium * 4),
-    maxRisk,
-    riskLevel: 'Moderate',
-    breakeven,
-    strategyText: `Sell 1x ${opp.symbol} $${strike}-Call`,
-    contractType: opp.strategy,
-    collateral: `100 ${opp.symbol} Shares (Already in portfolio)`,
-    expirationText: `${expDateStr} (${expiryDays} days)`,
-    weeklyTarget: 4167,
-    earnedThisWeek: 2853.56,
-    earnedThisWeekPct: 68,
-    withThisTrade: 3250.28,
-    withThisTradePct: 78,
-    goalImprovementPct: 10,
-    score: 97,
-    confidence: 'High - 91%',
-    keyReasons: [
-      { title: 'Strong fit with your weekly target', desc: 'Contributes 10%' },
-      { title: 'Risk is within your safe limits', desc: 'Uses 11% of your total capital' },
-      { title: 'Favorable market conditions', desc: 'High IV, bullish trend' },
-      { title: 'Better than alternatives', desc: 'Ranks #1 for OE opportunities' },
-    ],
+// Detail view model for /opportunities/:id.
+export function toDetails({ opportunity: o, goal = {}, campaignId, campaignName, generatedAt, marketPhase }) {
+  const company = getCompany(o.symbol);
+  const target = goal.netTarget || 0;
+  const earned = goal.earned || 0;
+  const withTrade = earned + o.totalPremium;
+  const earnedPct = target > 0 ? pct((earned / target) * 100) : 0;
+  const withPct = target > 0 ? pct((withTrade / target) * 100) : 0;
+  const twoSided = o.breakevenHigh > 0;
+  return {
+    ...o,
+    tone: toneFor(o.symbol),
+    companyName: (company?.name || o.symbol).toUpperCase(),
+    strike: o.strikePrice,
+    buyingPower: o.capitalRequired * o.contracts,
+    delta: signed(o.delta),
+    theta: `${o.theta >= 0 ? '+' : '-'}$${Math.abs(o.theta).toFixed(2)}/day`,
+    collateral: o.contracts > 1 ? `${o.collateral} per contract` : o.collateral,
+    pop: Math.round(o.pop),
+    nextEarning: o.earningsDate ? fmtDate(o.earningsDate, { month: 'short', day: 'numeric' }) : '—',
+    dividend: o.exDividendDate ? `Ex ${fmtDate(o.exDividendDate, { month: 'short', day: 'numeric' })}` : '—',
+    goalContribution: o.goalContributionPct,
+    estimatedWeekly: o.weeklyContributionPct,
+    premiumToEarn: o.totalPremium,
+    maxRiskTotal: o.maxRisk == null ? null : o.maxRisk * o.contracts,
+    breakevenText: twoSided ? `$${o.breakeven.toFixed(2)} – $${o.breakevenHigh.toFixed(2)}` : `$${o.breakeven.toFixed(2)}`,
+    strategyText: o.contracts > 1 ? o.description.replace('1x', `${o.contracts}x`) : o.description,
+    contractType: o.strategy,
+    expirationText: `${fmtDate(o.expiry)} (${o.expiryDays} days)`,
+    campaignId,
+    campaignName,
+    campaignTarget: target,
+    earnedSoFar: earned,
+    earnedPct,
+    withThisTrade: withTrade,
+    withThisTradePct: withPct,
+    goalImprovementPct: target > 0 ? Math.round((o.totalPremium / target) * 1000) / 10 : 0,
+    confidence: `${o.confidence} - ${o.confidencePct}%`,
+    confidenceLabel: o.confidence,
+    keyReasons: o.reasons || [],
+    warnings: o.warnings || [],
+    generatedAt,
+    marketPhase,
   };
+}
 
-  return withLatency(details);
+export async function fetchOpportunity(id) {
+  return toDetails(await getJSON(`/api/opportunities/${encodeURIComponent(id)}`));
 }

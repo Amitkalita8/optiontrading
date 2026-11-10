@@ -17,7 +17,9 @@ import (
 	"optiontrading/backend/internal/mailer"
 	"optiontrading/backend/internal/market"
 	"optiontrading/backend/internal/notifications"
+	"optiontrading/backend/internal/opportunities"
 	"optiontrading/backend/internal/passwordreset"
+	"optiontrading/backend/internal/positionintel"
 	"optiontrading/backend/internal/positions"
 	"optiontrading/backend/internal/profiles"
 	"optiontrading/backend/internal/quotes"
@@ -41,6 +43,8 @@ type API struct {
 	profiles      *profiles.Repository
 	resets        *passwordreset.Service
 	mailer        mailer.Mailer
+	opps          *opportunities.Service
+	posIntel      *positionintel.Service
 	now           func() time.Time
 }
 
@@ -57,7 +61,8 @@ func New(
 	notif *notifications.Repository,
 	u *users.Repository,
 ) *API {
-	return &API{
+	yahoo := opportunities.NewYahoo() // shared by both engines (one session + cache)
+	a := &API{
 		cfg:           cfg,
 		db:            db,
 		quotes:        q,
@@ -73,7 +78,10 @@ func New(
 		resets:        passwordreset.New(db),
 		mailer:        mailer.New(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom),
 		now:           time.Now,
+		opps:          opportunities.NewService(db, yahoo, cp, wl),
 	}
+	a.posIntel = positionintel.NewService(db, yahoo, quoteHistory{q}, pos, cp, notif, tl)
+	return a
 }
 
 // Routes returns the router with middleware applied.
@@ -111,6 +119,8 @@ func (a *API) Routes() http.Handler {
 	a.profileRoutes(mux)
 	a.dashboardRoutes(mux)
 	a.passwordResetRoutes(mux)
+	a.opportunityRoutes(mux)
+	a.positionIntelRoutes(mux)
 	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
 	a.databaseAdminRoutes(mux)
 	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken))
