@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -84,15 +85,15 @@ func (r *Repository) insert(ctx context.Context, in Input, userID string, at tim
 	if kind == "" {
 		kind = KindInfo
 	}
-	res, err := r.db.ExecContext(ctx,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
 		`INSERT INTO notifications (user_id, kind, title, body, source, action_required, action_label, action_path, read, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?) RETURNING id`,
 		userID, kind, in.Title, in.Body, in.Source, boolInt(in.ActionRequired), in.ActionLabel, in.ActionPath,
-		at.UTC().Format(time.RFC3339Nano))
+		at.UTC().Format(time.RFC3339Nano)))
 	if err != nil {
 		return Notification{}, err
 	}
-	id, _ := res.LastInsertId()
+	id := newRowID
 	return r.get(ctx, id)
 }
 

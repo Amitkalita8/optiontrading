@@ -1,6 +1,7 @@
 package api
 
 import (
+	"optiontrading/backend/internal/store"
 	"crypto/hmac"
 	"crypto/sha256"
 	"database/sql"
@@ -8,7 +9,6 @@ import (
 	"fmt"
 	"html"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -121,7 +121,7 @@ func (a *API) renderLoginView(w http.ResponseWriter, r *http.Request, errorMsg s
 		<div class="alert alert-danger">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
 			<div>
-				<strong>#1045 - Cannot log in to MySQL / SQLite server</strong><br/>
+				<strong>#1045 - Cannot log in to the database server</strong><br/>
 				<span>%s</span>
 			</div>
 		</div>`, errorMsg)
@@ -287,7 +287,7 @@ func (a *API) renderLoginView(w http.ResponseWriter, r *http.Request, errorMsg s
 				<div class="form-group">
 					<label for="server">Server choice</label>
 					<select id="server" name="server" disabled>
-						<option selected>127.0.0.1 (SQLite3 Engine - optiontrading.db)</option>
+						<option selected>` + html.EscapeString(a.dbEngine()+" - "+a.dbName()) + `</option>
 					</select>
 				</div>
 				<div class="form-group">
@@ -305,7 +305,7 @@ func (a *API) renderLoginView(w http.ResponseWriter, r *http.Request, errorMsg s
 			</form>
 			<div class="login-footer">
 				<span>Documentation &amp; Support</span>
-				<span>Database: SQLite 3</span>
+				<span>Database: ` + html.EscapeString(a.dbEngine()) + `</span>
 			</div>
 		</div>
 	</div>
@@ -322,7 +322,7 @@ func (a *API) getTables() ([]tableStat, error) {
 	if a.db == nil {
 		return nil, fmt.Errorf("database not initialized")
 	}
-	rows, err := a.db.Query(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;`)
+	rows, err := a.db.Query(store.ListTablesQuery(a.db))
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +335,7 @@ func (a *API) getTables() ([]tableStat, error) {
 			continue
 		}
 		var count int64
-		// safe query since table names come from sqlite_master
+		// safe query since table names come from the catalog
 		_ = a.db.QueryRow(fmt.Sprintf(`SELECT COUNT(*) FROM "%s"`, strings.ReplaceAll(name, `"`, `""`))).Scan(&count)
 		tables = append(tables, tableStat{Name: name, RowCount: count})
 	}
@@ -355,10 +355,7 @@ func (a *API) renderMainAppView(w http.ResponseWriter, r *http.Request, route, a
 	}
 
 	// Database file stats
-	var dbSizeStr = "Unknown"
-	if fi, err := os.Stat(a.cfg.DBPath); err == nil {
-		dbSizeStr = fmt.Sprintf("%.2f KB", float64(fi.Size())/1024.0)
-	}
+	dbSizeStr := a.dbSize()
 
 	// Render main layout
 	a.renderPMAHeader(w, activeTable, dbSizeStr)
@@ -804,14 +801,14 @@ func (a *API) renderPMAHeader(w http.ResponseWriter, activeTable, dbSizeStr stri
 		<a href="/phpmyadmin" class="pma-brand">
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
 			<span>phpMyAdmin</span>
-			<span class="pma-brand-badge">SQLite</span>
+			<span class="pma-brand-badge">` + html.EscapeString(a.dbEngine()) + `</span>
 		</a>
 		<div class="pma-topbar-meta">
 			<div class="meta-chip">
 				<span>Server: <strong>127.0.0.1:8085</strong></span>
 			</div>
 			<div class="meta-chip">
-				<span>Database: <strong>optiontrading.db (%s)</strong></span>
+				<span>Database: <strong>` + html.EscapeString(a.dbName()) + ` (%s)</strong></span>
 			</div>
 			<div class="meta-chip">
 				<span>User: <strong>root@localhost</strong></span>
@@ -871,7 +868,7 @@ func (a *API) renderPMABreadcrumbsAndTabs(w http.ResponseWriter, activeTable, ro
 		<div class="breadcrumb">
 			<a href="/phpmyadmin">localhost</a>
 			<span class="sep">&raquo;</span>
-			<a href="/phpmyadmin">optiontrading.db</a>
+			<a href="/phpmyadmin">` + html.EscapeString(a.dbName()) + `</a>
 			%s
 		</div>
 		<ul class="pma-tabs">`, tablePart)
@@ -917,7 +914,7 @@ func (a *API) renderDatabaseOverview(w http.ResponseWriter, tables []tableStat, 
 	<div class="pma-body">
 		<div class="card">
 			<div class="card-header">
-				<span>Database: optiontrading.db &nbsp; <small style="font-weight:normal; color:#64748b;">(Path: %s, Size: %s)</small></span>
+				<span>Database: ` + html.EscapeString(a.dbName()) + ` &nbsp; <small style="font-weight:normal; color:#64748b;">(Path: %s, Size: %s)</small></span>
 			</div>
 			<div class="card-body">
 				<div class="table-responsive">
@@ -930,7 +927,7 @@ func (a *API) renderDatabaseOverview(w http.ResponseWriter, tables []tableStat, 
 								<th style="text-align:right;">Type</th>
 							</tr>
 						</thead>
-						<tbody>`, html.EscapeString(a.cfg.DBPath), dbSizeStr)
+						<tbody>`, html.EscapeString(a.dbLocation()), dbSizeStr)
 
 	var totalRows int64
 	for _, tbl := range tables {
@@ -945,7 +942,7 @@ func (a *API) renderDatabaseOverview(w http.ResponseWriter, tables []tableStat, 
 									<a href="/phpmyadmin?route=/table/insert&table=%s" class="btn-action" style="background:#f1f5f9; color:#475569;">➕ Insert</a>
 								</td>
 								<td style="text-align:right;" class="mono">%d</td>
-								<td style="text-align:right; color:#64748b;">SQLite3 Table</td>
+								<td style="text-align:right; color:#64748b;">` + html.EscapeString(a.dbEngine()) + ` table</td>
 							</tr>`,
 			html.EscapeString(tbl.Name), html.EscapeString(tbl.Name),
 			html.EscapeString(tbl.Name),
@@ -1147,8 +1144,8 @@ func (a *API) renderTableStructure(w http.ResponseWriter, tableName string) {
 	if a.db == nil {
 		return
 	}
-	safeTable := strings.ReplaceAll(tableName, `"`, `""`)
-	rows, err := a.db.Query(fmt.Sprintf(`PRAGMA table_info("%s")`, safeTable))
+	tiQuery, tiArgs := store.TableInfoQuery(a.db, tableName)
+	rows, err := a.db.Query(tiQuery, tiArgs...)
 	if err != nil {
 		fmt.Fprintf(w, `<div class="pma-body"><div class="msg-box msg-error">%s</div></div>`, html.EscapeString(err.Error()))
 		return
@@ -1229,7 +1226,7 @@ func (a *API) renderSQLConsole(w http.ResponseWriter, activeTable, query string,
 		if activeTable != "" {
 			query = fmt.Sprintf(`SELECT * FROM "%s" LIMIT 25;`, strings.ReplaceAll(activeTable, `"`, `""`))
 		} else {
-			query = "SELECT name, type FROM sqlite_master WHERE type='table' ORDER BY name;"
+			query = store.ListTablesQuery(a.db) + ";"
 		}
 	}
 
@@ -1237,7 +1234,7 @@ func (a *API) renderSQLConsole(w http.ResponseWriter, activeTable, query string,
 	<div class="pma-body">
 		<div class="card">
 			<div class="card-header">
-				<span>Execute SQL Query on Database: optiontrading.db</span>
+				<span>Execute SQL Query on Database: ` + html.EscapeString(a.dbName()) + `</span>
 			</div>
 			<div class="card-body">
 				<form method="POST" action="/phpmyadmin?route=/sql">
@@ -1315,10 +1312,7 @@ func (a *API) handleSQLQuery(w http.ResponseWriter, r *http.Request, table strin
 		strings.HasPrefix(trimmedUpper, "EXPLAIN")
 
 	tables, _ := a.getTables()
-	var dbSizeStr = "Unknown"
-	if fi, err := os.Stat(a.cfg.DBPath); err == nil {
-		dbSizeStr = fmt.Sprintf("%.2f KB", float64(fi.Size())/1024.0)
-	}
+	dbSizeStr := a.dbSize()
 
 	a.renderPMAHeader(w, table, dbSizeStr)
 	a.renderPMASidebar(w, tables, table)
@@ -1362,8 +1356,8 @@ func (a *API) renderTableInsertForm(w http.ResponseWriter, tableName string) {
 	if a.db == nil || tableName == "" {
 		return
 	}
-	safeTable := strings.ReplaceAll(tableName, `"`, `""`)
-	rows, err := a.db.Query(fmt.Sprintf(`PRAGMA table_info("%s")`, safeTable))
+	tiQuery, tiArgs := store.TableInfoQuery(a.db, tableName)
+	rows, err := a.db.Query(tiQuery, tiArgs...)
 	if err != nil {
 		fmt.Fprintf(w, `<div class="pma-body"><div class="msg-box msg-error">%s</div></div>`, html.EscapeString(err.Error()))
 		return
@@ -1445,7 +1439,8 @@ func (a *API) handleInsertRow(w http.ResponseWriter, r *http.Request, tableName 
 	}
 
 	safeTable := strings.ReplaceAll(tableName, `"`, `""`)
-	rows, err := a.db.Query(fmt.Sprintf(`PRAGMA table_info("%s")`, safeTable))
+	tiQuery, tiArgs := store.TableInfoQuery(a.db, tableName)
+	rows, err := a.db.Query(tiQuery, tiArgs...)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -1554,12 +1549,16 @@ func (a *API) handleExport(w http.ResponseWriter, r *http.Request, table string)
 		}
 	}
 
-	fmt.Fprintf(w, "-- Option Trading SQLite Database Dump\n-- Generated on: %s\n\nPRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\n\n", time.Now().Format(time.RFC3339))
+	preamble := "PRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\n\n"
+	if store.IsPostgres(a.db) {
+		preamble = "BEGIN;\n\n"
+	}
+	fmt.Fprintf(w, "-- Option Trading %s Database Dump\n-- Generated on: %s\n\n%s", a.dbEngine(), time.Now().Format(time.RFC3339), preamble)
 
 	for _, tbl := range targetTables {
 		safeTable := strings.ReplaceAll(tbl, `"`, `""`)
 		var sqlSchema string
-		_ = a.db.QueryRow(fmt.Sprintf(`SELECT sql FROM sqlite_master WHERE type='table' AND name='%s'`, tbl)).Scan(&sqlSchema)
+		sqlSchema = store.TableDDL(a.db, tbl)
 		if sqlSchema != "" {
 			fmt.Fprintf(w, "-- Schema for %s\n%s;\n\n", tbl, sqlSchema)
 		}

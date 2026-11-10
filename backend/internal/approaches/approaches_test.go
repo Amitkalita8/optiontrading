@@ -11,11 +11,7 @@ import (
 
 func newRepo(t *testing.T) *Repository {
 	t.Helper()
-	db, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { db.Close() })
+	db := store.OpenTest(t) // SQLite, or Postgres with TEST_DATABASE_URL
 	return NewRepository(db)
 }
 

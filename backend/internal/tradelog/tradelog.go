@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -80,14 +81,14 @@ func (r *Repository) Append(ctx context.Context, in Input, userID string) (Entry
 	if in.PositionID != nil {
 		posID = *in.PositionID
 	}
-	res, err := r.db.ExecContext(ctx,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
 		`INSERT INTO trade_log (user_id, position_id, symbol, action, quantity, price, notes, occurred_at, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		userID, posID, in.Symbol, action, qty, in.Price, in.Notes, occurredAt, now)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+		userID, posID, in.Symbol, action, qty, in.Price, in.Notes, occurredAt, now))
 	if err != nil {
 		return Entry{}, err
 	}
-	id, _ := res.LastInsertId()
+	id := newRowID
 	var e Entry
 	err = r.db.QueryRowContext(ctx,
 		`SELECT id, position_id, symbol, action, quantity, price, notes, occurred_at, created_at
@@ -151,4 +152,3 @@ func (r *Repository) SeedDemo(ctx context.Context) error {
 	}
 	return nil
 }
-

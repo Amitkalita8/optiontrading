@@ -44,9 +44,14 @@ func main() {
 	}
 	insightService := insights.NewService(quoteService, llm, cfg.GroqModel)
 
-	db, err := store.Open(cfg.DBPath)
+	db, err := store.OpenConfigured(cfg.DatabaseURL, cfg.DBPath)
 	if err != nil {
 		log.Fatalf("database: %v", err)
+	}
+	if store.IsPostgres(db) {
+		log.Print("database: PostgreSQL (DATABASE_URL)")
+	} else {
+		log.Printf("database: SQLite %s (set DATABASE_URL to use PostgreSQL)", cfg.DBPath)
 	}
 	defer db.Close()
 	approachRepo := approaches.NewRepository(db)

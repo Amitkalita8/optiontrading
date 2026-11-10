@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -123,16 +124,16 @@ func (r *Repository) Create(ctx context.Context, in Input, userID string) (Posit
 	if in.CampaignID != nil {
 		campaignID = *in.CampaignID
 	}
-	res, err := r.db.ExecContext(ctx,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
 		`INSERT INTO positions (user_id, campaign_id, symbol, strategy, quantity, strike, expiry,
 		 premium_credit, current_value, status, opened_at, closed_at, created_at, updated_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		userID, campaignID, in.Symbol, in.Strategy, in.Quantity, in.Strike, in.Expiry,
-		in.PremiumCredit, in.CurrentValue, status, openedAt, in.ClosedAt, now, now)
+		in.PremiumCredit, in.CurrentValue, status, openedAt, in.ClosedAt, now, now))
 	if err != nil {
 		return Position{}, err
 	}
-	id, _ := res.LastInsertId()
+	id := newRowID
 	return r.Get(ctx, id, userID)
 }
 
@@ -187,4 +188,3 @@ func (r *Repository) SeedDemo(ctx context.Context) error {
 	}
 	return nil
 }
-

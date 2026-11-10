@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -48,11 +47,7 @@ func newTestServer(t *testing.T) *httptest.Server {
 		StreamIntervalOpen:   50 * time.Millisecond,
 		StreamIntervalClosed: 50 * time.Millisecond,
 	}
-	db, err := store.Open(filepath.Join(t.TempDir(), "api.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { db.Close() })
+	db := store.OpenTest(t) // SQLite, or Postgres with TEST_DATABASE_URL
 	qs := quotes.NewService(fakeFetcher{}, time.Second)
 	a := New(
 		cfg,

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"optiontrading/backend/internal/store"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -102,15 +102,15 @@ func (r *Repository) Create(ctx context.Context, in Input, userID string) (Campa
 	if in.ApproachID != nil {
 		approachID = *in.ApproachID
 	}
-	res, err := r.db.ExecContext(ctx,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
 		`INSERT INTO campaigns (user_id, name, capital, goal, earned, status, start_date, end_date, approach_id, watchlist_id, market_outlook, created_at, updated_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		userID, in.Name, in.Capital, in.Goal, in.Earned, in.Status,
-		in.StartDate, in.EndDate, approachID, nullableID(in.WatchlistID), outlookOr(in.MarketOutlook, "neutral"), now, now)
+		in.StartDate, in.EndDate, approachID, nullableID(in.WatchlistID), outlookOr(in.MarketOutlook, "neutral"), now, now))
 	if err != nil {
 		return Campaign{}, mapCampaignError(err)
 	}
-	id, _ := res.LastInsertId()
+	id := newRowID
 	return r.Get(ctx, id, userID)
 }
 
@@ -193,7 +193,7 @@ func outlookOr(v, fallback string) string {
 }
 
 func mapCampaignError(err error) error {
-	if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+	if store.IsUniqueViolation(err) {
 		return ErrDuplicateName
 	}
 	return err
@@ -259,15 +259,18 @@ func (r *Repository) Duplicate(ctx context.Context, id int64, userID string) (Ca
 		name = src.Name + " (copy " + strconv.Itoa(i) + ")"
 	}
 	now := r.now().UTC().Format(time.RFC3339Nano)
-	res, err := r.db.ExecContext(ctx,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
 		`INSERT INTO campaigns (user_id, name, capital, goal, earned, status, start_date, end_date, approach_id, watchlist_id,
 		   market_outlook, strategies, moneyness, holding_duration, risk_level, created_at, updated_at)
 		 SELECT user_id, ?, capital, goal, 0, 'active', start_date, end_date, approach_id, watchlist_id,
 		   market_outlook, strategies, moneyness, holding_duration, risk_level, ?, ?
-		 FROM campaigns WHERE id = ? AND user_id = ?`, name, now, now, id, userID)
+		 FROM campaigns WHERE id = ? AND user_id = ? RETURNING id`, name, now, now, id, userID))
+	if errors.Is(err, sql.ErrNoRows) {
+		return Campaign{}, ErrNotFound
+	}
 	if err != nil {
 		return Campaign{}, err
 	}
-	newID, _ := res.LastInsertId()
+	newID := newRowID
 	return r.Get(ctx, newID, userID)
 }

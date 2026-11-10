@@ -47,7 +47,8 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | `QUOTE_CACHE_TTL` | `4s` | How long a fetched quote is reused (all viewers share one upstream call) |
 | `STREAM_INTERVAL_OPEN` | `5s` | Stream push interval while the market is open |
 | `STREAM_INTERVAL_CLOSED` | `60s` | Stream push interval while closed |
-| `DB_PATH` | `data/optiontrading.db` | SQLite database file (created on first run) |
+| `DATABASE_URL` | — | PostgreSQL connection, e.g. `postgres://postgres:PASSWORD@localhost:5432/optiontrading?sslmode=disable`. When set the app uses Postgres; otherwise SQLite |
+| `DB_PATH` | `data/optiontrading.db` | SQLite database file (created on first run), used when `DATABASE_URL` is empty |
 | `SEED_DEMO_DATA` | `true` | Insert the four example approaches into an empty database |
 | `GROQ_API_KEY` | — | Groq key for the AI screener. Put it in `backend/.env` (git-ignored; see `.env.example`) |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq chat model the screener uses |
@@ -70,6 +71,28 @@ internal/api/        HTTP handlers, SSE stream, middleware (logging, recovery, C
 ```
 
 ## Database
+
+**PostgreSQL** (when `DATABASE_URL` is set) or **SQLite** (default). Both get the same tables, created and migrated
+automatically at startup; the server logs which one it uses.
+
+Switching an existing install to Postgres:
+
+1. Create a database for the app: `CREATE DATABASE optiontrading;` (pgAdmin or psql). Don't reuse a database that
+   belongs to another app.
+2. Add `DATABASE_URL=postgres://postgres:PASSWORD@localhost:5432/optiontrading?sslmode=disable` to `backend/.env`.
+3. Copy the existing data once: `go run ./cmd/sqlite2pg` (reads `DB_PATH`, writes `DATABASE_URL`, refuses if Postgres
+   already has rows unless `-force`, copies in one transaction and checks row counts). The SQLite file is left as is.
+4. Restart the backend.
+
+The repositories write SQLite-style SQL with `?` placeholders; the Postgres driver wrapper in `internal/store`
+rewrites them to `$1, $2, …`. New rows use `INSERT … RETURNING id` (works on both). Case-insensitive columns are
+`COLLATE NOCASE` in SQLite and `CITEXT` in Postgres. **Schema changes go in both lists**: `migrations` (SQLite, in
+`store.go`) and `pgMigrations` (`postgres.go`).
+
+Tests use SQLite temp files by default. To run the whole suite against Postgres (each test in its own throwaway
+schema): `TEST_DATABASE_URL=postgres://…/optiontrading?sslmode=disable go test ./...`
+
+### SQLite
 
 SQLite via [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) — pure Go, so no C compiler is needed. The file
 is created at `DB_PATH` on first start and migrated automatically. To add a table or column, **append** a statement to

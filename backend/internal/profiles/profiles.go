@@ -115,7 +115,7 @@ const columns = `user_id, full_name, display_name, country_code, phone, country,
 func (r *Repository) Get(ctx context.Context, userID string) (Profile, error) {
 	var p Profile
 	var updated string
-	err := r.db.QueryRowContext(ctx, `SELECT `+columns+` FROM profiles WHERE user_id = ? COLLATE NOCASE`, userID).Scan(
+	err := r.db.QueryRowContext(ctx, `SELECT `+columns+` FROM profiles WHERE user_id = ?`, userID).Scan(
 		&p.UserID, &p.FullName, &p.DisplayName, &p.CountryCode, &p.Phone, &p.Country,
 		&p.Language, &p.TimeZone, &p.DateFormat, &p.Photo, &updated)
 	if errors.Is(err, sql.ErrNoRows) {

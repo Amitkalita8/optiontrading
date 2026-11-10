@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -65,16 +65,13 @@ func (r *Repository) Get(ctx context.Context, id int64, userID string) (Watchlis
 // Create inserts a new watchlist and returns it.
 func (r *Repository) Create(ctx context.Context, in Input, userID string) (Watchlist, error) {
 	now := r.now().UTC().Format(time.RFC3339Nano)
-	res, err := r.db.ExecContext(ctx,
-		`INSERT INTO watchlists (user_id, name, created_at, updated_at) VALUES (?, ?, ?, ?)`,
-		userID, in.Name, now, now)
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx,
+		`INSERT INTO watchlists (user_id, name, created_at, updated_at) VALUES (?, ?, ?, ?) RETURNING id`,
+		userID, in.Name, now, now))
 	if err != nil {
 		return Watchlist{}, mapWatchlistError(err)
 	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return Watchlist{}, err
-	}
+	id := newRowID
 	if err := r.setTickers(ctx, id, in.Tickers); err != nil {
 		return Watchlist{}, err
 	}
@@ -180,7 +177,7 @@ func scanWatchlist(row wlScanner) (Watchlist, error) {
 }
 
 func mapWatchlistError(err error) error {
-	if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+	if store.IsUniqueViolation(err) {
 		return ErrDuplicateName
 	}
 	return fmt.Errorf("watchlist: %w", err)
@@ -206,4 +203,3 @@ func (r *Repository) SeedDemo(ctx context.Context) error {
 	}
 	return nil
 }
-

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -91,21 +91,18 @@ func (r *Repository) create(ctx context.Context, in Input, usedIn int) (Approach
 		return Approach{}, err
 	}
 	now := r.now().UTC().Format(time.RFC3339Nano)
-	res, err := r.db.ExecContext(ctx, `INSERT INTO approaches
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx, `INSERT INTO approaches
 		(name, strategies, moneyness, holding_period, min_yield, risk, take_profit, stop_loss,
 		 max_position, dte_close_threshold, assignment_handling, auto_roll, used_in_campaigns,
 		 created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		in.Name, string(strategies), in.Moneyness, in.HoldingPeriod, in.MinYield, in.Risk,
 		in.TakeProfit, in.StopLoss, in.MaxPosition, in.DTECloseThreshold, in.AssignmentHandling,
-		boolInt(in.AutoRoll), usedIn, now, now)
+		boolInt(in.AutoRoll), usedIn, now, now))
 	if err != nil {
 		return Approach{}, mapWriteError(err)
 	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return Approach{}, err
-	}
+	id := newRowID
 	return r.Get(ctx, id)
 }
 
@@ -146,7 +143,7 @@ func (r *Repository) Delete(ctx context.Context, id int64) error {
 }
 
 func mapWriteError(err error) error {
-	if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+	if store.IsUniqueViolation(err) {
 		return ErrDuplicateName
 	}
 	return err

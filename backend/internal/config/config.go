@@ -18,8 +18,11 @@ type Config struct {
 	// quotes while the market is open / closed.
 	StreamIntervalOpen   time.Duration
 	StreamIntervalClosed time.Duration
-	// DBPath is the SQLite database file (env DB_PATH).
+	// DBPath is the SQLite database file (env DB_PATH), used when DatabaseURL is empty.
 	DBPath string
+	// DatabaseURL selects PostgreSQL (env DATABASE_URL), e.g.
+	// postgres://postgres:secret@localhost:5432/optiontrading?sslmode=disable
+	DatabaseURL string
 	// SeedDemoData inserts example approaches into an empty database (env SEED_DEMO_DATA=false to disable).
 	SeedDemoData bool
 	// GroqAPIKey enables the AI stock screener (env GROQ_API_KEY; keep it in backend/.env).
@@ -41,6 +44,7 @@ func Load() Config {
 		StreamIntervalOpen:   duration("STREAM_INTERVAL_OPEN", 5*time.Second),
 		StreamIntervalClosed: duration("STREAM_INTERVAL_CLOSED", 60*time.Second),
 		DBPath:               env("DB_PATH", "data/optiontrading.db"),
+		DatabaseURL:          env("DATABASE_URL", ""),
 		SeedDemoData:         env("SEED_DEMO_DATA", "true") != "false",
 		GroqAPIKey:           env("GROQ_API_KEY", ""),
 		GroqModel:            env("GROQ_MODEL", "openai/gpt-oss-120b"),

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"optiontrading/backend/internal/store"
 	"time"
 )
 
@@ -25,8 +26,9 @@ func (r *Repository) Create(ctx context.Context, u *User) error {
 	query := `
 		INSERT INTO users (name, email, password_hash, provider, avatar_url, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
+		RETURNING id
 	`
-	res, err := r.db.ExecContext(ctx, query,
+	newRowID, err := store.InsertID(r.db.QueryRowContext(ctx, query,
 		u.Name,
 		u.Email,
 		u.PasswordHash,
@@ -34,7 +36,7 @@ func (r *Repository) Create(ctx context.Context, u *User) error {
 		u.AvatarURL,
 		u.CreatedAt,
 		u.UpdatedAt,
-	)
+	))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return err
@@ -42,10 +44,7 @@ func (r *Repository) Create(ctx context.Context, u *User) error {
 		return fmt.Errorf("%w: %v", ErrAlreadyExists, err)
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return err
-	}
+	id := newRowID
 	u.ID = id
 	return nil
 }
@@ -54,7 +53,7 @@ func (r *Repository) FindByEmail(ctx context.Context, email string) (*User, erro
 	query := `
 		SELECT id, name, email, password_hash, provider, avatar_url, created_at, updated_at
 		FROM users
-		WHERE email = ? COLLATE NOCASE
+		WHERE email = ?
 	`
 	var u User
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
@@ -80,7 +79,7 @@ func (r *Repository) FindByIDOrEmail(ctx context.Context, identifier string) (*U
 	query := `
 		SELECT id, name, email, password_hash, provider, avatar_url, created_at, updated_at
 		FROM users
-		WHERE email = ? COLLATE NOCASE OR CAST(id AS TEXT) = ?
+		WHERE email = ? OR CAST(id AS TEXT) = ?
 		LIMIT 1
 	`
 	var u User
@@ -186,7 +185,7 @@ func (r *Repository) SeedDemo(ctx context.Context) error {
 // UpdatePassword stores a new password hash and bumps updated_at.
 func (r *Repository) UpdatePassword(ctx context.Context, email, hash string) (*User, error) {
 	res, err := r.db.ExecContext(ctx,
-		`UPDATE users SET password_hash = ?, updated_at = ? WHERE email = ? COLLATE NOCASE`,
+		`UPDATE users SET password_hash = ?, updated_at = ? WHERE email = ?`,
 		hash, time.Now().UTC().Format(time.RFC3339), email)
 	if err != nil {
 		return nil, err
@@ -200,7 +199,7 @@ func (r *Repository) UpdatePassword(ctx context.Context, email, hash string) (*U
 // UpdateName changes the display name on the account (from Settings › Profile).
 func (r *Repository) UpdateName(ctx context.Context, email, name string) error {
 	_, err := r.db.ExecContext(ctx,
-		`UPDATE users SET name = ?, updated_at = ? WHERE email = ? COLLATE NOCASE`,
+		`UPDATE users SET name = ?, updated_at = ? WHERE email = ?`,
 		name, time.Now().UTC().Format(time.RFC3339), email)
 	return err
 }
