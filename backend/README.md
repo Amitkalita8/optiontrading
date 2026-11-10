@@ -53,6 +53,18 @@ Build a binary: `go build -o bin/server ./cmd/server`. Tests: `go test ./...`.
 | `GROQ_API_KEY` | — | Groq key for the AI screener. Put it in `backend/.env` (git-ignored; see `.env.example`) |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq chat model the screener uses |
 | `SMTP_HOST`, `SMTP_PORT` (587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | — | Email for password-reset codes. Without `SMTP_HOST` the code is printed in the backend log (development only) |
+| `SESSION_SECRET` | random | Signs sign-in sessions. Set a long random value in production; without it everyone is signed out when the server restarts |
+| `GOOGLE_CLIENT_ID` | — | Google OAuth client ID (same as the frontend's `REACT_APP_GOOGLE_CLIENT_ID`). Needed for Google sign-in: the backend checks Google tokens were issued to it |
+| `DB_ADMIN_PASSWORD` | — | Password for the `/phpmyadmin` viewer (user `root`). Without it the viewer uses the local default password, and in production it is turned off |
+| `SEED_DEMO_USERS` | `true` | Add the demo accounts (known passwords) to an empty users table. Always off in production |
+| `RENDER` / `APP_ENV=production` | — | Production mode (Render sets `RENDER` itself) |
+
+### Sign-in
+
+Login, sign-up and `POST /api/auth/google` return `{user, token}`. The frontend sends the token as
+`Authorization: Bearer <token>` and the backend reads the user from it (an HMAC-signed email + expiry, 30 days).
+Requests without a token use the shared `default` demo user; an expired or invalid token gets `401 session_expired`.
+Passwords are stored with bcrypt; older SHA-256 hashes still work and are upgraded at the next login.
 
 Variables can also be set in `backend/.env` (read at startup; real environment variables win).
 

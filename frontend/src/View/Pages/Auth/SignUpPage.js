@@ -41,7 +41,12 @@ function SignUpPage() {
 
   const google = async (profile) => {
     setBusy(true);
-    await logInWithGoogleProfile(profile);
+    try {
+      await logInWithGoogleProfile(profile);
+    } catch (err) {
+      setBusy(false);
+      throw err; // the Google button shows the message
+    }
     navigate(NEXT, { replace: true });
   };
 

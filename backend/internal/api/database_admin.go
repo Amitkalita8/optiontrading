@@ -4,6 +4,7 @@ import (
 	"optiontrading/backend/internal/store"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
@@ -15,11 +16,29 @@ import (
 )
 
 const (
-	adminUser     = "root"
-	adminPassword = "Ak123456."
-	cookieName    = "pma_session"
-	sessionSecret = "optiontrading-pma-secret-key-2026"
+	adminUser = "root"
+	// localAdminPassword is used on a developer machine when DB_ADMIN_PASSWORD
+	// is not set. In production the viewer is off unless DB_ADMIN_PASSWORD is set.
+	localAdminPassword = "Ak123456."
+	cookieName         = "pma_session"
 )
+
+// adminPassword is the viewer password, or "" when the viewer is disabled.
+func (a *API) adminPassword() string {
+	if a.cfg.DBAdminPassword != "" {
+		return a.cfg.DBAdminPassword
+	}
+	if a.cfg.Production {
+		return ""
+	}
+	return localAdminPassword
+}
+
+// localAdmin is true when the built-in local password is in use, so the login
+// page may show and prefill it.
+func (a *API) localAdmin() bool {
+	return a.cfg.DBAdminPassword == "" && !a.cfg.Production
+}
 
 func (a *API) databaseAdminRoutes(mux *http.ServeMux) {
 	adminHandler := http.HandlerFunc(a.handleDatabaseAdmin)
@@ -34,17 +53,21 @@ func (a *API) checkAdminAuth(r *http.Request) bool {
 	if err != nil || cookie.Value == "" {
 		return false
 	}
-	expected := generateAdminToken()
+	expected := a.generateAdminToken()
 	return hmac.Equal([]byte(cookie.Value), []byte(expected))
 }
 
-func generateAdminToken() string {
-	mac := hmac.New(sha256.New, []byte(sessionSecret))
-	mac.Write([]byte(adminUser + ":" + adminPassword))
+func (a *API) generateAdminToken() string {
+	mac := hmac.New(sha256.New, a.sessionKey())
+	mac.Write([]byte("pma:" + adminUser + ":" + a.adminPassword()))
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
 func (a *API) handleDatabaseAdmin(w http.ResponseWriter, r *http.Request) {
+	if a.adminPassword() == "" {
+		http.NotFound(w, r)
+		return
+	}
 	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -67,13 +90,14 @@ func (a *API) handleDatabaseAdmin(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost && (route == "/login" || r.FormValue("pma_action") == "login") {
 		user := strings.TrimSpace(r.FormValue("pma_username"))
 		pass := r.FormValue("pma_password")
-		if user == adminUser && pass == adminPassword {
-			token := generateAdminToken()
+		if user == adminUser && subtle.ConstantTimeCompare([]byte(pass), []byte(a.adminPassword())) == 1 {
+			token := a.generateAdminToken()
 			http.SetCookie(w, &http.Cookie{
 				Name:     cookieName,
 				Value:    token,
 				Path:     "/",
 				HttpOnly: true,
+				Secure:   r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https",
 				SameSite: http.SameSiteLaxMode,
 				MaxAge:   86400 * 7, // 7 days
 			})
@@ -278,10 +302,7 @@ func (a *API) renderLoginView(w http.ResponseWriter, r *http.Request, errorMsg s
 		</div>
 		<div class="login-body">
 			%s
-			<div class="hint-box">
-				<strong>Credentials:</strong><br/>
-				User: <code>root</code> &nbsp;|&nbsp; Password: <code>Ak123456.</code>
-			</div>
+			` + a.adminHint() + `
 			<form method="POST" action="/phpmyadmin">
 				<input type="hidden" name="pma_action" value="login">
 				<div class="form-group">
@@ -296,7 +317,7 @@ func (a *API) renderLoginView(w http.ResponseWriter, r *http.Request, errorMsg s
 				</div>
 				<div class="form-group">
 					<label for="pma_password">Password</label>
-					<input type="password" id="pma_password" name="pma_password" value="Ak123456." required autocomplete="current-password">
+					<input type="password" id="pma_password" name="pma_password" value="` + a.adminPrefill() + `" required autocomplete="current-password">
 				</div>
 				<button type="submit" class="btn-submit">
 					<span>Log in</span>
@@ -1597,4 +1618,22 @@ func (a *API) handleExport(w http.ResponseWriter, r *http.Request, table string)
 	}
 
 	fmt.Fprintf(w, "COMMIT;\n")
+}
+
+// adminHint shows the local credentials on a developer machine only.
+func (a *API) adminHint() string {
+	if !a.localAdmin() {
+		return ""
+	}
+	return `<div class="hint-box">
+				<strong>Credentials:</strong><br/>
+				User: <code>root</code> &nbsp;|&nbsp; Password: <code>` + html.EscapeString(localAdminPassword) + `</code>
+			</div>`
+}
+
+func (a *API) adminPrefill() string {
+	if !a.localAdmin() {
+		return ""
+	}
+	return html.EscapeString(localAdminPassword)
 }

@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { GOOGLE_CLIENT_ID } from '../config';
 import * as authService from '../Service/authService';
+import { SESSION_EXPIRED_EVENT } from '../../../../Utils/api';
 
 const AuthContext = createContext(null);
 
@@ -12,9 +13,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(authService.loadSession);
   const navigate = useNavigate();
 
+  // The backend rejected the session (expired): back to signed out.
   useEffect(() => {
-    authService.syncLocalAccountsToBackend();
-  }, []);
+    const onExpired = () => {
+      setUser(null);
+      navigate('/signin');
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, [navigate]);
 
   // Sign-in / sign-up are pages now (/signin, /signup).
   const openAuth = useCallback((mode = 'login') => navigate(mode === 'signup' ? '/signup' : '/signin'), [navigate]);

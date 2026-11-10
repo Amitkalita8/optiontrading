@@ -56,7 +56,7 @@ func (a *API) handleChangePassword(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "This account signs in with Google, so it has no password to change.")
 		return
 	}
-	if u.PasswordHash != "" && users.HashPassword(in.CurrentPassword) != u.PasswordHash {
+	if ok, _ := users.CheckPassword(u.PasswordHash, in.CurrentPassword); users.HasPassword(u.PasswordHash) && !ok {
 		writeJSON(w, http.StatusUnprocessableEntity, map[string]any{
 			"error": "Current password is incorrect.", "fields": map[string]string{"currentPassword": "Current password is incorrect."},
 		})

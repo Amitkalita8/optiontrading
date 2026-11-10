@@ -34,9 +34,24 @@ type Config struct {
 	SMTPHost, SMTPPort, SMTPUser, SMTPPass, SMTPFrom string
 	// APIToken protects the API endpoints when non-empty (env API_TOKEN).
 	APIToken string
+	// SessionSecret signs sign-in tokens (env SESSION_SECRET). When empty a
+	// random secret is used, so everyone is signed out when the server restarts.
+	SessionSecret string
+	// GoogleClientID is the OAuth client the frontend uses (env GOOGLE_CLIENT_ID);
+	// Google tokens issued to any other client are rejected.
+	GoogleClientID string
+	// SeedDemoUsers adds the demo accounts (known passwords) to an empty users
+	// table (env SEED_DEMO_USERS=false to disable; always off in production).
+	SeedDemoUsers bool
+	// DBAdminPassword is the /phpmyadmin password (env DB_ADMIN_PASSWORD). When
+	// empty, the viewer uses the local default, or is disabled in production.
+	DBAdminPassword string
+	// Production is true on Render (env RENDER) or with APP_ENV=production.
+	Production bool
 }
 
 func Load() Config {
+	production := env("RENDER", "") != "" || env("APP_ENV", "") == "production"
 	return Config{
 		Addr:                 ":" + env("PORT", "8085"),
 		AllowedOrigins:       splitList(env("ALLOWED_ORIGINS", "http://localhost:3000")),
@@ -54,6 +69,11 @@ func Load() Config {
 		SMTPPass:             env("SMTP_PASS", ""),
 		SMTPFrom:             env("SMTP_FROM", ""),
 		APIToken:             env("API_TOKEN", ""),
+		SessionSecret:        env("SESSION_SECRET", ""),
+		GoogleClientID:       env("GOOGLE_CLIENT_ID", ""),
+		DBAdminPassword:      env("DB_ADMIN_PASSWORD", ""),
+		Production:           production,
+		SeedDemoUsers:        env("SEED_DEMO_USERS", "true") != "false" && !production,
 	}
 }
 

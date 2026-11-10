@@ -46,6 +46,8 @@ func newTestServer(t *testing.T) *httptest.Server {
 		AllowedOrigins:       []string{"http://localhost:3000"},
 		StreamIntervalOpen:   50 * time.Millisecond,
 		StreamIntervalClosed: 50 * time.Millisecond,
+		SessionSecret:        testSessionSecret,
+		GoogleClientID:       testGoogleClient,
 	}
 	db := store.OpenTest(t) // SQLite, or Postgres with TEST_DATABASE_URL
 	qs := quotes.NewService(fakeFetcher{}, time.Second)
@@ -209,9 +211,9 @@ func TestAuthRegisterAndLogin(t *testing.T) {
 	if resDup.StatusCode != http.StatusConflict {
 		t.Fatalf("expected 409 for a duplicate sign-up, got %d", resDup.StatusCode)
 	}
-	// Password-less sync (Google / client) stays idempotent.
-	if got := doJSON(t, "POST", srv.URL+"/api/auth/register", "", `{"name":"Tester","email":"test@example.com"}`); got != http.StatusOK {
-		t.Fatalf("expected 200 for password-less sync, got %d", got)
+	// Registering needs a password: a password-less call can't claim an email.
+	if got := doJSON(t, "POST", srv.URL+"/api/auth/register", "", `{"name":"Tester","email":"other@example.com"}`); got != http.StatusBadRequest {
+		t.Fatalf("expected 400 for password-less register, got %d", got)
 	}
 
 	// Test login
@@ -225,13 +227,13 @@ func TestAuthRegisterAndLogin(t *testing.T) {
 		t.Fatalf("expected 200 OK, got %d", resLog.StatusCode)
 	}
 
-	// Test list users
+	// The list of every user is not public.
 	resList, err := http.Get(srv.URL + "/api/users")
 	if err != nil {
 		t.Fatalf("list users failed: %v", err)
 	}
 	defer resList.Body.Close()
-	if resList.StatusCode != http.StatusOK {
-		t.Fatalf("expected 200 OK, got %d", resList.StatusCode)
+	if resList.StatusCode == http.StatusOK {
+		t.Fatalf("GET /api/users must not list users, got %d", resList.StatusCode)
 	}
 }

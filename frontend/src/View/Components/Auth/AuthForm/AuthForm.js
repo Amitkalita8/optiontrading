@@ -96,15 +96,12 @@ function GoogleButton({ label, onProfile, onError }) {
   const login = useGoogleLogin({
     flow: 'implicit',
     scope: 'openid email profile',
-    onSuccess: async ({ access_token: token }) => {
+    // The backend verifies the token with Google and signs the user in.
+    onSuccess: async ({ access_token: accessToken }) => {
       try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } });
-        if (!res.ok) throw new Error('profile');
-        const { name, email, picture, email_verified: verified } = await res.json();
-        if (!email || verified === false) throw new Error('unverified');
-        await onProfile({ name: name || email, email, picture });
-      } catch {
-        onError('Google sign-in failed. Please try again.');
+        await onProfile({ accessToken });
+      } catch (err) {
+        onError(err?.message || 'Google sign-in failed. Please try again.');
       }
     },
     onError: () => onError('Google sign-in was cancelled or failed.'),

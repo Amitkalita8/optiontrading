@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/subtle"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -64,7 +65,7 @@ func cors(allowed []string) middleware {
 				h := w.Header()
 				h.Set("Access-Control-Allow-Origin", origin)
 				h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-				h.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Id")
+				h.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 				h.Add("Vary", "Origin")
 			}
 			if r.Method == http.MethodOptions {
@@ -76,8 +77,9 @@ func cors(allowed []string) middleware {
 	}
 }
 
-// tokenAuth requires requests to bear an Authorization header when expectedToken is configured.
-func tokenAuth(expectedToken string) middleware {
+// tokenAuth requires requests to bear an Authorization header when expectedToken
+// is configured: either that token or a signed-in user's session token.
+func tokenAuth(expectedToken string, session func(string) (string, bool)) middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if expectedToken == "" {
@@ -93,9 +95,8 @@ func tokenAuth(expectedToken string) middleware {
 				next.ServeHTTP(w, r)
 				return
 			}
-			authHeader := r.Header.Get("Authorization")
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-			if authHeader == "" || token != expectedToken {
+			token := bearer(r.Header.Get("Authorization"))
+			if _, signedIn := session(token); !signedIn && (token == "" || subtle.ConstantTimeCompare([]byte(token), []byte(expectedToken)) != 1) {
 				writeError(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}

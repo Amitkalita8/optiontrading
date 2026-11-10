@@ -12,7 +12,7 @@ func call(t *testing.T, method, url, user, body string) (int, map[string]any) {
 	t.Helper()
 	req, _ := http.NewRequest(method, url, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-User-Id", user)
+	signIn(req, user)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)

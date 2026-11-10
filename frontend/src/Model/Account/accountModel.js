@@ -1,6 +1,6 @@
 import { getJSON, postJSON } from '../../Utils/api';
 
-// Signed-in account details from the backend (identified by X-User-Id).
+// Signed-in account details from the backend (identified by the session token).
 export async function fetchAccount() {
   const { user } = await getJSON('/api/auth/me');
   return user;

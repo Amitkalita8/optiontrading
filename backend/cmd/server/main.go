@@ -82,8 +82,10 @@ func main() {
 		if err := notificationRepo.SeedDemo(ctx); err != nil {
 			log.Fatalf("seed demo notifications: %v", err)
 		}
-		if err := userRepo.SeedDemo(ctx); err != nil {
-			log.Fatalf("seed demo users: %v", err)
+		if cfg.SeedDemoUsers {
+			if err := userRepo.SeedDemo(ctx); err != nil {
+				log.Fatalf("seed demo users: %v", err)
+			}
 		}
 	}
 

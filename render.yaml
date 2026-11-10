@@ -1,0 +1,65 @@
+# Render Blueprint: creates the database, the Go backend and the React
+# frontend in one go (Render dashboard › New › Blueprint › pick this repo).
+#
+# The frontend forwards /api/* to the backend (the rewrite below), so the
+# browser only ever talks to one address.
+#
+# If Render gives the backend a different URL than
+# https://optiontrading-api.onrender.com (the name was taken), update the
+# /api/* rewrite destination below to match.
+
+databases:
+  - name: optiontrading-db
+    databaseName: optiontrading
+    user: optiontrading
+    plan: free
+    region: singapore
+
+services:
+  # Go backend (backend/). Uses PostgreSQL through DATABASE_URL.
+  - type: web
+    name: optiontrading-api
+    runtime: go
+    rootDir: backend
+    plan: free
+    region: singapore
+    buildCommand: go build -o bin/server ./cmd/server
+    startCommand: ./bin/server
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: optiontrading-db
+          property: connectionString
+      # Signs sign-in sessions; Render generates a random value once.
+      - key: SESSION_SECRET
+        generateValue: true
+      # Asked for when the Blueprint is created (never stored in git).
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://optiontrading.onrender.com
+      # Optional, add in the dashboard when needed:
+      #   DB_ADMIN_PASSWORD  turns on the /phpmyadmin viewer (off without it)
+      #   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM  password-reset emails
+
+  # React frontend (frontend/). The Google client ID comes from frontend/.env.
+  - type: web
+    name: optiontrading
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: build
+    envVars:
+      # Existing lint warnings would otherwise fail the build on Render.
+      - key: CI
+        value: "false"
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://optiontrading-api.onrender.com/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html

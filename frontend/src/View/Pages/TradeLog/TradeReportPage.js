@@ -4,6 +4,7 @@ import Card from '../../Components/Common/Card/Card';
 import TickerLogo from '../../Components/Common/TickerLogo/TickerLogo';
 import { tradeHistory, getTradeLogEntry } from '../../../Data/tradeLogData';
 import { fetchTradeReport } from '../../../Model/TradeLog/tradelogModel';
+import { API_BASE, authHeaders } from '../../../Utils/api';
 import '../../Components/Common/Button/Button.css';
 import './TradeReportPage.css';
 
@@ -93,7 +94,7 @@ function TradeReportPage() {
 
     try {
       // First attempt download via backend API
-      const resp = await fetch(`/api/trade-reports/${trade.id}/download`);
+      const resp = await fetch(`${API_BASE}/api/trade-reports/${trade.id}/download`, { headers: authHeaders() });
       if (resp.ok) {
         const blob = await resp.blob();
         const url = URL.createObjectURL(blob);

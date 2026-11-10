@@ -113,15 +113,14 @@ func (a *API) Routes() http.Handler {
 	a.passwordResetRoutes(mux)
 	mux.HandleFunc("POST /api/screener/ask", a.askScreener)
 	a.databaseAdminRoutes(mux)
-	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken))
+	return chain(mux, recoverer, logger, cors(a.cfg.AllowedOrigins), tokenAuth(a.cfg.APIToken, a.sessionEmail), a.rejectBadSessions)
 }
 
+// userID is the signed-in user's email, from the session token. Requests
+// without a valid token use the shared "default" demo user.
 func (a *API) userID(r *http.Request) string {
-	if uid := strings.TrimSpace(r.Header.Get("X-User-Id")); uid != "" {
-		return uid
-	}
-	if uid := strings.TrimSpace(r.URL.Query().Get("user_id")); uid != "" {
-		return uid
+	if email, ok := a.sessionEmail(bearer(r.Header.Get("Authorization"))); ok {
+		return email
 	}
 	return "default"
 }

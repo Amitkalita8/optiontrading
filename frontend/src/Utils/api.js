@@ -13,32 +13,52 @@ export class ApiError extends Error {
   }
 }
 
-function getActiveUserId() {
-  try {
-    const raw = localStorage.getItem('kushmanda.session');
-    if (raw) {
-      const u = JSON.parse(raw);
-      if (u?.email) return u.email;
-      if (u?.id) return String(u.id);
-    }
-  } catch (e) {}
-  return 'default';
+const SESSION_KEY = 'kushmanda.session';
+
+// The signed-in user's session token, issued by the backend at sign-in. It is
+// in localStorage ("remember me") or sessionStorage (this tab only).
+function sessionToken() {
+  for (const store of [() => localStorage, () => sessionStorage]) {
+    try {
+      const raw = store().getItem(SESSION_KEY);
+      if (raw) return JSON.parse(raw)?.token || '';
+    } catch (e) {}
+  }
+  return '';
+}
+
+// Headers that identify the signed-in user, for calls that don't use request().
+export function authHeaders() {
+  const token = sessionToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// The backend rejected the token (expired or invalid): drop the session and
+// tell the app (AuthContext listens) so it shows the sign-in page.
+export const SESSION_EXPIRED_EVENT = 'kushmanda:session-expired';
+function endSession() {
+  for (const store of [() => localStorage, () => sessionStorage]) {
+    try {
+      store().removeItem(SESSION_KEY);
+    } catch (e) {}
+  }
+  window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 }
 
 async function request(method, path, { body, signal } = {}) {
-  const userId = getActiveUserId();
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     signal,
     headers: {
       Accept: 'application/json',
-      'X-User-Id': userId,
+      ...authHeaders(),
       ...(body !== undefined && { 'Content-Type': 'application/json' }),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (res.status === 204) return null;
   const data = await res.json().catch(() => null);
+  if (res.status === 401 && data?.code === 'session_expired') endSession();
   if (!res.ok) throw new ApiError(data?.error || `Request failed (${res.status})`, res.status, data?.fields);
   // e.g. an HTML page from a static server that has no backend behind it
   if (data === null) throw new ApiError('The server did not return JSON. Is the backend running?', res.status);

@@ -2,6 +2,7 @@ package api
 
 import (
 	"regexp"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -30,6 +31,18 @@ func (m *captureMailer) lastCode(t *testing.T, email string) string {
 	}
 	t.Fatalf("no code sent to %s", email)
 	return ""
+}
+
+// has reports whether any mail was sent to email.
+func (m *captureMailer) has(email string) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, s := range m.sent {
+		if strings.HasPrefix(s, email+"|") {
+			return true
+		}
+	}
+	return false
 }
 
 var outbox = &captureMailer{}
